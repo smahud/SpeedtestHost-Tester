@@ -1,0 +1,281 @@
+Loaded config file: /home/z/my-project/ooklaserver/OoklaServer.properties
+2026-11-02 20:18:21 [6123 - 0] [Information] OoklaServer version 2.11 (2.11.5.2) build number 2026-06-04.1737.7d0993d
+2026-11-02 20:18:21 [6123 - 0] [Information] OoklaServer instance ID ab22d808-f928-493b-9dad-f787906645f9
+Loaded config file: /home/z/my-project/ooklaserver/OoklaServer.properties
+2026-11-02 20:18:21 [6130 - 0] [Information] OoklaServer version 2.11 (2.11.5.2) build number 2026-06-04.1737.7d0993d
+2026-11-02 20:18:21 [6130 - 0] [Information] OoklaServer instance ID ab22d808-f928-493b-9dad-f787906645f9
+2026-11-02 20:18:21 [6130 - 0] [Information] Generating 2097152 bytes of download data
+2026-11-02 20:18:21 [6130 - 0] [Information] Listening on TCP socket: 0.0.0.0:8080
+2026-11-02 20:18:21 [6130 - 0] [Information] Listening on TCP socket: [::]:8080
+2026-11-02 20:18:21 [6130 - 1] [Information] Listening on UDP socket: 0.0.0.0:8080
+2026-11-02 20:18:21 [6130 - 2] [Information] Listening on UDP socket: [::]:8080
+2026-11-02 20:18:21 [6130 - 0] [Information] TCP port: 8080 - current: 0, queued: 0, blocked: 0, queueFull: 0, concurrent: 0, currentThreads: 0
+TCP port: 8080 - current: 0, queued: 0, blocked: 0, queueFull: 0, concurrent: 0, currentThreads: 0
+2026-11-02 20:18:21 [6130 - 0] [Information] Server updates were disabled.
+2026-11-02 20:18:21 [6130 - 43] [Information] Initializing TLS context with provided certificate '/home/z/my-project/ooklaserver//cert.pem'
+2026-11-02 20:18:21 [6130 - 43] [Information] Successfully loaded certificate chain with 0 intermediate certificate(s)
+2026-11-02 20:18:21 [6130 - 43] [Information] Initializing TLS context with provided key '/home/z/my-project/ooklaserver//key.pem'
+2026-11-02 20:18:21 [6130 - 44] [Information] CA bundle is empty; skipping
+2026-11-02 20:18:21 [6130 - 43] [Information] Server is configured to require minimum TLS version of 1.2
+2026-11-02 20:18:21 [6130 - 43] [Information] CA bundle is empty; skipping
+2026-11-02 20:18:21 [6130 - 43] [Information] TLS context initialized using user-defined certificate <62:d5:90:43:8a:57:35:47:1c:a8:9c:89:e1:30:7d:a1:b3:55:ff:83>
+2026-11-02 20:18:23 [6130 - 45] [Information] TCP uptime: 2 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 1, currentThreads: 1
+2026-11-02 20:18:23 [6130 - 45] [Information] TCP uptime: 2 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 1, currentThreads: 2
+2026-11-02 20:18:23 [6130 - 45] [Information] Disconnect NetException: Connection reset by peer
+2026-11-02 20:18:23 [6130 - 47] [Information] TCP uptime: 2 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 1, currentThreads: 3
+2026-11-02 20:18:23 [6130 - 46] [Information] TCP uptime: 2 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 2, currentThreads: 3
+2026-11-02 20:18:23 [6130 - 49] [Information] TCP uptime: 2 - total current: 4, queued: 0, blocked: 0, queueFull: 0, concurrent: 4, currentThreads: 7
+2026-11-02 20:18:23 [6130 - 51] [Information] TCP uptime: 2 - total current: 4, queued: 0, blocked: 0, queueFull: 0, concurrent: 4, currentThreads: 7
+2026-11-02 20:18:23 [6130 - 45] [Information] TCP uptime: 2 - total current: 5, queued: 0, blocked: 0, queueFull: 0, concurrent: 5, currentThreads: 7
+2026-11-02 20:18:23 [6130 - 48] [Information] TCP uptime: 2 - total current: 6, queued: 0, blocked: 0, queueFull: 0, concurrent: 6, currentThreads: 7
+2026-11-02 20:18:34 [6130 - 51] [Information] Disconnect NetException: Connection reset by peer
+2026-11-02 20:18:34 [6130 - 47] [Information] Disconnect NetException: Connection reset by peer
+2026-11-02 20:18:34 [6130 - 49] [Information] Disconnect NetException: Connection reset by peer
+2026-11-02 20:18:34 [6130 - 48] [Information] Disconnect NetException: Connection reset by peer
+2026-11-02 20:18:35 [6130 - 47] [Information] TCP uptime: 14 - total current: 3, queued: 1, blocked: 0, queueFull: 0, concurrent: 6, currentThreads: 4
+2026-11-02 20:18:35 [6130 - 49] [Information] TCP uptime: 14 - total current: 4, queued: 0, blocked: 0, queueFull: 0, concurrent: 6, currentThreads: 5
+2026-11-02 20:18:35 [6130 - 50] [Information] TCP uptime: 14 - total current: 5, queued: 0, blocked: 0, queueFull: 0, concurrent: 6, currentThreads: 6
+2026-11-02 20:18:35 [6130 - 48] [Information] TCP uptime: 14 - total current: 6, queued: 0, blocked: 0, queueFull: 0, concurrent: 6, currentThreads: 6
+2026-11-02 20:18:35 [6130 - 51] [Information] TCP uptime: 14 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 7, currentThreads: 7
+2026-11-02 20:18:35 [6130 - 53] [Information] TCP uptime: 14 - total current: 8, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 8
+2026-11-02 20:18:36 [6130 - 46] [Information] Disconnect NetException: Connection reset by peer
+2026-11-02 20:18:37 [6130 - 45] [Information] Disconnect NetException: Connection reset by peer
+2026-11-02 20:18:46 [6130 - 47] [Error] Connection reset by peer
+2026-11-02 20:18:46 [6130 - 47] [Information] Disconnect NetException: Net Exception: Socket is not connected
+2026-11-02 20:18:46 [6130 - 53] [Error] Connection reset by peer
+2026-11-02 20:18:46 [6130 - 53] [Information] Disconnect NetException: Net Exception: Socket is not connected
+2026-11-02 20:18:46 [6130 - 51] [Information] Disconnect NetException: Connection reset by peer
+2026-11-02 20:18:46 [6130 - 50] [Error] Connection reset by peer
+2026-11-02 20:18:46 [6130 - 50] [Information] Disconnect NetException: Net Exception: Socket is not connected
+2026-11-02 20:18:46 [6130 - 48] [Information] Disconnect NetException: Connection reset by peer
+2026-11-02 20:18:47 [6130 - 49] [Information] Disconnect NetException: Connection reset by peer
+2026-11-02 20:19:06 [6130 - 49] [Information] TCP uptime: 44 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 2
+2026-11-02 20:19:06 [6130 - 45] [Information] TCP uptime: 44 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 2
+2026-11-02 20:19:06 [6130 - 46] [Information] TCP uptime: 44 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 2
+2026-11-02 20:19:06 [6130 - 45] [Information] TCP uptime: 44 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:19:06 [6130 - 47] [Information] TCP uptime: 44 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:19:06 [6130 - 45] [Information] TCP uptime: 44 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 4
+2026-11-02 20:19:06 [6130 - 48] [Information] TCP uptime: 44 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:19:06 [6130 - 45] [Information] TCP uptime: 44 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:19:06 [6130 - 46] [Information] TCP uptime: 44 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:19:06 [6130 - 45] [Information] TCP uptime: 44 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:19:06 [6130 - 46] [Information] TCP uptime: 44 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:19:06 [6130 - 45] [Information] TCP uptime: 44 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:19:06 [6130 - 46] [Information] TCP uptime: 44 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:19:06 [6130 - 45] [Information] TCP uptime: 44 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:19:06 [6130 - 46] [Information] TCP uptime: 44 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:19:06 [6130 - 48] [Information] TCP uptime: 44 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:19:06 [6130 - 46] [Information] TCP uptime: 44 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:19:06 [6130 - 48] [Information] TCP uptime: 44 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:19:06 [6130 - 46] [Information] TCP uptime: 45 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 7
+2026-11-02 20:19:06 [6130 - 50] [Information] TCP uptime: 45 - total current: 4, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 7
+2026-11-02 20:19:06 [6130 - 49] [Information] TCP uptime: 45 - total current: 5, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 7
+2026-11-02 20:19:06 [6130 - 51] [Information] TCP uptime: 45 - total current: 6, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 7
+2026-11-02 20:19:07 [6130 - 52] [Information] TCP uptime: 45 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 8
+2026-11-02 20:20:10 [6130 - 48] [Information] TCP uptime: 108 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 2
+2026-11-02 20:20:10 [6130 - 46] [Information] TCP uptime: 108 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 2
+2026-11-02 20:20:10 [6130 - 48] [Information] TCP uptime: 108 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:20:10 [6130 - 49] [Information] TCP uptime: 108 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:20:10 [6130 - 48] [Information] TCP uptime: 108 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 4
+2026-11-02 20:20:10 [6130 - 50] [Information] TCP uptime: 108 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:20:10 [6130 - 46] [Information] TCP uptime: 108 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:20:10 [6130 - 48] [Information] TCP uptime: 108 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:20:10 [6130 - 46] [Information] TCP uptime: 108 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:20:10 [6130 - 48] [Information] TCP uptime: 108 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:20:10 [6130 - 46] [Information] TCP uptime: 108 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:20:10 [6130 - 48] [Information] TCP uptime: 108 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:20:10 [6130 - 46] [Information] TCP uptime: 108 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:20:10 [6130 - 48] [Information] TCP uptime: 108 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:20:10 [6130 - 46] [Information] TCP uptime: 108 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:20:10 [6130 - 48] [Information] TCP uptime: 108 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:20:10 [6130 - 46] [Information] TCP uptime: 108 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:20:11 [6130 - 48] [Information] TCP uptime: 109 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 7
+2026-11-02 20:20:11 [6130 - 51] [Information] TCP uptime: 109 - total current: 5, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 7
+2026-11-02 20:20:11 [6130 - 52] [Information] TCP uptime: 109 - total current: 4, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 7
+2026-11-02 20:20:11 [6130 - 50] [Information] TCP uptime: 109 - total current: 6, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 7
+2026-11-02 20:20:11 [6130 - 53] [Information] TCP uptime: 109 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 8
+2026-11-02 20:20:16 [6130 - 45] [Information] TCP uptime: 114 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 2
+2026-11-02 20:20:16 [6130 - 46] [Information] TCP uptime: 114 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 2
+2026-11-02 20:21:11 [6130 - 48] [Information] TCP uptime: 170 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 2
+2026-11-02 20:21:11 [6130 - 46] [Information] TCP uptime: 170 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 2
+2026-11-02 20:23:00 [6130 - 48] [Information] TCP uptime: 278 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 2
+2026-11-02 20:23:00 [6130 - 46] [Information] TCP uptime: 278 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 2
+2026-11-02 20:23:00 [6130 - 48] [Information] TCP uptime: 278 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:23:00 [6130 - 49] [Information] TCP uptime: 278 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:23:00 [6130 - 48] [Information] TCP uptime: 278 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 4
+2026-11-02 20:23:00 [6130 - 50] [Information] TCP uptime: 278 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:23:00 [6130 - 46] [Information] TCP uptime: 278 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:23:00 [6130 - 48] [Information] TCP uptime: 278 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:23:00 [6130 - 46] [Information] TCP uptime: 278 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:23:00 [6130 - 48] [Information] TCP uptime: 278 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:23:00 [6130 - 46] [Information] TCP uptime: 278 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:23:00 [6130 - 48] [Information] TCP uptime: 278 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:23:00 [6130 - 46] [Information] TCP uptime: 278 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:23:00 [6130 - 48] [Information] TCP uptime: 278 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:23:00 [6130 - 46] [Information] TCP uptime: 278 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:23:00 [6130 - 50] [Information] TCP uptime: 278 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:23:00 [6130 - 48] [Information] TCP uptime: 278 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 3
+2026-11-02 20:23:01 [6130 - 46] [Information] TCP uptime: 279 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 7
+2026-11-02 20:23:01 [6130 - 52] [Information] TCP uptime: 279 - total current: 4, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 7
+2026-11-02 20:23:01 [6130 - 50] [Information] TCP uptime: 279 - total current: 5, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 7
+2026-11-02 20:23:01 [6130 - 51] [Information] TCP uptime: 279 - total current: 6, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 7
+2026-11-02 20:23:01 [6130 - 53] [Information] TCP uptime: 279 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 8
+2026-11-02 20:23:06 [6130 - 45] [Information] TCP uptime: 284 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 8
+2026-11-02 20:23:35 [6130 - 49] [Information] TCP uptime: 313 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 2
+2026-11-02 20:23:35 [6130 - 48] [Information] TCP uptime: 313 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 9, currentThreads: 2
+2026-11-02 20:23:35 [6130 - 49] [Information] TCP uptime: 313 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 10, currentThreads: 3
+2026-11-02 20:23:35 [6130 - 49] [Information] TCP uptime: 313 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 10, currentThreads: 3
+2026-11-02 20:23:35 [6130 - 50] [Information] TCP uptime: 313 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 11, currentThreads: 4
+2026-11-02 20:23:35 [6130 - 48] [Information] TCP uptime: 313 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 11, currentThreads: 3
+2026-11-02 20:23:35 [6130 - 48] [Information] TCP uptime: 313 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 11, currentThreads: 3
+2026-11-02 20:23:35 [6130 - 48] [Information] TCP uptime: 313 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 11, currentThreads: 3
+2026-11-02 20:23:35 [6130 - 48] [Information] TCP uptime: 313 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 11, currentThreads: 3
+2026-11-02 20:23:35 [6130 - 48] [Information] TCP uptime: 313 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 11, currentThreads: 3
+2026-11-02 20:23:35 [6130 - 48] [Information] TCP uptime: 313 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 11, currentThreads: 3
+2026-11-02 20:23:35 [6130 - 48] [Information] TCP uptime: 313 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 11, currentThreads: 3
+2026-11-02 20:23:35 [6130 - 48] [Information] TCP uptime: 313 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 11, currentThreads: 3
+2026-11-02 20:23:35 [6130 - 48] [Information] TCP uptime: 313 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 11, currentThreads: 3
+2026-11-02 20:23:35 [6130 - 50] [Information] TCP uptime: 313 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 11, currentThreads: 3
+2026-11-02 20:23:35 [6130 - 48] [Information] TCP uptime: 313 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 11, currentThreads: 3
+2026-11-02 20:23:35 [6130 - 48] [Information] TCP uptime: 314 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 11, currentThreads: 3
+2026-11-02 20:23:35 [6130 - 51] [Information] TCP uptime: 314 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 11, currentThreads: 7
+2026-11-02 20:23:35 [6130 - 50] [Information] TCP uptime: 314 - total current: 4, queued: 0, blocked: 0, queueFull: 0, concurrent: 12, currentThreads: 7
+2026-11-02 20:23:35 [6130 - 52] [Information] TCP uptime: 314 - total current: 6, queued: 0, blocked: 0, queueFull: 0, concurrent: 14, currentThreads: 7
+2026-11-02 20:23:35 [6130 - 53] [Information] TCP uptime: 314 - total current: 5, queued: 0, blocked: 0, queueFull: 0, concurrent: 13, currentThreads: 7
+2026-11-02 20:23:36 [6130 - 45] [Information] TCP uptime: 314 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:23:40 [6130 - 46] [Information] TCP uptime: 318 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 3
+2026-11-02 20:23:40 [6130 - 48] [Information] TCP uptime: 318 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:40 [6130 - 50] [Information] TCP uptime: 318 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:40 [6130 - 48] [Information] TCP uptime: 318 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 5
+2026-11-02 20:23:40 [6130 - 51] [Information] TCP uptime: 318 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:40 [6130 - 48] [Information] TCP uptime: 318 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:40 [6130 - 51] [Information] TCP uptime: 318 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:40 [6130 - 48] [Information] TCP uptime: 318 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:40 [6130 - 51] [Information] TCP uptime: 318 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:40 [6130 - 48] [Information] TCP uptime: 318 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:40 [6130 - 51] [Information] TCP uptime: 318 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:40 [6130 - 48] [Information] TCP uptime: 318 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:40 [6130 - 51] [Information] TCP uptime: 318 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:40 [6130 - 48] [Information] TCP uptime: 318 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:40 [6130 - 51] [Information] TCP uptime: 318 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:40 [6130 - 48] [Information] TCP uptime: 319 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:40 [6130 - 51] [Information] TCP uptime: 319 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:23:40 [6130 - 53] [Information] TCP uptime: 319 - total current: 4, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:23:40 [6130 - 52] [Information] TCP uptime: 319 - total current: 5, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:23:40 [6130 - 45] [Information] TCP uptime: 319 - total current: 6, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:23:41 [6130 - 46] [Information] TCP uptime: 319 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 9
+2026-11-02 20:23:41 [6130 - 54] [Information] TCP uptime: 319 - total current: 8, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 10
+2026-11-02 20:23:45 [6130 - 55] [Information] TCP uptime: 323 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 3
+2026-11-02 20:23:45 [6130 - 51] [Information] TCP uptime: 323 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:45 [6130 - 52] [Information] TCP uptime: 323 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:45 [6130 - 51] [Information] TCP uptime: 323 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 5
+2026-11-02 20:23:45 [6130 - 53] [Information] TCP uptime: 323 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:45 [6130 - 51] [Information] TCP uptime: 323 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:45 [6130 - 53] [Information] TCP uptime: 323 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:45 [6130 - 51] [Information] TCP uptime: 323 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:45 [6130 - 53] [Information] TCP uptime: 323 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:45 [6130 - 51] [Information] TCP uptime: 323 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:45 [6130 - 53] [Information] TCP uptime: 323 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:45 [6130 - 51] [Information] TCP uptime: 323 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:45 [6130 - 53] [Information] TCP uptime: 323 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:45 [6130 - 51] [Information] TCP uptime: 323 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:45 [6130 - 53] [Information] TCP uptime: 323 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:45 [6130 - 51] [Information] TCP uptime: 324 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:45 [6130 - 53] [Information] TCP uptime: 324 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:23:45 [6130 - 46] [Information] TCP uptime: 324 - total current: 4, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:23:45 [6130 - 48] [Information] TCP uptime: 324 - total current: 5, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:23:45 [6130 - 45] [Information] TCP uptime: 324 - total current: 6, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:23:46 [6130 - 50] [Information] TCP uptime: 324 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 9
+2026-11-02 20:23:50 [6130 - 54] [Information] TCP uptime: 328 - total current: 8, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 10
+2026-11-02 20:23:50 [6130 - 55] [Information] TCP uptime: 329 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 3
+2026-11-02 20:23:50 [6130 - 51] [Information] TCP uptime: 329 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:50 [6130 - 52] [Information] TCP uptime: 329 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:50 [6130 - 51] [Information] TCP uptime: 329 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 5
+2026-11-02 20:23:50 [6130 - 53] [Information] TCP uptime: 329 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:50 [6130 - 45] [Information] TCP uptime: 329 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:50 [6130 - 53] [Information] TCP uptime: 329 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:50 [6130 - 45] [Information] TCP uptime: 329 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:50 [6130 - 53] [Information] TCP uptime: 329 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:50 [6130 - 45] [Information] TCP uptime: 329 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:50 [6130 - 53] [Information] TCP uptime: 329 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:50 [6130 - 45] [Information] TCP uptime: 329 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:50 [6130 - 53] [Information] TCP uptime: 329 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:50 [6130 - 45] [Information] TCP uptime: 329 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 5
+2026-11-02 20:23:50 [6130 - 46] [Information] TCP uptime: 329 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:50 [6130 - 53] [Information] TCP uptime: 329 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:23:51 [6130 - 45] [Information] TCP uptime: 329 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:23:51 [6130 - 50] [Information] TCP uptime: 329 - total current: 4, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:23:51 [6130 - 46] [Information] TCP uptime: 329 - total current: 5, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:23:51 [6130 - 48] [Information] TCP uptime: 329 - total current: 6, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:23:51 [6130 - 54] [Information] TCP uptime: 329 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 9
+2026-11-02 20:23:58 [6130 - 51] [Information] TCP uptime: 336 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 9
+2026-11-02 20:24:06 [6130 - 52] [Information] TCP uptime: 344 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 9
+2026-11-02 20:24:12 [6130 - 51] [Information] TCP uptime: 350 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 3
+2026-11-02 20:24:12 [6130 - 53] [Information] TCP uptime: 350 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:24:12 [6130 - 45] [Information] TCP uptime: 350 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:24:12 [6130 - 53] [Information] TCP uptime: 350 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 5
+2026-11-02 20:24:12 [6130 - 46] [Information] TCP uptime: 350 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:24:12 [6130 - 53] [Information] TCP uptime: 350 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:24:12 [6130 - 46] [Information] TCP uptime: 350 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:24:12 [6130 - 53] [Information] TCP uptime: 350 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:24:12 [6130 - 46] [Information] TCP uptime: 350 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:24:12 [6130 - 53] [Information] TCP uptime: 350 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:24:12 [6130 - 46] [Information] TCP uptime: 350 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:24:12 [6130 - 53] [Information] TCP uptime: 350 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:24:12 [6130 - 46] [Information] TCP uptime: 350 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:24:12 [6130 - 53] [Information] TCP uptime: 350 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:24:12 [6130 - 48] [Information] TCP uptime: 350 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:24:12 [6130 - 53] [Information] TCP uptime: 350 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:24:12 [6130 - 48] [Information] TCP uptime: 351 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:24:12 [6130 - 52] [Information] TCP uptime: 351 - total current: 4, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:24:12 [6130 - 50] [Information] TCP uptime: 351 - total current: 5, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:24:12 [6130 - 54] [Information] TCP uptime: 351 - total current: 6, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:24:13 [6130 - 51] [Information] TCP uptime: 351 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 10
+2026-11-02 20:24:13 [6130 - 55] [Information] TCP uptime: 351 - total current: 8, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 10
+2026-11-02 20:24:18 [6130 - 46] [Information] TCP uptime: 357 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 9
+2026-11-02 20:24:28 [6130 - 55] [Information] TCP uptime: 366 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 9
+2026-11-02 20:27:16 [6130 - 45] [Information] TCP uptime: 534 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 3
+2026-11-02 20:27:16 [6130 - 53] [Information] TCP uptime: 534 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 3
+2026-11-02 20:27:16 [6130 - 48] [Information] TCP uptime: 534 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:16 [6130 - 50] [Information] TCP uptime: 534 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:16 [6130 - 48] [Information] TCP uptime: 534 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 5
+2026-11-02 20:27:16 [6130 - 54] [Information] TCP uptime: 534 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:16 [6130 - 53] [Information] TCP uptime: 534 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:16 [6130 - 48] [Information] TCP uptime: 534 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:16 [6130 - 53] [Information] TCP uptime: 534 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:16 [6130 - 48] [Information] TCP uptime: 534 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:16 [6130 - 53] [Information] TCP uptime: 534 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:16 [6130 - 48] [Information] TCP uptime: 534 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:16 [6130 - 53] [Information] TCP uptime: 534 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:16 [6130 - 48] [Information] TCP uptime: 534 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:16 [6130 - 53] [Information] TCP uptime: 534 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:16 [6130 - 48] [Information] TCP uptime: 534 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:16 [6130 - 53] [Information] TCP uptime: 534 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:17 [6130 - 48] [Information] TCP uptime: 535 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:27:17 [6130 - 51] [Information] TCP uptime: 535 - total current: 4, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:27:17 [6130 - 52] [Information] TCP uptime: 535 - total current: 5, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:27:17 [6130 - 54] [Information] TCP uptime: 535 - total current: 6, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:27:17 [6130 - 45] [Information] TCP uptime: 535 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 9
+2026-11-02 20:27:20 [6130 - 56] [Information] TCP uptime: 538 - total current: 8, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 10
+2026-11-02 20:27:38 [6130 - 53] [Information] TCP uptime: 556 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 3
+2026-11-02 20:27:38 [6130 - 45] [Information] TCP uptime: 556 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:38 [6130 - 48] [Information] TCP uptime: 556 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:38 [6130 - 45] [Information] TCP uptime: 556 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 5
+2026-11-02 20:27:38 [6130 - 50] [Information] TCP uptime: 556 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:38 [6130 - 45] [Information] TCP uptime: 556 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:38 [6130 - 53] [Information] TCP uptime: 556 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:38 [6130 - 45] [Information] TCP uptime: 556 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:38 [6130 - 53] [Information] TCP uptime: 556 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:38 [6130 - 45] [Information] TCP uptime: 556 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:38 [6130 - 53] [Information] TCP uptime: 556 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:38 [6130 - 45] [Information] TCP uptime: 556 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:38 [6130 - 53] [Information] TCP uptime: 556 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:38 [6130 - 45] [Information] TCP uptime: 556 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:38 [6130 - 53] [Information] TCP uptime: 556 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:38 [6130 - 45] [Information] TCP uptime: 556 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 4
+2026-11-02 20:27:38 [6130 - 53] [Information] TCP uptime: 557 - total current: 3, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:27:38 [6130 - 50] [Information] TCP uptime: 557 - total current: 4, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:27:38 [6130 - 54] [Information] TCP uptime: 557 - total current: 6, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:27:38 [6130 - 51] [Information] TCP uptime: 557 - total current: 5, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8
+2026-11-02 20:27:38 [6130 - 52] [Information] TCP uptime: 557 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 9
+2026-11-02 20:27:58 [6130 - 48] [Information] TCP uptime: 576 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 15, currentThreads: 8

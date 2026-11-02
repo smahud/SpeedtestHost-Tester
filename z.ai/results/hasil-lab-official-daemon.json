@@ -15,7 +15,7 @@
     {
       "id": "daemon",
       "name": "OoklaServer daemon connection",
-      "durationMs": 16,
+      "durationMs": 17,
       "status": "pass",
       "detail": "OoklaServer daemon detected (HTTP 200)"
     },
@@ -50,21 +50,21 @@
     {
       "id": "latency-file",
       "name": "Latency file (speedtest/latency.txt)",
-      "durationMs": 1,
+      "durationMs": 2,
       "status": "pass",
       "detail": "HTTP 200 · \"test=test\\n\""
     },
     {
       "id": "images",
       "name": "Download image files (random*.jpg)",
-      "durationMs": 24,
+      "durationMs": 60,
       "status": "pass",
       "detail": "10/10 files (240 KB – 30.2 MB)"
     },
     {
       "id": "upload-script",
       "name": "Legacy HTTP upload script (upload.php)",
-      "durationMs": 4,
+      "durationMs": 5,
       "status": "pass",
       "detail": "HTTP 200 · size=265"
     },
@@ -79,40 +79,40 @@
   "ping": {
     "min": 0.2,
     "avg": 0.4,
-    "max": 1.1,
-    "jitter": 0.2,
+    "max": 1,
+    "jitter": 0.4,
     "samples": 5,
     "method": "netgauge WebSocket PING"
   },
   "netgaugePing": {
     "min": 0.2,
     "avg": 0.4,
-    "max": 1.1,
-    "jitter": 0.2,
+    "max": 1,
+    "jitter": 0.4,
     "samples": 5,
     "method": "netgauge WebSocket PING"
   },
   "httpPing": {
-    "min": 0.7,
-    "avg": 1,
-    "max": 1.6,
-    "jitter": 0.1,
+    "min": 0.9,
+    "avg": 1.5,
+    "max": 5.1,
+    "jitter": 0.5,
     "samples": 10,
     "method": "HTTP latency.txt"
   },
   "download": {
-    "mbps": 10099.06,
-    "bytes": 12428768445,
-    "seconds": 10.2,
+    "mbps": 10127.41,
+    "bytes": 12397143080,
+    "seconds": 10.1,
     "threads": 4,
-    "detail": "4 threads · random4000x4000.jpg · 11.6 GB in 10.2s"
+    "detail": "4 threads · random4000x4000.jpg · 11.5 GB in 10.1s"
   },
   "upload": {
-    "mbps": 2307.4,
-    "bytes": 5754585088,
-    "seconds": 10,
+    "mbps": 2178.76,
+    "bytes": 5406457856,
+    "seconds": 10.1,
     "threads": 4,
-    "detail": "4 threads · 4.00 MB chunks · 5.36 GB in 10.0s"
+    "detail": "4 threads · 4.00 MB chunks · 5.04 GB in 10.1s"
   },
   "verdict": {
     "ok": true,
@@ -121,7 +121,7 @@
     "passedCount": 10,
     "failedCount": 0
   },
-  "startedAt": 1793648764747,
-  "finishedAt": 1793648786179,
-  "durationMs": 21432
+  "startedAt": 1793651258059,
+  "finishedAt": 1793651279637,
+  "durationMs": 21578
 }

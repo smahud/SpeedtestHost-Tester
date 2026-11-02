@@ -91,3 +91,11 @@ Lalu pengukuran dengan metodologi resmi Ookla (HTTP legacy):
 > dijalankan menuju server** — sama seperti perilaku Server Tester Ookla.
 > Untuk mengukur jalur server Anda sendiri, jalankan CLI dari jaringan
 > yang relevan.
+
+> Contoh di atas adalah tangkapan asli saat target online (2026-11-02).
+> Pada build saat ini (v1.0.1), bila netgauge WebSocket tersedia, ping
+> diambil dari 5 PING netgauge (`(5 samples, netgauge WebSocket PING)`)
+> dengan fallback ke sampel HTTP (`--samples`, default 10). v1.0.1 juga
+> memperbaiki target IPv6 literal (`[::1]:8080`) yang sebelumnya gagal
+> 5 cek karena URL dibangun tanpa bracket IPv6 — lihat
+> `../cross-validation/README.md`.

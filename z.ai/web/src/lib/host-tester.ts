@@ -543,7 +543,10 @@ export async function runHostTest(
   }
   const { host, port } = parsed;
   const target = `${host}:${port}`;
-  const base = `http://${host}:${port}`;
+  // IPv6 literals must be bracketed inside URLs (http://[::1]:8080/) — the
+  // bare form only works in node request options / display strings.
+  const urlHost = host.includes(":") && !host.startsWith("[") ? `[${host}]` : host;
+  const base = `http://${urlHost}:${port}`;
   const startedAt = Date.now();
 
   // Global watchdog

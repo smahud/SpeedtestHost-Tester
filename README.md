@@ -121,6 +121,7 @@ cd z.ai/web && bun install && bun run dev   # http://localhost:3000
 | `z.ai/web/src/lib/host-tester.ts` | **The engine** (1,134 lines) — 10 checks + Ookla measurement methodology, shared by web & CLI |
 | `z.ai/docs/OoklaServer-Technical-Notes.md` | 340-line technical notes: official OoklaServer 2.11.5.2 lab, config dictionary, verified endpoints/netgauge protocol, deterministic file-size fingerprints — Indonesian |
 | `z.ai/lab/` | Lab config (official + as-run) and netgauge probe scripts |
+| `z.ai/cross-validation/` | **Round 2**: the official Speedtest CLI 1.2.0 redirected onto the same lab daemon (domain→localhost via licensed live config) — method, evidence, live engine parameters, findings, and the v1.0.1 bugfix it produced |
 | `z.ai/audit/ui-local-daemon.png` | Web UI screenshot from the verified lab session |
 | `z.ai/results/` | Fresh captures: 10/10 PASS vs official daemon (lab) + honest ECONNREFUSED capture of the target at push time |
 
@@ -132,6 +133,8 @@ cd z.ai/web && bun install && bun run dev   # http://localhost:3000
 - Deterministic per-version `random*.jpg` size fingerprint table (10 sizes, identical across lab, target, and Ookla HK production) documented in `docs` §7.2.
 - Ookla measurement methodology implemented and commented in source: pre-test → adaptive file size → 2/4 threads (≥ 4 Mbit/s → 4) → download aggregation (drop 2 fastest + lowest ¼, average rest), upload fastest-half averaging, ping = minimum of samples.
 - Behavioral findings from direct probing: production UA filter (UA-less clients are reset), per-IP rate limits (`maxConnPerIp=500`, 20 000/bucket), POST-only `upload.php`, single-port protocol multiplexing.
+- **Cross-validated with the official Speedtest CLI 1.2.0** (`z.ai/cross-validation/`): redirected onto the same lab daemon (its top server pick `1010.hkspeedtest.com:8080` → `localhost:8080` through a licensed, live-served config), the official client completed a full genuine test — idle latency 0.06 ms, download 67 478 Mbps, upload 45 092 Mbps, packet loss 0.0% — while making **zero HTTP requests** (pure netgauge). The z.ai engine's 3 624 logged requests on the same daemon decode to exactly the documented host-tester surface. Live engine parameters captured (15 s / 4 threads / 32 MB packets / pingCount 5 / stableStop / IQM).
+- **The cross-validation sweep found and fixed a real bug (v1.0.1):** IPv6-literal targets (`[::1]:8080`) failed 5 checks with `ERR_INVALID_URL` (unbracketed IPv6 in URL construction) — fixed in the shared engine, verified 10/10 with a green regression battery.
 - The target `host.yapsidarussalam.or.id:8080` passed **all 10 checks while online** during the 2026-11-02 session (ping 21.4 ms, download 87.42 Mbps, upload 45.18 Mbps — quoted in `cli/README.md`); at push time it refuses connections again (dynamic IP/CGNAT behind MikroTik DDNS, `docs` §9.8), and the honest fresh capture (**1 PASS / 9 FAIL, ECONNREFUSED**) is committed as `results/hasil-target-host.*`.
 
 ### Honest limitation

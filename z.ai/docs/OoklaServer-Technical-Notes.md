@@ -337,3 +337,56 @@ curl -s -i -N -H "Connection: Upgrade" -H "Upgrade: websocket" \
 # --- rebuild CLI setelah edit engine ---
 bun build src/cli/main.ts --target=node --format=esm --outfile=download/speedtest-host-tester.mjs
 ```
+
+---
+
+## 13. Cross-Validation dengan Client Resmi (2026-11-02, malam)
+
+> Laporan lengkap + bukti mentah: `../cross-validation/README.md`.
+
+**Client resmi** Ookla Speedtest CLI **1.2.0.84** (`ookla-speedtest-1.2.0-linux-x86_64.tgz`,
+SHA256 `5690596c…d5cfeeb7`) diarahkan ke daemon lab via trik *domain→localhost*:
+`/etc/hosts` tidak bisa ditulis di sandbox (tanpa root), jadi redirect dilakukan
+di level config — entri server `1010.hkspeedtest.com:8080` (id 43356, pilihan
+utama client sendiri) di-rewrite menjadi `localhost:8080` oleh proxy lokal,
+dengan config asli yang diambil live memakai query string milik client
+(license tetap genuine & lolos validasi).
+
+### 13.1 Temuan utama
+
+1. **Client resmi menyelesaikan test penuh** vs daemon lab: idle latency
+   0,06 ms (jitter 0,01), download **67.478 Mbps** (89,1 GB), upload
+   **45.092 Mbps** (55,7 GB), packet loss **0,0%**.
+2. **Client resmi TIDAK menyentuh HTTP sama sekali** — access log kosong (0
+   permintaan). Pure netgauge TCP/TLS + UDP (loaded latency). Daemon stdout:
+   6–9 koneksi TCP konkuren. → Konsumen speedtest = netgauge; host tester =
+   permukaan HTTP legacy + netgauge. Dua-duanya terbukti pada binary resmi
+   yang sama oleh client asli masing-masing.
+3. **Parameter engine asli (live)** dari `cli.speedtest.net/api/cli/config`
+   (`../cross-validation/official-cli/engine-config-redacted.json`):
+   `testDurationSeconds=15`, `threadCount=4`, `packetSizeBytes=32 MB`,
+   `pingCount=5`, download `maxConnections=32` + scaling, `stableStop`
+   aktif (phase download berhenti di 3,8 detik karena stabil), statistik
+   latency = **IQM** + low/high/jitter.
+4. **Bug nyata ditemukan & diperbaiki (engine v1.0.1):** target IPv6 literal
+   (`[::1]:8080`) gagal 5 cek dengan `ERR_INVALID_URL` — URL HTTP dibangun
+   tanpa bracket IPv6 (`http://::1:8080/…` invalid). Fix: helper `urlHost`
+   yang membungkus literal IPv6 dengan `[…]` di semua konstruksi URL.
+   Setelah fix: 10/10 PASS + regression battery hijau (127.0.0.1,
+   localhost, full URL, input sampah → exit 2, host unreachable → JSON
+   valid + exit 1).
+
+### 13.2 Pola permintaan z.ai Host Tester (access log daemon, 2 run)
+
+| Jumlah | Permintaan (URL-decoded) |
+| ---: | --- |
+| 2.758 | `POST /speedtest/upload.php?ck=<rand>` (chunk upload, cache-buster) |
+| 800 | `GET /speedtest/random<N>x<N>.jpg?ck=<rand>` (chunk download) |
+| 20 | `HEAD /speedtest/random350..4000.jpg` (cek 10 ukuran; Content-Length cocok tabel §7.2) |
+| 20 | `GET /speedtest/latency.txt?ck=<rand>` (sampel latency HTTP) |
+| 10 | frame WS netgauge `PING 0 100` |
+| 2 | `HI` → `HELLO 2.11 (2.11.5) …` (deteksi versi) |
+| 2 | `GET /ws` → `101` (upgrade WebSocket) |
+| 8 | `GET /`, `GET /speedtest/latency.txt`, `POST /speedtest/upload.php`, `GET /crossdomain.xml` (cek) |
+
+Semua permintaan mengirim User-Agent browser (syarat produksi, §9.1).

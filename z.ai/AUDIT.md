@@ -114,3 +114,37 @@ Suggested merge direction: use `arena.ai`'s page shell/assets for pixel
 fidelity and `z.ai`'s engine + lab methodology for the test logic and
 measurement phases — then re-run both CLIs against the target once it is
 online again.
+
+## 7. Round 2 — cross-validation with the official Speedtest CLI
+
+Full report and evidence: [`cross-validation/README.md`](cross-validation/README.md).
+
+The **official Ookla Speedtest CLI 1.2.0** (SHA256 pinned) was redirected
+onto the same lab daemon — its own top server pick
+`1010.hkspeedtest.com:8080` was rewritten to `localhost:8080` inside a
+licensed, live-served configuration (the sandbox cannot write `/etc/hosts`,
+so the "domain → localhost" trick was implemented at the config level via a
+local proxy; engine parameters, license and all other servers stayed
+genuine).
+
+Findings:
+
+1. **The official client completes a full test against the lab daemon** —
+   idle latency 0.06 ms, download 67 478 Mbps, upload 45 092 Mbps, packet
+   loss 0.0%. Infrastructure validated from the client side.
+2. **Protocol separation confirmed:** the official client made **zero HTTP
+   requests** (empty access logs) — it speaks pure netgauge TCP/TLS + UDP.
+   The z.ai engine's 3 624 logged requests on the same daemon decode to
+   exactly the documented host-tester surface (upload chunks, image files,
+   latency samples, WS handshake). Both surfaces of the official daemon are
+   now proven by genuine clients.
+3. **Live engine parameters captured** (15 s duration, 4 threads, 32 MB
+   upload packets, pingCount 5, stableStop, up to 32 scaled connections,
+   IQM latency statistics) — documented against the z.ai engine's
+   host-tester legacy methodology.
+4. **A real bug was found and fixed (v1.0.1):** IPv6-literal targets
+   (`[::1]:8080`) failed 5 checks with `ERR_INVALID_URL` — HTTP URLs were
+   built without bracketing IPv6 literals. Fixed in
+   `web/src/lib/host-tester.ts` (shared by web + CLI); verified 10/10 with a
+   green regression battery. This is precisely the class of defect the
+   cross-validation was designed to surface.

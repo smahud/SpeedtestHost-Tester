@@ -88,8 +88,9 @@ heavily commented).
 | `web/` | runnable Next.js 16 source of the web clone (page, streaming API route, engine, CLI source) |
 | `docs/OoklaServer-Technical-Notes.md` | 340-line technical notes: official OoklaServer 2.11.5.2 lab, config dictionary, verified endpoints/protocol, deterministic file sizes, behavioral findings |
 | `lab/` | lab config (`OoklaServer.properties` + official default) and protocol probe scripts |
+| `cross-validation/` | **Round 2**: the official Speedtest CLI 1.2.0 redirected onto the same lab daemon — method, evidence, findings, and the v1.0.1 bugfix it produced. See [`cross-validation/README.md`](cross-validation/README.md) |
 | `audit/ui-local-daemon.png` | web UI screenshot during the verified lab session (2026-11-02) |
-| `results/` | fresh, honest captures: target-host run + 10/10 PASS run against the official daemon |
+| `results/` | fresh, honest captures: target-host run + 10/10 PASS run against the official daemon (v1.0.1) |
 
 Not included (by design): the 15.5 MB OoklaServer binary / 4.9 MB tgz
 (SHA256 pinned in `docs` §2 — re-download from the official URL), TLS key
@@ -99,10 +100,26 @@ material, logs, `node_modules`.
 
 ## Verification summary
 
-- **Engine validated against the official OoklaServer 2.11.5.2 binary**
-  (build `2026-06-04.1737.7d0993d`, SHA256 pinned) running in a local lab:
-  **10/10 checks PASS** with real loopback measurements —
-  `results/hasil-lab-official-daemon.txt`.
+- **Round 1 — official server side.** Engine validated against the **official
+  OoklaServer 2.11.5.2 binary** (build `2026-06-04.1737.7d0993d`, SHA256
+  pinned) running in a local lab: **10/10 checks PASS** with real loopback
+  measurements — `results/hasil-lab-official-daemon.txt`.
+- **Round 2 — official client side**
+  ([`cross-validation/`](cross-validation/README.md)). The **official
+  Speedtest CLI 1.2.0** was redirected onto the same lab daemon (its own top
+  server pick `1010.hkspeedtest.com:8080` → `localhost:8080` via a licensed,
+  live config) and completed a **full genuine test**: idle latency 0.06 ms,
+  download 67 478 Mbps, upload 45 092 Mbps, packet loss 0.0% — while making
+  **zero HTTP requests** (pure netgauge). The z.ai engine's 3 624 logged
+  requests on the same daemon decode to exactly the documented host-tester
+  surface. The client's live engine parameters (15 s / 4 threads / 32 MB
+  packets / pingCount 5 / stableStop / IQM) are captured in
+  `cross-validation/official-cli/engine-config-redacted.json` and compared
+  against ours.
+- **Cross-validation found and fixed a real bug (v1.0.1):** IPv6-literal
+  targets (`[::1]:8080`) previously failed 5 checks with `ERR_INVALID_URL`
+  (unbracketed IPv6 in URL construction). Fixed in the shared engine — now
+  10/10; full regression battery green.
 - **Cross-checked against Ookla's own production server**
   (`1010.hkspeedtest.com.prod.hosts.ooklaserver.net:8080`, Hong Kong):
   10/10 PASS, identical daemon version via the `HELLO` handshake

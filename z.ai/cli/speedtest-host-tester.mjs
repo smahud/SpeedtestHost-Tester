@@ -462,7 +462,8 @@ async function runHostTest(input, handlers = {}, options = {}) {
   }
   const { host, port } = parsed;
   const target = `${host}:${port}`;
-  const base = `http://${host}:${port}`;
+  const urlHost = host.includes(":") && !host.startsWith("[") ? `[${host}]` : host;
+  const base = `http://${urlHost}:${port}`;
   const startedAt = Date.now();
   const watchdog = new SignalGroup([signal], opts.timeoutMs);
   const globalSignal = watchdog.signal;
@@ -954,7 +955,7 @@ async function uploadPhase(base, seconds, parentSignal, emit) {
 }
 
 // src/cli/main.ts
-var VERSION = "1.0.0";
+var VERSION = "1.0.1";
 function parseArgs(argv) {
   const args = {
     target: null,

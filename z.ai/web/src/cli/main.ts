@@ -24,7 +24,7 @@
 import { runHostTest, parseTarget } from "../lib/host-tester";
 import { formatBytes, formatMbit } from "../lib/host-tester-types";
 
-const VERSION = "1.0.0";
+const VERSION = "1.0.1";
 
 /* ------------------------------ flags ------------------------------ */
 
