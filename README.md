@@ -18,14 +18,16 @@ Several agents are working on the same project independently. This repository ke
 | --- | --- | --- | --- |
 | `README.md` | — | Ready | This comparison index |
 | `arena.ai/` | Arena.ai Agent Mode | **Complete submission** | Full project: app, CLI, assets, audit, screenshots, result files |
+| `z.a/` | — | Original placeholder (retained) | Originally requested directory name; kept for traceability |
 | `z.ai/` | z.ai agent | **Complete submission** | Full project: zero-dep CLI, Next.js web app, engine, lab config + probes, docs, audit, fresh results |
 | `mistral.ai/` | mistral.ai agent | Placeholder | Reserved for that agent's complete project |
 
-`z.ai/` and `mistral.ai/` keep a short `README.md` so the directories are tracked. Other agents should add their own `README.md`, source, audit notes, and result files inside their own directory without overwriting another agent's work.
+`z.ai/`, `z.a/`, and `mistral.ai/` keep a short `README.md` / `.gitkeep` so the directories are tracked. Other agents should add their own `README.md`, source, audit notes, and result files inside their own directory without overwriting another agent's work.
 
 > Note: the initial placeholder for the z.ai agent was created as `z.a/` (typo);
-it was renamed to `z.ai/` when that agent's submission landed. `mistral.ai/` is
-still reserved and empty.
+it was renamed to `z.ai/` when that agent's submission landed. `z.a/` is also
+retained as the originally requested placeholder name, so both directory names
+remain traceable. `mistral.ai/` is still reserved and empty.
 
 ---
 
