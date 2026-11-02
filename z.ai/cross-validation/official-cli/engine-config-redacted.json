@@ -1,0 +1,136 @@
+{
+  "suite": {
+    "global": {
+      "engine": {
+        "isUploadFirst": false,
+        "testDurationSeconds": 15,
+        "threadCount": 4,
+        "packetSizeBytes": 32000000
+      },
+      "dynamic": {
+        "stableStop": {
+          "isEnabled": true
+        },
+        "download": {
+          "isScalingEnabled": true,
+          "maxConnections": 32
+        }
+      },
+      "loadedLatency": {
+        "enableUdp": true,
+        "enableTcp": true
+      }
+    },
+    "testStage": {
+      "latency": {
+        "pingCount": 5
+      },
+      "upload": {
+        "isServerUploadEnabled": true,
+        "isClientPrimaryMeasureMethod": false
+      }
+    }
+  },
+  "app": {
+    "ispName": "Alibaba",
+    "traceLevel": 2,
+    "license": {
+      "message": "You may only use this Speedtest software and information generated\nfrom it for personal, non-commercial use, through a command line\ninterface on a personal computer. Your use of this software is subject\nto the End User License Agreement, Terms of Use and Privacy Policy at\nthese URLs:\n\n\thttps://www.speedtest.net/about/eula\n\thttps://www.speedtest.net/about/terms\n\thttps://www.speedtest.net/about/privacy",
+      "version": "aaa8331c62dcaeaf7cbefe8de3952b0240ccae4424412c2e498eeb1beb84b20b"
+    },
+    "saveTestResultUrl": "https://results.speedtest.net/reports",
+    "resultFormat": "json"
+  },
+  "servers": [
+    {
+      "id": "43356",
+      "host": "1010.hkspeedtest.com:8080",
+      "name": "Hong Kong",
+      "country": "Hong Kong",
+      "sponsor": "1010",
+      "sponsored": false,
+      "host_functional": "1"
+    },
+    {
+      "id": "35791",
+      "host": "kami.smartone.com:8080",
+      "name": "Hong Kong",
+      "country": "Hong Kong",
+      "sponsor": "SmarTone",
+      "sponsored": false,
+      "host_functional": "1"
+    },
+    {
+      "id": "63143",
+      "host": "hkspeedtest.netvigator.com:8080",
+      "name": "Hong Kong",
+      "country": "Hong Kong",
+      "sponsor": "Netvigator",
+      "sponsored": false,
+      "host_functional": "1"
+    },
+    {
+      "id": "57571",
+      "host": "hkgspeedtest.cmctelecom.vn:8080",
+      "name": "Hong Kong",
+      "country": "Hong Kong",
+      "sponsor": "CMC Telecom",
+      "sponsored": false,
+      "host_functional": "1"
+    },
+    {
+      "id": "1536",
+      "host": "suntechspeedtest.com:8080",
+      "name": "Hong Kong",
+      "country": "Hong Kong",
+      "sponsor": "STC",
+      "sponsored": false,
+      "host_functional": "1"
+    },
+    {
+      "id": "48446",
+      "host": "hk1.speedtest.gslnetworks.com:8080",
+      "name": "Hong Kong",
+      "country": "Hong Kong",
+      "sponsor": "GSL Networks",
+      "sponsored": false,
+      "host_functional": "1"
+    },
+    {
+      "id": "60178",
+      "host": "sunmobile.hkspeedtest.com:8080",
+      "name": "Hong Kong",
+      "country": "Hong Kong",
+      "sponsor": "Sun Mobile",
+      "sponsored": false,
+      "host_functional": "1"
+    },
+    {
+      "id": "28912",
+      "host": "speedtest.hkg.fdcservers.net:8080",
+      "name": "Hong Kong",
+      "country": "Hong Kong",
+      "sponsor": "fdcservers.net",
+      "sponsored": false,
+      "host_functional": "1"
+    },
+    {
+      "id": "60177",
+      "host": "hkt.hkspeedtest.com:8080",
+      "name": "Hong Kong",
+      "country": "Hong Kong",
+      "sponsor": "Club SIM by HKT",
+      "sponsored": false,
+      "host_functional": "1"
+    },
+    {
+      "id": "65463",
+      "host": "speedtest21.hkbn.net:8080",
+      "name": "Hong Kong",
+      "country": "Hong Kong",
+      "sponsor": "HKBN",
+      "sponsored": false,
+      "host_functional": "1"
+    }
+  ]
+}

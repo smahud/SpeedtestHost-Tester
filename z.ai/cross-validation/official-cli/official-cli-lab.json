@@ -1,0 +1,54 @@
+{
+    "type": "result",
+    "timestamp": "2026-11-02T20:16:01Z",
+    "ping": {
+        "jitter": 0.072,
+        "latency": 0.073,
+        "low": 0.060,
+        "high": 0.207
+    },
+    "download": {
+        "bandwidth": 7079288975,
+        "bytes": 26893039574,
+        "elapsed": 3809,
+        "latency": {
+            "iqm": 0.203,
+            "low": 0.142,
+            "high": 34.805,
+            "jitter": 0.489
+        }
+    },
+    "upload": {
+        "bandwidth": 5135804299,
+        "bytes": 66431890500,
+        "elapsed": 14615,
+        "latency": {
+            "iqm": 0.168,
+            "low": 0.099,
+            "high": 15.790,
+            "jitter": 0.119
+        }
+    },
+    "packetLoss": 0,
+    "isp": "Alibaba",
+    "interface": {
+        "internalIp": "::1",
+        "name": "lo",
+        "macAddr": "00:00:00:00:00:00",
+        "isVpn": false,
+        "externalIp": "::1"
+    },
+    "server": {
+        "id": 43356,
+        "host": "localhost",
+        "port": 8080,
+        "name": 1010,
+        "location": "1010 -> LOCALHOST (lab official binary)",
+        "country": "Hong Kong",
+        "ip": "::1"
+    },
+    "result": {
+        "id": "2bbe1c4c-f1d4-4c34-987b-3d6deb7c9ed3",
+        "persisted": false
+    }
+}

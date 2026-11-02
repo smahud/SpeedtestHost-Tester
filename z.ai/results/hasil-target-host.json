@@ -1,0 +1,98 @@
+{
+  "target": "host.yapsidarussalam.or.id:8080",
+  "host": "host.yapsidarussalam.or.id",
+  "port": 8080,
+  "ip": "125.164.215.24",
+  "checks": [
+    {
+      "id": "resolution",
+      "name": "Hostname resolution",
+      "durationMs": 128,
+      "status": "pass",
+      "detail": "125.164.215.24"
+    },
+    {
+      "id": "daemon",
+      "name": "OoklaServer daemon connection",
+      "durationMs": 611,
+      "status": "fail",
+      "detail": "ECONNREFUSED 125.164.215.24:8080"
+    },
+    {
+      "id": "daemon-version",
+      "name": "OoklaServer daemon version",
+      "durationMs": 0,
+      "status": "fail",
+      "detail": "version unavailable — netgauge handshake failed (ECONNREFUSED 125.164.215.24:8080)"
+    },
+    {
+      "id": "netgauge",
+      "name": "Netgauge / WebSocket (port 8080)",
+      "durationMs": 0,
+      "status": "fail",
+      "detail": "ECONNREFUSED 125.164.215.24:8080"
+    },
+    {
+      "id": "https",
+      "name": "HTTPS functionality",
+      "durationMs": 189,
+      "status": "fail",
+      "detail": ""
+    },
+    {
+      "id": "keepalive",
+      "name": "Keep-Alive",
+      "durationMs": 0,
+      "status": "fail",
+      "detail": "no HTTP response to inspect"
+    },
+    {
+      "id": "latency-file",
+      "name": "Latency file (speedtest/latency.txt)",
+      "durationMs": 350,
+      "status": "fail",
+      "detail": "ECONNREFUSED 125.164.215.24:8080"
+    },
+    {
+      "id": "images",
+      "name": "Download image files (random*.jpg)",
+      "durationMs": 1176,
+      "status": "fail",
+      "detail": "no download images found"
+    },
+    {
+      "id": "upload-script",
+      "name": "Legacy HTTP upload script (upload.php)",
+      "durationMs": 65,
+      "status": "fail",
+      "detail": "ECONNREFUSED 125.164.215.24:8080"
+    },
+    {
+      "id": "crossdomain",
+      "name": "Crossdomain settings (crossdomain.xml)",
+      "durationMs": 61,
+      "status": "fail",
+      "detail": "ECONNREFUSED 125.164.215.24:8080"
+    }
+  ],
+  "verdict": {
+    "ok": false,
+    "message": "Server configuration issues detected.",
+    "failed": [
+      "OoklaServer daemon connection",
+      "OoklaServer daemon version",
+      "Netgauge / WebSocket (port 8080)",
+      "HTTPS functionality",
+      "Keep-Alive",
+      "Latency file (speedtest/latency.txt)",
+      "Download image files (random*.jpg)",
+      "Legacy HTTP upload script (upload.php)",
+      "Crossdomain settings (crossdomain.xml)"
+    ],
+    "passedCount": 1,
+    "failedCount": 9
+  },
+  "startedAt": 1793648752160,
+  "finishedAt": 1793648755065,
+  "durationMs": 2905
+}

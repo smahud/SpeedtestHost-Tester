@@ -1,0 +1,39 @@
+
+  Speedtest Host Tester v1.0.0
+  Ookla Server validation — same checks as speedtest.net/host-tester
+
+  Target   host.yapsidarussalam.or.id:8080
+  Started  11/2/2026, 7:45:55 PM
+
+  IP       125.164.215.24
+  ✔ Hostname resolution ......................... PASS 5ms  125.164.215.24
+  ✘ OoklaServer daemon connection ............... FAIL 69ms  ECONNREFUSED 125.164.215.24:8080
+  ✘ OoklaServer daemon version .................. FAIL 0ms  version unavailable — netgauge handshake failed (ECONNREFUSED 125.164.215.24:8080)
+  ✘ Netgauge / WebSocket (port 8080) ............ FAIL 0ms  ECONNREFUSED 125.164.215.24:8080
+  ✘ HTTPS functionality ......................... FAIL 69ms
+  ✘ Keep-Alive .................................. FAIL 0ms  no HTTP response to inspect
+  ✘ Latency file (speedtest/latency.txt) ........ FAIL 64ms  ECONNREFUSED 125.164.215.24:8080
+  ✘ Download image files (random*.jpg) .......... FAIL 650ms  no download images found
+  ✘ Legacy HTTP upload script (upload.php) ...... FAIL 67ms  ECONNREFUSED 125.164.215.24:8080
+  ✘ Crossdomain settings (crossdomain.xml) ...... FAIL 70ms  ECONNREFUSED 125.164.215.24:8080
+  · Download test skipped: no download images available
+  · Upload test skipped: upload.php not usable
+
+  Ping             — ms
+  Download        — Mbps
+  Upload          — Mbps
+  Traffic  0 B transferred in 1.1s
+
+  ✘ Server configuration issues detected.
+    • OoklaServer daemon connection
+    • OoklaServer daemon version
+    • Netgauge / WebSocket (port 8080)
+    • HTTPS functionality
+    • Keep-Alive
+    • Latency file (speedtest/latency.txt)
+    • Download image files (random*.jpg)
+    • Legacy HTTP upload script (upload.php)
+    • Crossdomain settings (crossdomain.xml)
+
+  1 passed / 9 failed · host.yapsidarussalam.or.id:8080
+

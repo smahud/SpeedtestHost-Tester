@@ -1,0 +1,51 @@
+Loaded config file: /home/z/my-project/ooklaserver/OoklaServer.properties
+2026-11-02 20:15:38 [5923 - 0] [Information] OoklaServer version 2.11 (2.11.5.2) build number 2026-06-04.1737.7d0993d
+2026-11-02 20:15:38 [5923 - 0] [Information] OoklaServer instance ID 441f07ce-cb3a-471b-a900-c35cedb08a9f
+Loaded config file: /home/z/my-project/ooklaserver/OoklaServer.properties
+2026-11-02 20:15:38 [5930 - 0] [Information] OoklaServer version 2.11 (2.11.5.2) build number 2026-06-04.1737.7d0993d
+2026-11-02 20:15:38 [5930 - 0] [Information] OoklaServer instance ID 441f07ce-cb3a-471b-a900-c35cedb08a9f
+2026-11-02 20:15:38 [5930 - 0] [Information] Generating 2097152 bytes of download data
+2026-11-02 20:15:38 [5930 - 0] [Information] Listening on TCP socket: 0.0.0.0:8080
+2026-11-02 20:15:38 [5930 - 0] [Information] Listening on TCP socket: [::]:8080
+2026-11-02 20:15:38 [5930 - 1] [Information] Listening on UDP socket: 0.0.0.0:8080
+2026-11-02 20:15:38 [5930 - 2] [Information] Listening on UDP socket: [::]:8080
+2026-11-02 20:15:38 [5930 - 0] [Information] TCP port: 8080 - current: 0, queued: 0, blocked: 0, queueFull: 0, concurrent: 0, currentThreads: 0
+TCP port: 8080 - current: 0, queued: 0, blocked: 0, queueFull: 0, concurrent: 0, currentThreads: 0
+2026-11-02 20:15:38 [5930 - 0] [Information] Server updates were disabled.
+2026-11-02 20:15:38 [5930 - 43] [Information] Initializing TLS context with provided certificate '/home/z/my-project/ooklaserver//cert.pem'
+2026-11-02 20:15:38 [5930 - 43] [Information] Successfully loaded certificate chain with 0 intermediate certificate(s)
+2026-11-02 20:15:38 [5930 - 43] [Information] Initializing TLS context with provided key '/home/z/my-project/ooklaserver//key.pem'
+2026-11-02 20:15:38 [5930 - 44] [Information] CA bundle is empty; skipping
+2026-11-02 20:15:38 [5930 - 43] [Information] Server is configured to require minimum TLS version of 1.2
+2026-11-02 20:15:38 [5930 - 43] [Information] CA bundle is empty; skipping
+2026-11-02 20:15:38 [5930 - 43] [Information] TLS context initialized using user-defined certificate <62:d5:90:43:8a:57:35:47:1c:a8:9c:89:e1:30:7d:a1:b3:55:ff:83>
+2026-11-02 20:15:40 [5930 - 45] [Information] TCP uptime: 2 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 1, currentThreads: 1
+2026-11-02 20:15:42 [5930 - 45] [Information] TCP uptime: 3 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 1, currentThreads: 2
+2026-11-02 20:15:42 [5930 - 45] [Information] Disconnect NetException: Connection reset by peer
+2026-11-02 20:15:42 [5930 - 46] [Information] TCP uptime: 3 - total current: 2, queued: 0, blocked: 0, queueFull: 0, concurrent: 2, currentThreads: 5
+2026-11-02 20:15:42 [5930 - 47] [Information] TCP uptime: 3 - total current: 1, queued: 0, blocked: 0, queueFull: 0, concurrent: 1, currentThreads: 4
+2026-11-02 20:15:42 [5930 - 45] [Information] TCP uptime: 3 - total current: 4, queued: 0, blocked: 0, queueFull: 0, concurrent: 4, currentThreads: 7
+2026-11-02 20:15:42 [5930 - 48] [Information] TCP uptime: 3 - total current: 5, queued: 0, blocked: 0, queueFull: 0, concurrent: 5, currentThreads: 7
+2026-11-02 20:15:42 [5930 - 50] [Information] TCP uptime: 3 - total current: 6, queued: 0, blocked: 0, queueFull: 0, concurrent: 6, currentThreads: 7
+2026-11-02 20:15:42 [5930 - 49] [Information] TCP uptime: 3 - total current: 6, queued: 0, blocked: 0, queueFull: 0, concurrent: 6, currentThreads: 7
+2026-11-02 20:15:46 [5930 - 49] [Information] Disconnect NetException: Connection reset by peer
+2026-11-02 20:15:46 [5930 - 48] [Information] Disconnect NetException: Connection reset by peer
+2026-11-02 20:15:46 [5930 - 47] [Information] Disconnect NetException: Connection reset by peer
+2026-11-02 20:15:46 [5930 - 51] [Information] TCP uptime: 7 - total current: 4, queued: 1, blocked: 0, queueFull: 0, concurrent: 6, currentThreads: 8
+2026-11-02 20:15:46 [5930 - 48] [Information] TCP uptime: 7 - total current: 5, queued: 0, blocked: 0, queueFull: 0, concurrent: 6, currentThreads: 9
+2026-11-02 20:15:46 [5930 - 47] [Information] TCP uptime: 7 - total current: 6, queued: 0, blocked: 0, queueFull: 0, concurrent: 6, currentThreads: 9
+2026-11-02 20:15:46 [5930 - 50] [Information] Disconnect NetException: Connection reset by peer
+2026-11-02 20:15:46 [5930 - 49] [Information] TCP uptime: 7 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 7, currentThreads: 9
+2026-11-02 20:15:46 [5930 - 52] [Information] TCP uptime: 7 - total current: 8, queued: 0, blocked: 0, queueFull: 0, concurrent: 8, currentThreads: 9
+2026-11-02 20:15:46 [5930 - 53] [Information] TCP uptime: 7 - total current: 7, queued: 0, blocked: 0, queueFull: 0, concurrent: 7, currentThreads: 8
+2026-11-02 20:15:46 [5930 - 46] [Information] Disconnect NetException: Connection reset by peer
+2026-11-02 20:15:49 [5930 - 45] [Information] Disconnect NetException: Connection reset by peer
+2026-11-02 20:16:01 [5930 - 51] [Error] Connection reset by peer
+2026-11-02 20:16:01 [5930 - 51] [Information] Disconnect NetException: Net Exception: Socket is not connected
+2026-11-02 20:16:01 [5930 - 47] [Error] Connection reset by peer
+2026-11-02 20:16:01 [5930 - 47] [Information] Disconnect NetException: Net Exception: Socket is not connected
+2026-11-02 20:16:01 [5930 - 48] [Error] Connection reset by peer
+2026-11-02 20:16:01 [5930 - 48] [Information] Disconnect NetException: Net Exception: Socket is not connected
+2026-11-02 20:16:01 [5930 - 53] [Error] Connection reset by peer
+2026-11-02 20:16:01 [5930 - 53] [Information] Disconnect NetException: Net Exception: Socket is not connected
+2026-11-02 20:16:01 [5930 - 49] [Information] Disconnect NetException: Connection reset by peer

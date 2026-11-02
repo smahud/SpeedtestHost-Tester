@@ -1,0 +1,19 @@
+=== MITM proxy on 127.0.0.1:8888 (cli.speedtest.net -> crafted config) ===
+[mitm] CONNECT cli.speedtest.net:443 -> TLS-terminating with lab cert
+[mitm] GET /api/cli/config?deviceId=9eb7b13fb92338b776d085c1518b48418cea6e7c1d79a572df51beb3ba657970&hid=%2501%2518%251B%2519%251DA%251DK%2516G%250C%250E%250E%255BZU%2507V%2503%2519J%2518%251AK%251E%2518%2519%2519O%2510A%2517&sid=b45cad8bd0f34d386a37613544bed90fc4771e47f8cf4752daeb1673bcca40a8&uname=Linux%205.10.134-013.15.kangaroo.al8.x86_64%20%231%20SMP%20Thu%20Jul%2030%2012%3A54%3A59%20UTC%202026%20x86_64 HTTP/1.1
+[config] fetched with CLI's own query (2674 B); server 43356 host 1010.hkspeedtest.com:8080 -> localhost:8080
+[mitm] served crafted config (2882 B)
+[mitm] CONNECT cli.speedtest.net:443 -> TLS-terminating with lab cert
+[mitm] GET /api/cli/config?deviceId=9eb7b13fb92338b776d085c1518b48418cea6e7c1d79a572df51beb3ba657970&hid=%2501%2518%251B%2519%251DA%251DK%2516G%250C%250E%250E%255BZU%2507V%2503%2519J%2518%251AK%251E%2518%2519%2519O%2510A%2517&serverid=43356&sid=b45cad8bd0f34d386a37613544bed90fc4771e47f8cf4752daeb1673bcca40a8&uname=Linux%205.10.134-013.15.kangaroo.al8.x86_64%20%231%20SMP%20Thu%20Jul%2030%2012%3A54%3A59%20UTC%202026%20x86_64 HTTP/1.1
+[config] fetched with CLI's own query (1262 B); server 43356 host 1010.hkspeedtest.com:8080 -> localhost:8080
+[mitm] served crafted config (1344 B)
+[mitm] CONNECT cli.speedtest.net:443 -> TLS-terminating with lab cert
+[mitm] GET /api/cli/config?deviceId=9eb7b13fb92338b776d085c1518b48418cea6e7c1d79a572df51beb3ba657970&hid=%2501%2518%251B%2519%251DA%251DK%2516G%250C%250E%250E%255BZU%2507V%2503%2519J%2518%251AK%251E%2518%2519%2519O%2510A%2517&serverid=43356&sid=b45cad8bd0f34d386a37613544bed90fc4771e47f8cf4752daeb1673bcca40a8&uname=Linux%205.10.134-013.15.kangaroo.al8.x86_64%20%231%20SMP%20Thu%20Jul%2030%2012%3A54%3A59%20UTC%202026%20x86_64 HTTP/1.1
+[config] fetched with CLI's own query (1262 B); server 43356 host 1010.hkspeedtest.com:8080 -> localhost:8080
+[mitm] served crafted config (1344 B)
+[tunnel] CONNECT results.speedtest.net:443
+[mitm] CONNECT cli.speedtest.net:443 -> TLS-terminating with lab cert
+[mitm] GET /api/cli/config?deviceId=9eb7b13fb92338b776d085c1518b48418cea6e7c1d79a572df51beb3ba657970&hid=%2501%2518%251B%2519%251DA%251DK%2516G%250C%250E%250E%255BZU%2507V%2503%2519J%2518%251AK%251E%2518%2519%2519O%2510A%2517&serverid=43356&sid=b45cad8bd0f34d386a37613544bed90fc4771e47f8cf4752daeb1673bcca40a8&uname=Linux%205.10.134-013.15.kangaroo.al8.x86_64%20%231%20SMP%20Thu%20Jul%2030%2012%3A54%3A59%20UTC%202026%20x86_64 HTTP/1.1
+[config] fetched with CLI's own query (1262 B); server 43356 host 1010.hkspeedtest.com:8080 -> localhost:8080
+[mitm] served crafted config (1344 B)
+[tunnel] CONNECT results.speedtest.net:443
