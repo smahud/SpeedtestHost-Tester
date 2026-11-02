@@ -18,10 +18,14 @@ Several agents are working on the same project independently. This repository ke
 | --- | --- | --- | --- |
 | `README.md` | — | Ready | This comparison index |
 | `arena.ai/` | Arena.ai Agent Mode | **Complete submission** | Full project: app, CLI, assets, audit, screenshots, result files |
-| `z.a/` | z.a agent | Placeholder | Reserved for that agent's complete project |
+| `z.ai/` | z.ai agent | **Complete submission** | Full project: zero-dep CLI, Next.js web app, engine, lab config + probes, docs, audit, fresh results |
 | `mistral.ai/` | mistral.ai agent | Placeholder | Reserved for that agent's complete project |
 
-`z.a/` and `mistral.ai/` contain a `.gitkeep` and a short `README.md` so the directories are tracked. Other agents should add their own `README.md`, source, audit notes, and result files inside their own directory without overwriting another agent's work.
+`z.ai/` and `mistral.ai/` keep a short `README.md` so the directories are tracked. Other agents should add their own `README.md`, source, audit notes, and result files inside their own directory without overwriting another agent's work.
+
+> Note: the initial placeholder for the z.ai agent was created as `z.a/` (typo);
+it was renamed to `z.ai/` when that agent's submission landed. `mistral.ai/` is
+still reserved and empty.
 
 ---
 
@@ -91,6 +95,51 @@ This is a **functional local 1:1-style replacement**, not a provable byte-identi
 
 ---
 
+## Submission: `z.ai/`
+
+### Entry points
+
+```bash
+# CLI, no browser needed — single file, zero dependencies, Node >= 18
+node z.ai/cli/speedtest-host-tester.mjs host.yapsidarussalam.or.id:8080
+node z.ai/cli/speedtest-host-tester.mjs host.yapsidarussalam.or.id        # port defaults to 8080
+node z.ai/cli/speedtest-host-tester.mjs host.yapsidarussalam.or.id:8080 --json
+
+# Web clone (Next.js 16) — same engine as the CLI
+cd z.ai/web && bun install && bun run dev   # http://localhost:3000
+```
+
+### Key files
+
+| File | Purpose |
+| --- | --- |
+| `z.ai/README.md` | Submission overview, quick start, verification summary, honest limitations |
+| `z.ai/AUDIT.md` | Fidelity audit: exact / approximated / unverifiable, engine code excerpts, lab reproduction, head-to-head vs `arena.ai` |
+| `z.ai/cli/speedtest-host-tester.mjs` | **CLI artifact** — 41 KB single file, zero deps, `--json`, exit codes 0/1/2 |
+| `z.ai/cli/README.md` | CLI guide (flags, checks, methodology, example output) — Indonesian |
+| `z.ai/web/` | Runnable Next.js 16 source: page, streaming NDJSON API route, engine |
+| `z.ai/web/src/lib/host-tester.ts` | **The engine** (1,134 lines) — 10 checks + Ookla measurement methodology, shared by web & CLI |
+| `z.ai/docs/OoklaServer-Technical-Notes.md` | 340-line technical notes: official OoklaServer 2.11.5.2 lab, config dictionary, verified endpoints/netgauge protocol, deterministic file-size fingerprints — Indonesian |
+| `z.ai/lab/` | Lab config (official + as-run) and netgauge probe scripts |
+| `z.ai/audit/ui-local-daemon.png` | Web UI screenshot from the verified lab session |
+| `z.ai/results/` | Fresh captures: 10/10 PASS vs official daemon (lab) + honest ECONNREFUSED capture of the target at push time |
+
+### Verified claims from this agent
+
+- Engine validated against the **official OoklaServer 2.11.5.2 binary** (stable channel, SHA256 pinned) in a local lab: **10/10 checks PASS** with real measurements — `results/hasil-lab-official-daemon.txt`.
+- Cross-checked against Ookla's **production** server (`1010.hkspeedtest.com.prod.hosts.ooklaserver.net:8080`, Hong Kong): 10/10 PASS, identical daemon version via the netgauge `HI→HELLO` handshake.
+- Daemon version detection via netgauge WebSocket handshake: `HELLO 2.11 (2.11.5) 2026-06-04.1737.7d0993d` — same build reported by the target host while it was online.
+- Deterministic per-version `random*.jpg` size fingerprint table (10 sizes, identical across lab, target, and Ookla HK production) documented in `docs` §7.2.
+- Ookla measurement methodology implemented and commented in source: pre-test → adaptive file size → 2/4 threads (≥ 4 Mbit/s → 4) → download aggregation (drop 2 fastest + lowest ¼, average rest), upload fastest-half averaging, ping = minimum of samples.
+- Behavioral findings from direct probing: production UA filter (UA-less clients are reset), per-IP rate limits (`maxConnPerIp=500`, 20 000/bucket), POST-only `upload.php`, single-port protocol multiplexing.
+- The target `host.yapsidarussalam.or.id:8080` passed **all 10 checks while online** during the 2026-11-02 session (ping 21.4 ms, download 87.42 Mbps, upload 45.18 Mbps — quoted in `cli/README.md`); at push time it refuses connections again (dynamic IP/CGNAT behind MikroTik DDNS, `docs` §9.8), and the honest fresh capture (**1 PASS / 9 FAIL, ECONNREFUSED**) is committed as `results/hasil-target-host.*`.
+
+### Honest limitation
+
+Functional clone of the public page + documented protocol — not a provable byte-identical copy of Ookla's hidden backend; the real qualification verdict runs from Ookla's regional watchdogs. The UI is a React/Tailwind re-implementation (single domain input, Ookla dark style) rather than a pixel-diff of the original page. Speeds are measured from the machine running the test, exactly like the real tester. Full matrix: `z.ai/AUDIT.md`.
+
+---
+
 ## Comparison checklist for the main agent
 
 - [ ] Read each agent's `README.md` and audit/report file.
@@ -105,5 +154,5 @@ This is a **functional local 1:1-style replacement**, not a provable byte-identi
 ## Notes
 
 - Repository visibility: **public** (no visibility was specified when the repo was created).
-- No credentials are committed. The disposable PAT was used only via an HTTP header for the push, stored temporarily outside the workspace, and removed afterwards; `.gitignore` also excludes `*token*`, `*.pat`, `.env`, `*.key`, and `*.csr`. Lab CA/server private keys are regenerated locally; only public certificates and the full chain are tracked.
-- Python standard library only; no `node_modules`, no build artifacts, no `__pycache__` committed.
+- No credentials are committed. The disposable PAT was used only for the push, stored temporarily outside the workspace, and removed afterwards; `.gitignore` also excludes `*token*`, `*.pat`, `.env`, `*.key`, and `*.csr`. Lab CA/server private keys are regenerated locally; only public certificates and the full chain are tracked.
+- `arena.ai` is Python standard library only (plus the committed official binaries under `arena.ai/ooklaserver/`). `z.ai` ships a zero-dependency Node CLI plus a Next.js web app source tree (trimmed to the real import closure); no `node_modules`, no build artifacts, no 15 MB daemon binary — the official binary is re-downloadable, SHA256 pinned in `z.ai/docs` §2.

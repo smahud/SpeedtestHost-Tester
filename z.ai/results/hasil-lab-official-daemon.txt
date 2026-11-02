@@ -1,0 +1,30 @@
+
+  Speedtest Host Tester v1.0.0
+  Ookla Server validation — same checks as speedtest.net/host-tester
+
+  Target   localhost:8080
+  Started  11/2/2026, 7:46:26 PM
+
+  IP       ::1
+  ✔ Hostname resolution ......................... PASS 5ms  ::1
+  ✔ OoklaServer daemon connection ............... PASS 20ms  OoklaServer daemon detected (HTTP 200)
+  ✔ OoklaServer daemon version .................. PASS 0ms  2.11 (2.11.5) 2026-06-04.1737.7d0993d
+  ✔ Netgauge / WebSocket (port 8080) ............ PASS 0ms  wss://localhost:8080/ws · HI→HELLO, PING→PONG ok, ws ping 0.2 ms
+  ✔ HTTPS functionality ......................... PASS 6ms  HTTPS 200 · TLSv1.3, CN=localhost, valid 825d
+  ✔ Keep-Alive .................................. PASS 0ms  Connection: Keep-Alive
+  ✔ Latency file (speedtest/latency.txt) ........ PASS 2ms  HTTP 200 · "test=test\n"
+  ✔ Download image files (random*.jpg) .......... PASS 25ms  10/10 files (240 KB – 30.2 MB)
+  ✔ Legacy HTTP upload script (upload.php) ...... PASS 4ms  HTTP 200 · size=265
+  ✔ Crossdomain settings (crossdomain.xml) ...... PASS 2ms  HTTP 200 · policy found
+
+
+
+  Ping           0.2 ms   min 0.2 / avg 0.5 / jitter 0.3 (5 samples, netgauge WebSocket PING)
+  Download 10410.37 Mbps   4 threads · random4000x4000.jpg · 11.8 GB in 10.2s
+  Upload    2194.21 Mbps   4 threads · 4.00 MB chunks · 5.11 GB in 10.2s
+  Traffic  16.9 GB transferred in 21.6s
+
+  ✔ Server is publicly available and properly configured.
+
+  10 passed / 0 failed · localhost:8080
+
