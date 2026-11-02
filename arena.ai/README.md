@@ -92,11 +92,11 @@ Exit codes: `0` = all checks passed, `1` = at least one check failed, `2` = inva
 1. **netgauge** — raw TCP connect, send `HI\n`, expect `HELLO <major> (<version>) <build>`, then `QUIT\n`.
 2. **websocket** — HTTP/1.1 Upgrade to `GET /ws` with `Origin: https://www.speedtest.net`, verify `101 Switching Protocols` and `Sec-WebSocket-Accept`, send a masked text frame `HI\n`, expect `HELLO ...`.
 3. **crossdomain** — `GET /crossdomain.xml`, parse `<allow-access-from domain=... to-ports=.../>`, require `*.ookla.com`, `*.speedtest.net`, `*.speedtestcustom.com` (or `*`) and the tested port.
-4. **https** — strict TLS `GET /hi` on the same port with public-CA validation, expect `hello ...`. A self-signed/private certificate is treated as FAILED.
+4. **https** — strict TLS `GET /hi` on the same port with `ssl.create_default_context()`, expect `hello ...`. A self-signed/private certificate is FAILED unless its CA is explicitly trusted by the runtime (e.g. `SSL_CERT_FILE` pointing at a lab CA).
 
 ### HTTP Legacy Fallback (port 80 of the hostname)
 
-The original tester uses `http://<hostname>/speedtest/upload.php`; the `:8080` daemon port is **not** reused here.
+The original tester uses `http://<hostname>/speedtest/upload.php`; the `:8080` daemon port is **not** reused by the clone. The official daemon does, however, serve the same legacy paths on 8080 — this is documented in the simulation addendum below.
 
 1. **crossdomain** — `GET http://<hostname>/crossdomain.xml`.
 2. **latency** — `GET /speedtest/latency.txt`, expect `test=test`.
@@ -106,6 +106,18 @@ The original tester uses `http://<hostname>/speedtest/upload.php`; the `:8080` d
 6. **keepalive** — two sequential HTTP/1.1 requests on one TCP socket; verify reuse and a fast second response.
 
 The legacy `upload.php` computes `500 + len(key) + len(value) + 3`; with key `content1` this is `value_length + 511`.
+
+## Official-binary simulation (2026-11-03)
+
+The assumptions above were tested against the real daemon, not guessed. See [`ooklaserver/sim/SIMULASI.md`](ooklaserver/sim/SIMULASI.md) and [`ooklaserver/sim/manifest.json`](ooklaserver/sim/manifest.json).
+
+- Both official static-musl tarballs were downloaded; x86_64 `OoklaServer 2.11.5.2` was run with `-d` from `ooklaserver/sim/http` or `.../https`.
+- Only `127.0.0.1:8080` was used for the daemon. A separate control server served `http_legacy_fallback.zip` on port 80.
+- With the custom certificate, port 8080 accepted **plain HTTP, raw NetGauge, WebSocket, HTTPS, and WSS at the same time**.
+- HTTP mode produced **18/19 PASSED** (only `https` failed). HTTPS mode with a locally trusted CA produced **19/19 PASSED**, exit code `0`.
+- Strict TLS verification was kept; the lab CA was added to the system trust store and passed via `SSL_CERT_FILE`.
+
+The simulation identified concrete code updates: preserve the URL scheme for daemon TLS checks, make the legacy port configurable, distinguish the legacy PHP `+502` upload formula from the daemon's raw `Content-Length` response, add WSS probing, and document `--ca-bundle`/`SSL_CERT_FILE`.
 
 ## Files
 
@@ -118,6 +130,7 @@ The legacy `upload.php` computes `500 + len(key) + len(value) + 3`; with key `co
 | `assets/form.html` | Original form markup, reCAPTCHA removed |
 | `assets/inline.css` | Original Speedtest CSS + embedded fonts + minimal clone/result overrides |
 | `assets/fonts/` | Locally downloaded Montserrat / gauge-mono font files |
+| `ooklaserver/` | Official binaries, simulation configs, CA/certificates, control server, results and `SIMULASI.md` |
 | `AUDIT.md` | Full end-to-end audit matrix, evidence and honest limitations |
 | `audit/comparison.png` | Side-by-side original vs clone form screenshot |
 | `audit/computed-styles.json` | Playwright computed-style comparison, original vs clone |

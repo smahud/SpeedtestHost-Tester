@@ -16,3 +16,9 @@ node_modules/
 # OS
 .DS_Store
 Thumbs.db
+
+# Lab private keys: regenerate locally, never commit
+*.key
+*.csr
+# fullchain.pem is public certificate chain, keep it tracked
+!arena.ai/ooklaserver/sim/certs/fullchain.pem

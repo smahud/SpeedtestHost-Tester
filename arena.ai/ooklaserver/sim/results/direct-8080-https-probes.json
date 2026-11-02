@@ -1,0 +1,103 @@
+{
+  "target": "https://localhost:8080",
+  "ca": "/home/user/ooklaserver/sim/certs/ca.crt",
+  "tls": "TLSv1.3 verified",
+  "probes": [
+    {
+      "name": "HTTPS GET /",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 109,
+        "ctype": "text/html",
+        "body": "<html><head><title>OoklaServer</title></head><body><h1>OoklaServer</h1><p>It wor"
+      },
+      "ms": 7.9
+    },
+    {
+      "name": "HTTPS GET /hi",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 44,
+        "ctype": "text/plain; charset=UTF-8",
+        "body": "hello 2.11 (2.11.5) 2026-06-04.1737.7d0993d\n"
+      },
+      "ms": 4.5
+    },
+    {
+      "name": "HTTPS GET /crossdomain.xml",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 115,
+        "ctype": "text/xml",
+        "body": "<?xml version=\"1.0\"?>\n<cross-domain-policy>\n<allow-access-from domain=\"*\" to-por"
+      },
+      "ms": 4.0
+    },
+    {
+      "name": "HTTPS GET /speedtest/latency.txt",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 10,
+        "ctype": "text/plain; charset=UTF-8",
+        "body": "test=test\n"
+      },
+      "ms": 4.0
+    },
+    {
+      "name": "HTTPS POST upload upload bodylen=515798 expect=size=516300",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 12,
+        "body": "size=515798\n"
+      },
+      "ms": 5.2
+    },
+    {
+      "name": "HTTPS POST upload max_upload bodylen=1980998 expect=size=1981500",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 13,
+        "body": "size=1980998\n"
+      },
+      "ms": 5.7
+    },
+    {
+      "name": "HTTPS GET random350x350.jpg expect=245388",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 245388,
+        "expected": 245388,
+        "match": true
+      },
+      "ms": 4.6
+    },
+    {
+      "name": "HTTPS GET random4000x4000.jpg expect=31625365",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 31625365,
+        "expected": 31625365,
+        "match": true
+      },
+      "ms": 65.3
+    },
+    {
+      "name": "WSS GET /ws + masked HI",
+      "ok": true,
+      "ms": 47.1,
+      "value": {
+        "status_line": "HTTP/1.1 101 Switching Protocols",
+        "frame": "b'\\x81+HELLO 2.11 (2.11.5) 2026-06-04.1737.7d0993d'",
+        "cipher": "TLS_AES_256_GCM_SHA384"
+      }
+    }
+  ]
+}

@@ -1,0 +1,224 @@
+{
+  "generated": "2026-11-03 Asia/Jakarta",
+  "purpose": "Real OoklaServer simulation on localhost:8080 to replace assumptions with observed protocol behavior",
+  "sandbox": {
+    "uname": "Linux e2b.local 6.1.158+ x86_64 GNU/Linux",
+    "arch": "x86_64",
+    "user": "user",
+    "ports": {
+      "app": 3000,
+      "ooklaserver": 8080,
+      "legacy_control": 80
+    },
+    "python": "3.x stdlib only for clone",
+    "openssl": "OpenSSL 3.5.7 9 Jun 2026"
+  },
+  "official_binaries": {
+    "x86_64": {
+      "url": "https://install.speedtest.net/ooklaserver/stable/OoklaServer-linux-x86_64-static-musl.tgz",
+      "tgz_size": 4911401,
+      "tgz_sha256": "ce180aa3ed9b3c099713cf37ea2ded48c1f799f47c534ab732e21cea61598159",
+      "last_modified": "Thu, 18 Jun 2026 21:46:26 GMT",
+      "etag": "edf490f4a7a2d204e3989d1e9c368a3f",
+      "content_type": "application/x-tar",
+      "binary_size": 15550832,
+      "binary_sha256": "f19e5ed240dc185bcaf6ca96e0fa40d5ee53e3a543f4c562082ac0d8d92f027a",
+      "file": "ELF 64-bit LSB pie executable, x86-64, static-pie linked, stripped",
+      "ldd": "statically linked",
+      "properties_size": 5869,
+      "properties_sha256": "ec9227d8a308cecc09e1d417a6588f486d35364982541b09c8b7224cb58324a5"
+    },
+    "aarch64": {
+      "url": "https://install.speedtest.net/ooklaserver/stable/OoklaServer-linux-aarch64-static-musl.tgz",
+      "tgz_size": 5270518,
+      "tgz_sha256": "c72b4f4380f5fed6d43a6a1460055de0d43149cba178c0ebde7ba6af12061615",
+      "last_modified": "Thu, 18 Jun 2026 21:46:26 GMT",
+      "etag": "ea7c713f97a9ebe0666d6785ae3fef22",
+      "content_type": "application/x-tar",
+      "binary_size": 13824464,
+      "binary_sha256": "f7fd93c377ac4b7640a8b1ddba1f87254cd731e6d0d73111588a6dda9780edaa",
+      "file": "ELF 64-bit LSB pie executable, ARM aarch64, static-pie linked, stripped",
+      "properties_size": 5869,
+      "properties_sha256": "ec9227d8a308cecc09e1d417a6588f486d35364982541b09c8b7224cb58324a5"
+    }
+  },
+  "daemon": {
+    "version_flag": "2.11.5.2 2026-06-04.1737.7d0993d",
+    "log_version": "OoklaServer version 2.11 (2.11.5.2) build number 2026-06-04.1737.7d0993d",
+    "hello": "HELLO 2.11 (2.11.5) 2026-06-04.1737.7d0993d",
+    "hi": "hello 2.11 (2.11.5) 2026-06-04.1737.7d0993d",
+    "instance_ids": {
+      "http": "47c99578-7303-4bdc-a410-0f5757672675",
+      "https": "294480e3-775d-4fbf-b10c-d56c36abd27c"
+    },
+    "download_data_bytes": 2097152,
+    "run_mode": "-d (develop: disable forking and updates)"
+  },
+  "config_keys_used": {
+    "OoklaServer.tcpPorts": "8080",
+    "OoklaServer.udpPorts": "8080",
+    "OoklaServer.httpPorts": "8080",
+    "OoklaServer.useIPv4": "true",
+    "OoklaServer.useIPv6": "false",
+    "OoklaServer.addresses": "127.0.0.1",
+    "OoklaServer.allowedDomains": "*",
+    "OoklaServer.enableAutoUpdate": "false",
+    "OoklaServer.ssl.useLetsEncrypt": "false",
+    "OoklaServer.clientAuthToken.denyInvalid": "true",
+    "OoklaServer.websocket.frameSizeLimitBytes": "5242880",
+    "OoklaServer.http.maxHeadersSize": "65536",
+    "openSSL.server.minimumTLSProtocol": "1.2",
+    "https_only": {
+      "openSSL.server.certificateFile": "/home/user/ooklaserver/sim/certs/fullchain.pem",
+      "openSSL.server.privateKeyFile": "/home/user/ooklaserver/sim/certs/server.key"
+    }
+  },
+  "bindings": {
+    "http_mode": [
+      "127.0.0.1:8080/tcp",
+      "127.0.0.1:8080/udp"
+    ],
+    "https_mode": [
+      "127.0.0.1:8080/tcp",
+      "127.0.0.1:8080/udp"
+    ],
+    "platform_proxy_extra": "169.254.0.21:8080 appears in Arena port list; daemon itself binds 127.0.0.1",
+    "legacy_control": "127.0.0.1:80/tcp (separate Python control server, not OoklaServer)"
+  },
+  "tls": {
+    "ca_subject": "C=ID, ST=East Java, L=Malang, O=ArenaSim, OU=OoklaServer Simulation, CN=ArenaSim Root CA",
+    "server_subject": "C=ID, ST=East Java, L=Malang, O=ArenaSim, OU=OoklaServer Simulation, CN=localhost",
+    "server_san": "DNS:localhost, IP:127.0.0.1, IP:::1",
+    "validity": "2026-11-02 19:41:37 GMT to 2029-02-04 19:41:37 GMT",
+    "cipher": "TLS_AES_256_GCM_SHA384",
+    "protocol": "TLSv1.3",
+    "openssl_verify": "0 (ok)",
+    "ca_installed": "/usr/local/share/ca-certificates/ooklaserver-sim.crt + update-ca-certificates",
+    "app_env": "SSL_CERT_FILE=/home/user/ooklaserver/sim/certs/ca.crt",
+    "fullchain": "server.crt + ca.crt; OoklaServer log: 1 intermediate certificate(s)",
+    "same_port_behavior": "With custom cert, 127.0.0.1:8080 accepts BOTH plain HTTP/NetGauge/WebSocket AND TLS/WSS on the same socket (protocol sniffing)."
+  },
+  "legacy_fallback": {
+    "zip_url": "http://speedtest.lungit.com/http_legacy_fallback.zip",
+    "zip_size": 98914155,
+    "zip_sha256": "e77a8fc73dbf725c6d529b389e2fa0af61fbad9be2240d79dc6db078f245463d",
+    "zip_storage": "/home/user/.cache/http_legacy_fallback.zip (excluded from workspace snapshot)",
+    "uncompressed": 102345454,
+    "files": 16,
+    "crossdomain": "*.speedtest.net, *.ookla.com",
+    "latency": "test=test",
+    "upload_php": "size = 500 + sum(strlen(key)+strlen(value)+3)",
+    "clone_upload_body_lengths": {
+      "upload": 515798,
+      "max_upload": 1980998
+    },
+    "clone_expected_responses": {
+      "upload": "size=516300",
+      "max_upload": "size=1981500"
+    },
+    "image_sizes": [
+      [
+        350,
+        245388
+      ],
+      [
+        500,
+        505544
+      ],
+      [
+        750,
+        1118012
+      ],
+      [
+        1000,
+        1986284
+      ],
+      [
+        1500,
+        4468241
+      ],
+      [
+        2000,
+        7907740
+      ],
+      [
+        2500,
+        12407926
+      ],
+      [
+        3000,
+        17816816
+      ],
+      [
+        3500,
+        24262167
+      ],
+      [
+        4000,
+        31625365
+      ]
+    ]
+  },
+  "clone_runner": {
+    "web": "http://127.0.0.1:3000/host-tester",
+    "api": "http://127.0.0.1:3000/api/test?host=localhost:8080&allow_private=1",
+    "cli": "./host-tester localhost:8080 --allow-private --json",
+    "allow_private": "required because localhost resolves to 127.0.0.1 / ::1",
+    "normalization": "scheme/path/query stripped; bare host defaults to :8080; no TLS hint retained"
+  },
+  "results": {
+    "http_mode": {
+      "cli": {
+        "passed": 18,
+        "failed": 1,
+        "total": 19
+      },
+      "api": {
+        "passed": 18,
+        "failed": 1,
+        "total": 19
+      },
+      "failed": [
+        "https"
+      ],
+      "exit_code": 1
+    },
+    "https_mode": {
+      "cli": {
+        "passed": 19,
+        "failed": 0,
+        "total": 19
+      },
+      "api": {
+        "passed": 19,
+        "failed": 0,
+        "total": 19
+      },
+      "failed": [],
+      "exit_code": 0
+    },
+    "direct_8080_probes": "results/direct-8080-probes.json",
+    "direct_8080_https_probes": "results/direct-8080-https-probes.json"
+  },
+  "sources": [
+    "https://install.speedtest.net/ooklaserver/stable/OoklaServer-linux-x86_64-static-musl.tgz",
+    "https://install.speedtest.net/ooklaserver/stable/OoklaServer-linux-aarch64-static-musl.tgz",
+    "https://support.ookla.com/hc/en-us/articles/44460782741649-How-do-I-enable-HTTPS-TLS-support",
+    "https://support.ookla.com/hc/en-us/articles/44460767382289-Which-Protocols-and-Ports-am-I-Required-to-Use",
+    "https://support.ookla.com/hc/en-us/articles/44460781345169-OoklaServer-Properties-Options",
+    "https://support.ookla.com/hc/en-us/articles/44460805417361-Basic-Server-Daemon-Configuration-Options",
+    "https://support.ookla.com/hc/en-us/articles/44460770473745-Advanced-Server-Daemon-Configuration",
+    "https://www.scribd.com/document/719336642/Ookla-Server-Tester",
+    "http://speedtest.lungit.com/http_legacy_fallback.zip"
+  ],
+  "what_to_update": [
+    "Add a TLS/daemon-mode hint: normalize_target() currently discards https:// scheme, so netgauge/websocket/crossdomain always use plain HTTP even when the target is HTTPS-only.",
+    "Make legacy fallback port configurable (80 vs target port 8080). The official daemon serves /speedtest/* on 8080 too; the Scribd result schema shows the tester historically used http://<bare-host> on port 80.",
+    "Make upload body/response algorithm endpoint-aware: legacy PHP on port 80 uses +502 overhead; OoklaServer daemon on 8080 returns raw Content-Length as size=<body_length>.",
+    "Add --ca-bundle / SSL_CERT_FILE support to CLI and web app for lab self-signed CAs; currently relies on system trust or env var.",
+    "Consider probing WSS as well as WS when TLS is enabled.",
+    "Keep allow_private documented for localhost/lab targets.",
+    "Process lifecycle: OoklaServer -d ignored SIGTERM from stop_process once; manual kill -TERM/-KILL was needed.",
+    "Legacy fallback zip is 95 MB; store in excluded .cache or re-download, do not commit to the comparison repo."
+  ]
+}

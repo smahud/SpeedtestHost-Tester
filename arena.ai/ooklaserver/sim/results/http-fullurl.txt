@@ -1,0 +1,9 @@
+OOKLA SERVER TESTER — CLONE RESULT
+Host    : localhost:8080
+Waktu   : 2026-11-03 02:46:19 UTC+07:00 (UTC+0700)
+Ringkas : 18 PASSED / 1 FAILED dari 19 checks
+Input   : localhost:8080
+Asli    : http://localhost:8080/path?x=1
+DNS A   : 127.0.0.1
+DNS AAAA: ::1
+

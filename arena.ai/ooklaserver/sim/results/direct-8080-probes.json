@@ -1,0 +1,205 @@
+{
+  "target": "127.0.0.1:8080",
+  "version": "2.11.5.2",
+  "probes": [
+    {
+      "name": "GET /",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 109,
+        "ctype": "text/html",
+        "body": "<html><head><title>OoklaServer</title></head><body><h1>OoklaServer</h1><p>It worked!<br /></p></body></html>\n"
+      },
+      "ms": 3.1
+    },
+    {
+      "name": "GET /hi",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 44,
+        "ctype": "text/plain; charset=UTF-8",
+        "body": "hello 2.11 (2.11.5) 2026-06-04.1737.7d0993d\n"
+      },
+      "ms": 0.8
+    },
+    {
+      "name": "GET /crossdomain.xml",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 115,
+        "ctype": "text/xml",
+        "body": "<?xml version=\"1.0\"?>\n<cross-domain-policy>\n<allow-access-from domain=\"*\" to-ports=\"8080\"/>\n</cross-domain-policy>\n"
+      },
+      "ms": 0.7
+    },
+    {
+      "name": "GET /speedtest/latency.txt",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 10,
+        "ctype": "text/plain; charset=UTF-8",
+        "body": "test=test\n"
+      },
+      "ms": 0.6
+    },
+    {
+      "name": "POST /speedtest/upload.php upload bodylen=515798 expect=size=516300",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 12,
+        "ctype": "text/plain; charset=UTF-8",
+        "body": "size=515798\n"
+      },
+      "ms": 1.0
+    },
+    {
+      "name": "POST /speedtest/upload.php max_upload bodylen=1980998 expect=size=1981500",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 13,
+        "ctype": "text/plain; charset=UTF-8",
+        "body": "size=1980998\n"
+      },
+      "ms": 1.4
+    },
+    {
+      "name": "GET /speedtest/random350x350.jpg expect=245388",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 245388,
+        "expected": 245388,
+        "jpeg": "\ufffd\ufffd",
+        "match": true
+      },
+      "ms": 0.9
+    },
+    {
+      "name": "GET /speedtest/random500x500.jpg expect=505544",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 505544,
+        "expected": 505544,
+        "jpeg": "\ufffd\ufffd",
+        "match": true
+      },
+      "ms": 0.8
+    },
+    {
+      "name": "GET /speedtest/random750x750.jpg expect=1118012",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 1118012,
+        "expected": 1118012,
+        "jpeg": "\ufffd\ufffd",
+        "match": true
+      },
+      "ms": 1.0
+    },
+    {
+      "name": "GET /speedtest/random1000x1000.jpg expect=1986284",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 1986284,
+        "expected": 1986284,
+        "jpeg": "\ufffd\ufffd",
+        "match": true
+      },
+      "ms": 2.3
+    },
+    {
+      "name": "GET /speedtest/random1500x1500.jpg expect=4468241",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 4468241,
+        "expected": 4468241,
+        "jpeg": "\ufffd\ufffd",
+        "match": true
+      },
+      "ms": 4.5
+    },
+    {
+      "name": "GET /speedtest/random2000x2000.jpg expect=7907740",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 7907740,
+        "expected": 7907740,
+        "jpeg": "\ufffd\ufffd",
+        "match": true
+      },
+      "ms": 10.7
+    },
+    {
+      "name": "GET /speedtest/random2500x2500.jpg expect=12407926",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 12407926,
+        "expected": 12407926,
+        "jpeg": "\ufffd\ufffd",
+        "match": true
+      },
+      "ms": 10.3
+    },
+    {
+      "name": "GET /speedtest/random3000x3000.jpg expect=17816816",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 17816816,
+        "expected": 17816816,
+        "jpeg": "\ufffd\ufffd",
+        "match": true
+      },
+      "ms": 21.5
+    },
+    {
+      "name": "GET /speedtest/random3500x3500.jpg expect=24262167",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 24262167,
+        "expected": 24262167,
+        "jpeg": "\ufffd\ufffd",
+        "match": true
+      },
+      "ms": 14.6
+    },
+    {
+      "name": "GET /speedtest/random4000x4000.jpg expect=31625365",
+      "ok": true,
+      "value": {
+        "status": 200,
+        "length": 31625365,
+        "expected": 31625365,
+        "jpeg": "\ufffd\ufffd",
+        "match": true
+      },
+      "ms": 36.7
+    },
+    {
+      "name": "keepalive 2x GET /speedtest/latency.txt",
+      "ok": true,
+      "value": {
+        "first": 200,
+        "second": 200,
+        "reused": true,
+        "second_ms": 0.3,
+        "conn1": "Keep-Alive",
+        "conn2": "Keep-Alive"
+      },
+      "ms": 1.1
+    }
+  ]
+}
