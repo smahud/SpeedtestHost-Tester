@@ -22,3 +22,7 @@ Thumbs.db
 *.csr
 # fullchain.pem is public certificate chain, keep it tracked
 !arena.ai/ooklaserver/sim/certs/fullchain.pem
+# combined public+lab CA bundle used by the official CLI cross-validation
+!arena.ai/ooklaserver/sim/certs/ca-bundle-cli.pem
+# verbose evidence logs from the official CLI cross-validation
+!arena.ai/ooklaserver/sim/results/cli-*.log

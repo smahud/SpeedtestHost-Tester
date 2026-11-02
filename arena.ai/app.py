@@ -73,6 +73,47 @@ def now_jakarta() -> str:
     return datetime.now(JAKARTA).strftime("%Y-%m-%d %H:%M:%S %Z (UTC%z)")
 
 
+def detect_scheme(raw: str) -> str | None:
+    """Return the scheme of a full URL, or None for host:port / bare host input.
+
+    The official tester only accepts host:port, but this clone also accepts full
+    URLs.  Keeping the scheme as metadata makes TLS behaviour explicit instead
+    of silently discarding it.
+    """
+    s = (raw or "").strip()
+    if len(s) >= 2 and s[0] == s[-1] and s[0] in ("'", '"'):
+        s = s[1:-1].strip()
+    if "://" not in s:
+        s = "//" + s
+    try:
+        return urllib.parse.urlsplit(s).scheme.lower() or None
+    except ValueError:
+        return None
+
+
+def validate_ca_bundle(path: str) -> str:
+    """Validate a caller-supplied PEM CA bundle before TLS verification uses it.
+
+    Mirrors the official Speedtest CLI `--ca-certificate` semantics: a supplied
+    bundle REPLACES the default trust store, so it must contain every CA needed.
+    Never disables verification.
+    """
+    f = Path(path).expanduser()
+    if not f.is_file():
+        raise ValueError(f"ca_bundle is not a readable file: {path}")
+    text = f.read_text(encoding="utf-8", errors="replace")
+    if "-----BEGIN CERTIFICATE-----" not in text:
+        raise ValueError(f"ca_bundle does not contain a PEM certificate: {path}")
+    return str(f.resolve())
+
+
+def wrap_tls(sock, host, ca_bundle=None):
+    """Wrap an established socket with strict TLS (never unverified)."""
+    ctx = (ssl.create_default_context(cafile=ca_bundle) if ca_bundle
+           else ssl.create_default_context())
+    return ctx.wrap_socket(sock, server_hostname=host)
+
+
 def normalize_target(raw: str, default_port: int = 8080) -> tuple[str, str | None]:
     """Accept host:port, a bare hostname, or a full http(s) URL.
 
@@ -259,13 +300,15 @@ def read_body(resp, limit=None):
 
 def raw_http(host, port, path, method="GET", body=None, extra_headers=None,
              use_ssl=False, verify=True, addrinfos=None, timeout=8.0, body_limit=None,
-             host_header=None):
+             host_header=None, ca_bundle=None):
     if addrinfos is None:
         addrinfos = resolve_host(host, port)
     sock, ip = connect_first(addrinfos, timeout)
     if use_ssl:
-        ctx = ssl.create_default_context() if verify else ssl._create_unverified_context()
-        sock = ctx.wrap_socket(sock, server_hostname=host)
+        if verify:
+            sock = wrap_tls(sock, host, ca_bundle)
+        else:
+            sock = ssl._create_unverified_context().wrap_socket(sock, server_hostname=host)
     headers = {
         "Host": host_header or (host if port == 80 else f"{host}:{port}"),
         "User-Agent": USER_AGENT,
@@ -364,9 +407,11 @@ def cert_info(host, port, addrinfos):
         return f"certificate details unavailable: {exc}"
 
 
-def netgauge_check(host, port, addrinfos):
+def netgauge_check(host, port, addrinfos, use_ssl=False, ca_bundle=None):
     try:
         sock, ip = connect_first(addrinfos, 6.0)
+        if use_ssl:
+            sock = wrap_tls(sock, host, ca_bundle)
         sock.sendall(b"HI\n")
         line = recv_line(sock).decode("utf-8", "replace").strip()
         try:
@@ -376,7 +421,8 @@ def netgauge_check(host, port, addrinfos):
         sock.close()
         parsed = parse_hello(line)
         if parsed:
-            return row("netgauge", f"details : {parsed['pretty']}\nresponse : {line}\naddress : {ip}", "PASSED")
+            transport = "TLS" if use_ssl else "plain TCP"
+            return row("netgauge", f"details : {parsed['pretty']}\nresponse : {line}\ntransport : {transport}\naddress : {ip}", "PASSED")
         return row("netgauge", f"details : Wrong response\nresponse : {line or '(empty)'}\naddress : {ip}", "FAILED")
     except Exception as exc:
         return row("netgauge", f"details : Connection failed\nerror : {exc}", "FAILED")
@@ -412,9 +458,11 @@ def ws_recv_frame(sock):
     return fin, opcode, payload
 
 
-def websocket_check(host, port, addrinfos):
+def websocket_check(host, port, addrinfos, use_ssl=False, ca_bundle=None):
     try:
         sock, ip = connect_first(addrinfos, 6.0)
+        if use_ssl:
+            sock = wrap_tls(sock, host, ca_bundle)
         key = base64.b64encode(os.urandom(16)).decode()
         guid = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
         expected = base64.b64encode(hashlib.sha1((key + guid).encode()).digest()).decode()
@@ -454,7 +502,8 @@ def websocket_check(host, port, addrinfos):
         sock.close()
         parsed = parse_hello(hello or "")
         if parsed:
-            return row("websocket", f"details : {parsed['pretty']}\nhandshake : HTTP/1.1 101 Switching Protocols\nframe : {hello}\naddress : {ip}", "PASSED")
+            transport = "wss / TLS" if use_ssl else "ws / plain TCP"
+            return row("websocket", f"details : {parsed['pretty']}\nhandshake : HTTP/1.1 101 Switching Protocols\ntransport : {transport}\nframe : {hello}\naddress : {ip}", "PASSED")
         return row("websocket", f"details : Wrong WebSocket HELLO response\nframe : {hello or '(empty)'}", "FAILED")
     except Exception as exc:
         return row("websocket", f"details : WebSocket test failed\nerror : {exc}", "FAILED")
@@ -483,10 +532,12 @@ def port_allowed(ports, port):
     return False
 
 
-def crossdomain_check(host, port, addrinfos, required, label="crossdomain", url=None, check_port=True):
+def crossdomain_check(host, port, addrinfos, required, label="crossdomain", url=None,
+                      check_port=True, use_ssl=False, ca_bundle=None):
     try:
         res = raw_http(host, port, "/crossdomain.xml", addrinfos=addrinfos, timeout=8,
-                       host_header=(host if port == 80 else f"{host}:{port}"))
+                       host_header=(host if port == 80 else f"{host}:{port}"),
+                       use_ssl=use_ssl, ca_bundle=ca_bundle)
         domains, ports, text = crossdomain_parse(res["body"])
         ok = res["status"] == 200 and bool(domains)
         missing = [d for d in required if d not in domains and "*" not in domains]
@@ -511,14 +562,15 @@ def crossdomain_check(host, port, addrinfos, required, label="crossdomain", url=
         return row(label, f"details : Could not fetch crossdomain.xml\nerror : {exc}", "FAILED")
 
 
-def https_check(host, port, addrinfos):
+def https_check(host, port, addrinfos, ca_bundle=None):
     try:
         res = raw_http(host, port, "/hi", use_ssl=True, verify=True, addrinfos=addrinfos,
-                       timeout=8, host_header=f"{host}:{port}")
+                       timeout=8, host_header=f"{host}:{port}", ca_bundle=ca_bundle)
         body = res["body"].decode("utf-8", "replace").strip()
         parsed = parse_hello(body)
         if res["status"] == 200 and parsed:
-            return row("https", f"details : Response: {body}\nstatus_line : {res['status_line']}\ncertificate : verified", "PASSED")
+            trust = f"verified (CA bundle: {ca_bundle})" if ca_bundle else "verified (system trust store)"
+            return row("https", f"details : Response: {body}\nstatus_line : {res['status_line']}\ncertificate : {trust}", "PASSED")
         return row("https", f"details : Response: {body or '(empty)'}\nstatus_line : {res['status_line']}", "FAILED")
     except ssl.SSLCertVerificationError as exc:
         phrase = ssl_error_phrase(exc)
@@ -535,7 +587,7 @@ def https_check(host, port, addrinfos):
             "tip: Connection over HTTPS failed.\n"
             f"certificate : {info}\n"
             f"insecure_response : {insecure_body}\n"
-            "note: Ookla validates the public CA chain; a self-signed certificate is rejected."
+            "note: strict TLS verification is active and is never disabled. For a lab/private CA use --ca-bundle / ca_bundle=<PEM file>; the bundle replaces the default trust store, exactly like the official Speedtest CLI --ca-certificate."
         )
         return row("https", details, "FAILED")
     except Exception as exc:
@@ -549,33 +601,62 @@ def random_urlsafe(length: int) -> bytes:
     return out[:length]
 
 
-def upload_check(host, legacy_addrs, expected_size, key, label):
-    # upload.php computes: 500 + strlen(key) + strlen(value) + 3.
-    # Ookla's tester uses the content1 field; choose value length so the script
-    # returns exactly the size the real tester expects.
+def upload_check(host, legacy_addrs, expected_size, key, label,
+                 legacy_port=80, upload_mode="auto"):
+    """POST /speedtest/upload.php and validate the size= response.
+
+    Two real behaviours were verified against the official binaries:
+
+      * legacy PHP fallback (port 80): 500 + len(key) + len(value) + 3
+      * OoklaServer daemon (port 8080): raw POST Content-Length
+
+    upload_mode: legacy | native | auto (accept either and report which matched).
+    """
     value_len = expected_size - (500 + len("content1") + 3)
     body = b"content1=" + random_urlsafe(value_len)
+    native_size = len(body)
+    if upload_mode == "legacy":
+        accepted = {expected_size}
+    elif upload_mode == "native":
+        accepted = {native_size}
+    else:
+        accepted = {expected_size, native_size}
+    host_header = None if legacy_port == 80 else f"{host}:{legacy_port}"
     try:
-        res = raw_http(host, 80, "/speedtest/upload.php", method="POST", body=body,
+        res = raw_http(host, legacy_port, "/speedtest/upload.php", method="POST", body=body,
                        extra_headers={"Content-Type": "application/x-www-form-urlencoded"},
-                       addrinfos=legacy_addrs, timeout=15, host_header=host)
+                       addrinfos=legacy_addrs, timeout=15, host_header=host_header)
         text = res["body"].decode("utf-8", "replace").strip()
-        ok = res["status"] == 200 and text == f"size={expected_size}"
-        details = f"details : {compact_response(res, 200)}\nexpected : size={expected_size}\nactual : {text or '(empty)'}"
+        m = re.fullmatch(r"size=(\d+)", text)
+        got = int(m.group(1)) if m else None
+        detected = ("legacy-php" if got == expected_size else
+                    "native-daemon" if got == native_size else "unknown")
+        ok = res["status"] == 200 and got in accepted
+        details = (
+            f"details : {compact_response(res, 200)}\n"
+            f"expected : size={expected_size} (legacy PHP)\n"
+            f"native_expected : size={native_size} (raw Content-Length)\n"
+            f"actual : {text or '(empty)'}\n"
+            f"detected_mode : {detected}\n"
+            f"upload_mode : {upload_mode}\n"
+            f"legacy_port : {legacy_port}\n"
+            f"body_length : {native_size}"
+        )
         return row(key, details, "PASSED" if ok else "FAILED")
     except BrokenPipeError as exc:
-        return row(key, f"details : Connection closed while sending the {expected_size}-byte POST\nerror : {exc}\nexpected : size={expected_size}\nactual : (no response)", "FAILED")
+        return row(key, f"details : Connection closed while sending the {native_size}-byte POST\nerror : {exc}\nexpected : size={expected_size}\nactual : (no response)", "FAILED")
     except Exception as exc:
         return row(key, f"details : Upload request failed\nerror : {exc}\nexpected : size={expected_size}", "FAILED")
 
 
-def image_checks(host, legacy_addrs):
+def image_checks(host, legacy_addrs, legacy_port=80):
     rows = []
+    host_header = None if legacy_port == 80 else f"{host}:{legacy_port}"
     for i, (dim, expected) in enumerate(IMAGE_SIZES, 1):
         path = f"/speedtest/random{dim}x{dim}.jpg"
         try:
-            res = raw_http(host, 80, path, addrinfos=legacy_addrs, timeout=20,
-                           body_limit=expected + 1, host_header=host)
+            res = raw_http(host, legacy_port, path, addrinfos=legacy_addrs, timeout=20,
+                           body_limit=expected + 1, host_header=host_header)
             actual = res["body_length"]
             ctype = header_get(res["headers"], "Content-Type")
             jpeg = res["body"][:2] == b"\xff\xd8"
@@ -587,12 +668,13 @@ def image_checks(host, legacy_addrs):
     return rows
 
 
-def keepalive_check(host, legacy_addrs):
+def keepalive_check(host, legacy_addrs, legacy_port=80):
     try:
         sock, ip = connect_first(legacy_addrs, 6.0)
+        host_header = host if legacy_port == 80 else f"{host}:{legacy_port}"
         req = (
             f"GET /speedtest/latency.txt HTTP/1.1\r\n"
-            f"Host: {host}\r\nUser-Agent: {USER_AGENT}\r\nAccept: */*\r\n"
+            f"Host: {host_header}\r\nUser-Agent: {USER_AGENT}\r\nAccept: */*\r\n"
             f"Connection: keep-alive\r\n\r\n"
         )
         sock.sendall(req.encode())
@@ -630,7 +712,24 @@ def row(key, details, status, subrows=None):
     return out
 
 
-def run_all_tests(host_input: str, allow_private: bool = False):
+def run_all_tests(host_input: str, allow_private: bool = False,
+                  ca_bundle: str | None = None,
+                  legacy_port: int = 80,
+                  upload_mode: str = "auto",
+                  daemon_tls: bool = False):
+    """Run the 19 host-tester checks.
+
+    Advanced options came from cross-validation against the official OoklaServer
+    2.11.5.2 daemon and the official Speedtest CLI 1.2.0.84: real servers differ
+    in legacy port, upload algorithm, TLS transport, and CA trust.
+    """
+    if not (1 <= legacy_port <= 65535):
+        raise ValueError("legacy_port must be between 1 and 65535")
+    if upload_mode not in ("auto", "legacy", "native"):
+        raise ValueError("upload_mode must be auto, legacy, or native")
+    if ca_bundle:
+        ca_bundle = validate_ca_bundle(ca_bundle)
+
     target, normalization_note = normalize_target(host_input)
     host, port = parse_host(target)
     addrs = resolve_host(host, port, allow_private=allow_private)
@@ -638,49 +737,51 @@ def run_all_tests(host_input: str, allow_private: bool = False):
     ipv6 = [a["ip"] for a in addrs if a["version"] == 6]
 
     daemon_rows = [
-        netgauge_check(host, port, addrs),
-        websocket_check(host, port, addrs),
+        netgauge_check(host, port, addrs, use_ssl=daemon_tls, ca_bundle=ca_bundle),
+        websocket_check(host, port, addrs, use_ssl=daemon_tls, ca_bundle=ca_bundle),
         crossdomain_check(host, port, addrs,
                           required=["*.ookla.com", "*.speedtest.net", "*.speedtestcustom.com"],
-                          check_port=True),
-        https_check(host, port, addrs),
+                          check_port=True, use_ssl=daemon_tls, ca_bundle=ca_bundle),
+        https_check(host, port, addrs, ca_bundle=ca_bundle),
     ]
 
-    legacy_url = f"http://{host}/speedtest/upload.php"
+    port_suffix = "" if legacy_port == 80 else f":{legacy_port}"
+    legacy_base = f"http://{host}{port_suffix}"
+    legacy_url = f"{legacy_base}/speedtest/upload.php"
     try:
-        legacy_addrs = resolve_host(host, 80, allow_private=allow_private)
+        legacy_addrs = resolve_host(host, legacy_port, allow_private=allow_private)
     except Exception:
         legacy_addrs = addrs
     legacy_rows = [
-        crossdomain_check(host, 80, legacy_addrs,
+        crossdomain_check(host, legacy_port, legacy_addrs,
                           required=["*.speedtest.net", "*.ookla.com"],
-                          url=f"http://{host}/crossdomain.xml", check_port=False),
+                          url=f"{legacy_base}/crossdomain.xml", check_port=False),
     ]
-    # latency
     try:
-        res = raw_http(host, 80, "/speedtest/latency.txt", addrinfos=legacy_addrs,
-                       timeout=8, host_header=host)
+        res = raw_http(host, legacy_port, "/speedtest/latency.txt", addrinfos=legacy_addrs,
+                       timeout=8)
         text = res["body"].decode("utf-8", "replace").strip()
         ok = res["status"] == 200 and text == "test=test"
-        legacy_rows.append(row("latency", f"details : {text or '(empty)'}\nlatency_url : http://{host}/speedtest/latency.txt\nhttp_status : {res['status']}\nresponse : {compact_response(res, 180)}", "PASSED" if ok else "FAILED"))
+        legacy_rows.append(row("latency", f"details : {text or '(empty)'}\nlatency_url : {legacy_base}/speedtest/latency.txt\nhttp_status : {res['status']}\nresponse : {compact_response(res, 180)}", "PASSED" if ok else "FAILED"))
     except Exception as exc:
-        legacy_rows.append(row("latency", f"details : Could not fetch latency.txt\nerror : {exc}\nlatency_url : http://{host}/speedtest/latency.txt", "FAILED"))
+        legacy_rows.append(row("latency", f"details : Could not fetch latency.txt\nerror : {exc}\nlatency_url : {legacy_base}/speedtest/latency.txt", "FAILED"))
 
-    legacy_rows.append(upload_check(host, legacy_addrs, 516300, "upload", "upload"))
-    max_row = upload_check(host, legacy_addrs, 1981500, "max_upload", "max_upload")
+    legacy_rows.append(upload_check(host, legacy_addrs, 516300, "upload", "upload",
+                                    legacy_port=legacy_port, upload_mode=upload_mode))
+    max_row = upload_check(host, legacy_addrs, 1981500, "max_upload", "max_upload",
+                           legacy_port=legacy_port, upload_mode=upload_mode)
     max_row["details"] += "\nsuccess : " + max_row["status"]
     legacy_rows.append(max_row)
 
-    # image_sizes is one named test with 10 numbered sub-results, as on the original page.
-    image_rows = image_checks(host, legacy_addrs)
+    image_rows = image_checks(host, legacy_addrs, legacy_port=legacy_port)
     image_ok = all(r["status"] == "PASSED" for r in image_rows)
     legacy_rows.append(row(
         "image_sizes",
-        f"details : {len(IMAGE_SIZES)} download image files checked against the official http_legacy_fallback.zip byte sizes",
+        f"details : {len(IMAGE_SIZES)} download image files checked against the official http_legacy_fallback.zip byte sizes\nlegacy_port : {legacy_port}",
         "PASSED" if image_ok else "FAILED",
         subrows=image_rows,
     ))
-    legacy_rows.append(keepalive_check(host, legacy_addrs))
+    legacy_rows.append(keepalive_check(host, legacy_addrs, legacy_port=legacy_port))
 
     all_rows = daemon_rows + legacy_rows
     flat_rows = []
@@ -688,15 +789,24 @@ def run_all_tests(host_input: str, allow_private: bool = False):
         flat_rows.extend(r.get("subrows") or [r])
     passed = sum(1 for r in flat_rows if r["status"] == "PASSED")
     failed = len(flat_rows) - passed
+    options = {
+        "ca_bundle": ca_bundle,
+        "legacy_port": legacy_port,
+        "upload_mode": upload_mode,
+        "daemon_tls": bool(daemon_tls),
+        "allow_private": bool(allow_private),
+    }
     return {
         "input": host_input,
         "normalized_input": target,
         "normalization_note": normalization_note,
+        "input_scheme": detect_scheme(host_input),
         "host": host,
         "port": port,
         "timestamp": now_jakarta(),
         "resolved": {"ipv4": ipv4, "ipv6": ipv6},
         "legacy_url": legacy_url,
+        "options": options,
         "sections": [
             {"title": "OOKLASERVER / NETGAUGE TCP", "rows": daemon_rows},
             {"title": "HTTP LEGACY FALLBACK", "url": legacy_url, "rows": legacy_rows},
@@ -704,6 +814,7 @@ def run_all_tests(host_input: str, allow_private: bool = False):
         "summary": {"passed": passed, "failed": failed, "total": len(flat_rows)},
         "allow_private": bool(allow_private),
         "runner_note": "Checks are executed from this sandbox, not from Ookla's regional watchdog servers.",
+        "cross_validation_note": "Endpoint semantics verified against official OoklaServer 2.11.5.2 and official Speedtest CLI 1.2.0.84 on localhost:8080.",
     }
 
 
@@ -788,7 +899,7 @@ def render_results(data, clean=False):
     parts.append(
         '<p class="result-foot">'
         f'{esc(data["runner_note"])} '
-        'The legacy fallback is tested on port 80 of the hostname, exactly as the original tester derives it from <code>host:8080</code>. '
+        f'The legacy fallback is tested on port {esc(str(data.get("options", {}).get("legacy_port", 80)))} of the hostname; the original tester derives port 80 from <code>host:8080</code>. '
         f'<a href="{again}">Start over</a>'
         '</p>'
     )
@@ -809,6 +920,13 @@ def format_text(data, summary_only=False):
         f"DNS A   : {', '.join(data['resolved']['ipv4']) or '(none)'}",
         f"DNS AAAA: {', '.join(data['resolved']['ipv6']) or '(none)'}",
     ]
+    opt = data.get("options") or {}
+    lines.append(
+        f"Opsi   : legacy_port={opt.get('legacy_port', 80)}, "
+        f"upload_mode={opt.get('upload_mode', 'auto')}, "
+        f"daemon_tls={opt.get('daemon_tls', False)}, "
+        f"ca_bundle={opt.get('ca_bundle') or '(system trust)'}"
+    )
     if summary_only:
         return "\n".join(lines) + "\n"
     for sec in data["sections"]:
@@ -825,6 +943,37 @@ def format_text(data, summary_only=False):
                 for line in sr["details"].splitlines():
                     lines.append("      " + line)
     return "\n".join(lines) + "\n"
+
+
+def options_from_qs(qs):
+    """Parse advanced options from query/POST without changing the 1:1 form."""
+    def flag(name):
+        return qs.get(name, [""])[0] in ("1", "true", "yes")
+    def text(name):
+        return qs.get(name, [""])[0].strip() or None
+    raw_port = qs.get("legacy_port", [""])[0]
+    try:
+        legacy_port = int(raw_port) if raw_port else 80
+    except ValueError:
+        legacy_port = 80
+    return {
+        "allow_private": flag("allow_private"),
+        "clean": flag("clean"),
+        "ca_bundle": text("ca_bundle"),
+        "legacy_port": legacy_port,
+        "upload_mode": text("upload_mode") or "auto",
+        "daemon_tls": flag("daemon_tls"),
+    }
+
+
+def test_options(opts):
+    return {
+        "allow_private": opts["allow_private"],
+        "ca_bundle": opts["ca_bundle"],
+        "legacy_port": opts["legacy_port"],
+        "upload_mode": opts["upload_mode"],
+        "daemon_tls": opts["daemon_tls"],
+    }
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -858,23 +1007,23 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path == "/assets/inline.css":
             return self._send(CSS, 200, "text/css; charset=utf-8")
         if parsed.path == "/host-tester":
+            opts = options_from_qs(qs)
             host_value = qs.get("ookla-server", qs.get("host", [""]))[0]
-            allow_private = qs.get("allow_private", [""])[0] in ("1", "true", "yes")
-            clean = qs.get("clean", [""])[0] in ("1", "true", "yes")
+            clean = opts["clean"]
             if qs.get("run", [""])[0] in ("1", "true", "yes") and host_value:
                 try:
-                    data = run_all_tests(host_value, allow_private=allow_private)
+                    data = run_all_tests(host_value, **test_options(opts))
                     return self._send(render_results(data, clean=clean))
                 except ValueError as exc:
                     return self._send(render_index(host_value, str(exc), clean=clean))
             return self._send(render_index(host_value, clean=clean))
         if parsed.path == "/api/test":
+            opts = options_from_qs(qs)
             host_value = qs.get("host", qs.get("ookla-server", [""]))[0]
-            allow_private = qs.get("allow_private", [""])[0] in ("1", "true", "yes")
             if not host_value:
                 return self._send(json.dumps({"error": "missing host"}), 400, "application/json")
             try:
-                data = run_all_tests(host_value, allow_private=allow_private)
+                data = run_all_tests(host_value, **test_options(opts))
                 return self._send(json.dumps(data, indent=2), 200, "application/json")
             except ValueError as exc:
                 return self._send(json.dumps({"error": str(exc)}), 400, "application/json")
@@ -887,11 +1036,11 @@ class Handler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", "0") or 0)
         raw = self.rfile.read(min(length, 16384)).decode("utf-8", "replace")
         qs = urllib.parse.parse_qs(raw, keep_blank_values=True)
+        opts = options_from_qs(qs)
         host_value = qs.get("ookla-server", qs.get("host", [""]))[0]
-        allow_private = qs.get("allow_private", [""])[0] in ("1", "true", "yes")
-        clean = qs.get("clean", [""])[0] in ("1", "true", "yes")
+        clean = opts["clean"]
         try:
-            data = run_all_tests(host_value, allow_private=allow_private)
+            data = run_all_tests(host_value, **test_options(opts))
             return self._send(render_results(data, clean=clean))
         except ValueError as exc:
             return self._send(render_index(host_value, str(exc), clean=clean))

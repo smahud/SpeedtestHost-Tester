@@ -45,7 +45,7 @@ This is intentionally more forgiving than the official form, which rejects bare 
 
 ## CLI
 
-Version `1.1.0`. No browser needed:
+Version `1.2.0`. No browser needed:
 
 ```bash
 # host:port
@@ -66,6 +66,15 @@ Version `1.1.0`. No browser needed:
 # local / not-yet-public lab server
 ./host-tester localhost:8080 --allow-private
 
+# lab CA for strict TLS (verification is never disabled)
+./host-tester localhost:8080 --allow-private --ca-bundle ooklaserver/sim/certs/ca.crt
+
+# daemon also serves legacy /speedtest/* on 8080 (native upload algorithm)
+./host-tester localhost:8080 --allow-private --legacy-port 8080 --upload-mode auto
+
+# TLS-only daemon checks (wss) with a lab CA
+./host-tester localhost:8080 --allow-private --daemon-tls --ca-bundle ooklaserver/sim/certs/ca.crt
+
 # equivalent without the wrapper
 python3 cli.py host.yapsidarussalam.or.id:8080
 ```
@@ -79,6 +88,10 @@ Flags:
 | `--summary` | print only host/time/DNS/summary lines |
 | `-o, --output FILE` | also write the result to `FILE` |
 | `--allow-private` | allow RFC1918 / loopback / local targets |
+| `--ca-bundle FILE` | PEM CA bundle for strict TLS verification (replaces default trust store; never disables verification) |
+| `--legacy-port N` | port for the HTTP legacy fallback (default `80`) |
+| `--upload-mode MODE` | `auto` \| `legacy` \| `native` upload size algorithm (default `auto`) |
+| `--daemon-tls` | use TLS for NetGauge/WebSocket/crossdomain daemon checks (`wss`) |
 | `--no-color` | disable ANSI status colors |
 | `-q, --quiet` | suppress progress notes on stderr |
 | `--version` | print CLI version |
@@ -92,11 +105,11 @@ Exit codes: `0` = all checks passed, `1` = at least one check failed, `2` = inva
 1. **netgauge** — raw TCP connect, send `HI\n`, expect `HELLO <major> (<version>) <build>`, then `QUIT\n`.
 2. **websocket** — HTTP/1.1 Upgrade to `GET /ws` with `Origin: https://www.speedtest.net`, verify `101 Switching Protocols` and `Sec-WebSocket-Accept`, send a masked text frame `HI\n`, expect `HELLO ...`.
 3. **crossdomain** — `GET /crossdomain.xml`, parse `<allow-access-from domain=... to-ports=.../>`, require `*.ookla.com`, `*.speedtest.net`, `*.speedtestcustom.com` (or `*`) and the tested port.
-4. **https** — strict TLS `GET /hi` on the same port with `ssl.create_default_context()`, expect `hello ...`. A self-signed/private certificate is FAILED unless its CA is explicitly trusted by the runtime (e.g. `SSL_CERT_FILE` pointing at a lab CA).
+4. **https** — strict TLS `GET /hi` on the same port with `ssl.create_default_context()`, expect `hello ...`. A self-signed/private certificate is FAILED unless its CA is explicitly trusted via `--ca-bundle` / `ca_bundle=` (verification is never disabled).
 
-### HTTP Legacy Fallback (port 80 of the hostname)
+### HTTP Legacy Fallback (port 80 of the hostname by default)
 
-The original tester uses `http://<hostname>/speedtest/upload.php`; the `:8080` daemon port is **not** reused by the clone. The official daemon does, however, serve the same legacy paths on 8080 — this is documented in the simulation addendum below.
+The original tester uses `http://<hostname>/speedtest/upload.php`; the `:8080` daemon port is **not** reused by default. Use `--legacy-port 8080` to probe the daemon's own legacy paths.
 
 1. **crossdomain** — `GET http://<hostname>/crossdomain.xml`.
 2. **latency** — `GET /speedtest/latency.txt`, expect `test=test`.
@@ -105,33 +118,24 @@ The original tester uses `http://<hostname>/speedtest/upload.php`; the `:8080` d
 5. **image_sizes** — `GET` all ten `random{WxW}.jpg` files and compare actual byte counts with the official `http_legacy_fallback.zip` sizes.
 6. **keepalive** — two sequential HTTP/1.1 requests on one TCP socket; verify reuse and a fast second response.
 
-The legacy `upload.php` computes `500 + len(key) + len(value) + 3`; with key `content1` this is `value_length + 511`.
-
-## Official-binary simulation (2026-11-03)
-
-The assumptions above were tested against the real daemon, not guessed. See [`ooklaserver/sim/SIMULASI.md`](ooklaserver/sim/SIMULASI.md) and [`ooklaserver/sim/manifest.json`](ooklaserver/sim/manifest.json).
-
-- Both official static-musl tarballs were downloaded; x86_64 `OoklaServer 2.11.5.2` was run with `-d` from `ooklaserver/sim/http` or `.../https`.
-- Only `127.0.0.1:8080` was used for the daemon. A separate control server served `http_legacy_fallback.zip` on port 80.
-- With the custom certificate, port 8080 accepted **plain HTTP, raw NetGauge, WebSocket, HTTPS, and WSS at the same time**.
-- HTTP mode produced **18/19 PASSED** (only `https` failed). HTTPS mode with a locally trusted CA produced **19/19 PASSED**, exit code `0`.
-- Strict TLS verification was kept; the lab CA was added to the system trust store and passed via `SSL_CERT_FILE`.
-
-The simulation identified concrete code updates: preserve the URL scheme for daemon TLS checks, make the legacy port configurable, distinguish the legacy PHP `+502` upload formula from the daemon's raw `Content-Length` response, add WSS probing, and document `--ca-bundle`/`SSL_CERT_FILE`.
+The legacy `upload.php` computes `500 + len(key) + len(value) + 3`; with key `content1` this is `value_length + 511`. The official OoklaServer daemon instead returns `size=<raw POST Content-Length>`. `--upload-mode auto` accepts either and reports `detected_mode`; `legacy`/`native` force one interpretation.
 
 ## Files
 
 | File | Purpose |
 | --- | --- |
 | `app.py` | Web server, shared `normalize_target()`, shared test engine, renderers |
-| `cli.py` | Command-line interface, v1.1.0 |
+| `cli.py` | Command-line interface, v1.2.0 |
 | `host-tester` | Executable wrapper for `cli.py` |
 | `assets/chrome.html` | Original page shell (masthead, nav, footer, SVG symbols) with placeholders |
 | `assets/form.html` | Original form markup, reCAPTCHA removed |
 | `assets/inline.css` | Original Speedtest CSS + embedded fonts + minimal clone/result overrides |
 | `assets/fonts/` | Locally downloaded Montserrat / gauge-mono font files |
-| `ooklaserver/` | Official binaries, simulation configs, CA/certificates, control server, results and `SIMULASI.md` |
 | `AUDIT.md` | Full end-to-end audit matrix, evidence and honest limitations |
+| `SIMULASI-OOKLASERVER.md` | Short index for the official-binary localhost simulation |
+| `ooklaserver/sim/SIMULASI.md` | Full simulation: binaries, config, TLS, ports, results, update list |
+| `ooklaserver/sim/manifest.json` | Machine-readable technical variables |
+| `ooklaserver/sim/results/https-cli.html` | 19/19 PASSED result page from HTTPS simulation |
 | `audit/comparison.png` | Side-by-side original vs clone form screenshot |
 | `audit/computed-styles.json` | Playwright computed-style comparison, original vs clone |
 | `hasil-test.html` | Pre-generated web result, full chrome, self-contained |
@@ -144,3 +148,7 @@ The simulation identified concrete code updates: preserve the URL scheme for dae
 This clone runs from the Arena sandbox, not from Ookla's regional watchdog servers. Ookla's monitoring can disagree with a result obtained here. The official result page is behind reCAPTCHA and cannot be observed without a valid token; the result layout here is an approximation based on the public Ookla Server Tester result schema. Exact server-side watchdog/HTTPS/KeepAlive criteria remain unverifiable. See `AUDIT.md`.
 
 During the original delivery the target `host.yapsidarussalam.or.id:8080` produced **4 PASSED / 15 FAILED / 19 checks**. During the re-audit its port 8080 began resetting connections, so a fresh live run produces **1 PASSED / 18 FAILED**; the saved `hasil-test.*` / `hasil-cli.*` files preserve the successful original run. Port 80 still responds from an external fetch, so the change is on the target daemon/port, not in the clone.
+
+A later official-binary simulation removed the guessing from daemon behavior: real OoklaServer `2.11.5.2` on `localhost:8080` produced **18/19 PASSED** in HTTP mode and **19/19 PASSED** in HTTPS mode with a locally trusted CA. See [`SIMULASI-OOKLASERVER.md`](SIMULASI-OOKLASERVER.md) and [`ooklaserver/sim/SIMULASI.md`](ooklaserver/sim/SIMULASI.md). The official `/host-tester` backend itself remains hidden behind reCAPTCHA; the simulation validates protocol responses, not Ookla's internal implementation.
+
+A further **cross-validation with the official Speedtest CLI** (`1.2.0.84`) completed the picture: the CLI's own server list gave `myspeed.gorge.net:8080`, `/etc/hosts` mapped that domain to `127.0.0.1`, and the CLI ran a full latency/download/upload/packet-loss test against the local daemon with `server.ip = 127.0.0.1` and exit 0 — in both HTTP and HTTPS daemon modes. That evidence drove **v1.2.0**: `--ca-bundle` (mirrors the CLI's `--ca-certificate`), `--legacy-port`, `--upload-mode`, `--daemon-tls`, `input_scheme`, and `options{}`. All v1.2.0 variants return **19/19 PASSED** on HTTPS mode; the form DOM stayed byte-identical (hash `25e17aa35b…5436d`). See [`ooklaserver/sim/CROSS_VALIDATION.md`](ooklaserver/sim/CROSS_VALIDATION.md).

@@ -1,0 +1,13 @@
+=== REGRESSION v1.2.0 ===
+version                            exit=0 stdout=18B stderr=''
+invalid input                      exit=2 stdout=0B stderr='error: Invalid hostname format\nhint: use host:8080 or https://host:8080'
+missing host API                   exit=0 stdout=3B stderr=''
+bare host + -p (localhost)         exit=0 stdout=323B stderr=''
+json summary has options           exit=0 stdout=382B stderr=''
+   json options: {'ca_bundle': '/home/user/ooklaserver/sim/certs/ca.crt', 'legacy_port': 80, 'upload_mode': 'auto', 'daemon_tls': False, 'allow_private': True}
+-o text output                     exit=0 stdout=0B stderr=''
+original public target             exit=1 stdout=419B stderr=''
+   original target stdout: OOKLA SERVER TESTER — CLONE RESULT | Host    : host.yapsidarussalam.or.id:8080 | Waktu   : 2026-11-03 03:56:03 UTC+07:00 (UTC+0700) | Ringkas : 1 PASSED / 18 FAILED dari 19 checks | Input   : host.yapsidarussalam.or.id:8080 | Asli    : host.yapsidarussalam.or.id:8080 | DNS A   : 125.164.215.24 | DNS
+=== static result HTML ===
+external script src 0 external stylesheet 0 url(http 0
+summary in html True

@@ -8,3 +8,6 @@
 Both tarballs are committed. Only the x86_64 binary is committed because that is the architecture actually executed in the sandbox; the aarch64 binary can be reproduced from its tarball. `aarch64/OoklaServer.properties.default` is included for comparison.
 
 Lab CA/server private keys (`*.key`, `*.csr`) are intentionally **not** committed; regenerate with the commands in `sim/SIMULASI.md`. The 95 MB `http_legacy_fallback.zip` is also not committed; `sim/scripts/reproduce-download.sh` plus `sim/legacy/legacy-files.sha256` document how to obtain it.
+
+The official **Speedtest CLI** used for cross-validation is stored separately in
+`../speedtest-cli/` with its own `CLI_MANIFEST.md`.

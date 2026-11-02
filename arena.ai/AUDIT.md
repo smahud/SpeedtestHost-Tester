@@ -3,7 +3,7 @@
 **Tanggal audit:** 2026-11-03 (Asia/Jakarta)  
 **Target:** `https://www.speedtest.net/host-tester`  
 **Host uji:** `host.yapsidarussalam.or.id:8080`  
-**Status aplikasi:** berjalan di `0.0.0.0:3000` (Arena live preview), `app.py` + `cli.py` v1.1.0
+**Status aplikasi:** berjalan di `0.0.0.0:3000` (Arena live preview), `app.py` + `cli.py` v1.2.0
 
 ---
 
@@ -113,7 +113,12 @@ Verifikasi Playwright pada form: `recaptchaDiv=false`, `recaptchaScript=false`, 
 | `./host-tester 'https://...:8080/path?x=1' --json -q -o /tmp/cli-url.json` | 1 | URL penuh diterima; `input` asli + `normalization_note` tersimpan |
 | `./host-tester 'ftp://bad host:99999'` | 2 | Input invalid ditolak |
 | `./host-tester localhost:8080 --allow-private --summary` | 1 | Private host diizinkan |
-| `./host-tester --version` | 0 | `host-tester 1.1.0` |
+| `./host-tester --version` | 0 | `host-tester 1.2.0` |
+| `./host-tester localhost:8080 --allow-private --ca-bundle <CA> --json -q` | 0 | 19/19, `options.ca_bundle` tercatat |
+| `./host-tester localhost:8080 --allow-private --legacy-port 8080 --upload-mode auto --json -q` | 0 | 19/19, `detected_mode: native-daemon` |
+| `./host-tester localhost:8080 --allow-private --daemon-tls --ca-bundle <CA> --json -q` | 0 | 19/19, `transport : TLS` / `wss / TLS` |
+| `./host-tester localhost:8080 --allow-private --legacy-port 8080 --upload-mode legacy` | 1 | Kontrol negatif 16/19, upload + max_upload FAILED |
+| `./host-tester ... --ca-bundle /etc/hosts` | 2 | `does not contain a PEM certificate`, tanpa traceback |
 
 ### 4.6 Static deliverable
 
@@ -124,9 +129,9 @@ Verifikasi Playwright pada form: `recaptchaDiv=false`, `recaptchaScript=false`, 
 ## 5. Batas teknis yang tidak bisa ditutup
 
 1. **Official result page tidak teramati.** `POST https://www.speedtest.net/host-tester` membutuhkan token reCAPTCHA valid. Upaya automasi berhenti di challenge; tidak dilakukan bypass. POST kosong → 500, POST token dummy → 403. Tidak ada endpoint JSON alternatif yang terlihat di network capture.
-2. **Backend Ookla tertutup.** Sebelum simulasi, yang tersedia hanyalah dokumentasi support, binary `OoklaServer.tgz`, paket `http_legacy_fallback.zip`, dan observasi langsung ke daemon target. Addendum 2026-11-03 menambahkan bukti dari binary static-musl official yang dijalankan lokal, sehingga respons daemon port 8080/80 bukan lagi dugaan. Implementasi internal `/host-tester`, timeout, UA, header, dan kriteria pass/fail persis tetap tidak bisa dibuktikan.
+2. **Backend Ookla tertutup.** Yang tersedia hanyalah dokumentasi support, binary `OoklaServer.tgz`, paket `http_legacy_fallback.zip`, dan observasi langsung ke daemon target. Urutan probe cocok, tetapi implementasi internal, timeout, UA, header, dan kriteria pass/fail persis tidak bisa dibuktikan.
 3. **Watchdog regional berbeda.** Ookla menjalankan pengecekan dari banyak server regional; clone ini dari satu sandbox. Hasil bisa berbeda walau probe identik.
-4. **HTTPS/KeepAlive/legacy POST detail tidak pasti.** URL HTTPS probe, kriteria chain validation resmi, field POST legacy, dan timing KeepAlive merupakan interpretasi terbaik. Simulasi membuktikan clone dapat membuat `https` PASSED dengan CA lab yang dipercaya tanpa mematikan verifikasi; ini membuktikan mekanisme verifikasi, bukan identitas dengan kriteria CA resmi Ookla.
+4. **HTTPS/KeepAlive/legacy POST detail tidak pasti.** URL HTTPS probe, chain validation, field POST legacy, dan timing KeepAlive merupakan interpretasi terbaik; TLS sertifikat self-signed sengaja tetap FAILED.
 5. **Literal "1:1 penuh" mustahil** karena user sendiri meminta reCAPTCHA dan banner dihapus. Menghapus itu otomatis membuat DOM tidak byte-identical. Yang dicapai adalah kesetaraan pada level halaman test yang diminta.
 
 ---
@@ -152,41 +157,8 @@ Port 8080 target mulai menolak koneksi: TCP connect berhasil, lalu `Connection r
 
 Target project **terpenuhi pada cakupan yang diminta**: halaman test 1:1-style tanpa captcha/banner, input domain saja, probe server-side yang meniru urutan resmi, hasil dikirim, target diuji, dan CLI URL-only tanpa browser.
 
-Yang **tidak boleh diklaim**: kesetaraan penuh dengan backend/halaman hasil resmi Ookla. Bagian itu tertutup di balik reCAPTCHA dan watchdog regional. Status paling tepat: **"functional local 1:1-style replacement with documented, unavoidable limits"** — bukan "1:1 penuh tanpa caveat". Simulasi binary official di section 8 memperkuat bukti protokol, tetapi tidak mengubah batas ini.
+Yang **tidak boleh diklaim**: kesetaraan penuh dengan backend/halaman hasil resmi Ookla. Bagian itu tertutup di balik reCAPTCHA dan watchdog regional. Status paling tepat: **"functional local 1:1-style replacement with documented, unavoidable limits"** — bukan "1:1 penuh tanpa caveat".
 
----
+**Addendum 2026-11-03:** dugaan tentang respons daemon sudah digantikan oleh simulasi binary OoklaServer official di `localhost:8080`. Hasilnya 18/19 (HTTP) dan 19/19 (HTTPS + CA lab dipercaya), dengan daftar utang teknis yang jelas. Baca `SIMULASI-OOKLASERVER.md` dan `ooklaserver/sim/SIMULASI.md`. Ini memperkuat bukti protokol tetapi tetap tidak membuka implementasi `/host-tester` resmi.
 
-## 8. Addendum — simulasi OoklaServer official (2026-11-03)
-
-User meminta agar dugaan dihentikan: unduh binary official dari dua URL yang diberikan, jalankan dengan config benar, arahkan target ke `localhost`, dan simpan semua variabel teknis. Hasilnya ada di [`ooklaserver/sim/SIMULASI.md`](ooklaserver/sim/SIMULASI.md), [`ooklaserver/sim/manifest.json`](ooklaserver/sim/manifest.json), dan [`ooklaserver/sim/results/`](ooklaserver/sim/results/).
-
-### 8.1 Yang sekarang terverifikasi, bukan lagi dugaan
-
-| Area | Bukti |
-| --- | --- |
-| Binary | x86_64 + aarch64 static-musl tarball, SHA-256, `--version 2.11.5.2`, build `2026-06-04.1737.7d0993d` |
-| Config | `OoklaServer.properties` terbaca dari working directory; `tcpPorts/udpPorts/httpPorts=8080`, `addresses=127.0.0.1`, auto-update dan Let's Encrypt dimatikan |
-| Binding | TCP + UDP `127.0.0.1:8080`; port 5060/80/443 tidak dipakai daemon |
-| NetGauge | Raw TCP `HI\n` → `HELLO ...` |
-| WebSocket | `GET /ws` → 101 + frame `HELLO ...`; WSS di atas TLS juga 101 |
-| HTTP | `/`, `/hi`, `/crossdomain.xml`, `/speedtest/latency.txt`, 10 JPEG, KeepAlive |
-| TLS | CA lokal + server cert SAN `localhost`, `TLSv1.3`, `TLS_AES_256_GCM_SHA384`, `openssl verify 0 (ok)` |
-| Port sama | Saat custom cert aktif, 8080 melayani plain HTTP **dan** HTTPS/WSS sekaligus |
-| Legacy | Control server port 80 menyajikan `http_legacy_fallback.zip`; `upload.php` menghasilkan `size=516300` dan `size=1981500` |
-| Perbedaan upload | Daemon 8080 mengembalikan `size=<Content-Length mentah>`, legacy PHP memakai `+502` |
-
-### 8.2 Hasil clone terhadap target lokal
-
-| Mode | CLI | API | Kegagalan |
-| --- | --- | --- | --- |
-| HTTP | 18 PASSED / 1 FAILED / 19, exit 1 | 18/1/19 | hanya `https` |
-| HTTPS + CA dipercaya | **19 PASSED / 0 FAILED / 19, exit 0** | **19/0/19** | tidak ada |
-
-Ini membuktikan pipeline web/CLI/input normalization/19 checks bekerja end-to-end terhadap server Ookla yang sesungguhnya.
-
-### 8.3 Dampak pada matriks audit
-
-- Section 1/3/4 tetap berlaku untuk form, DOM, CSS, dan E2E web/CLI.
-- Section 5 butir 2 dan 4 diperbarui: respons daemon sudah teramati, tetapi backend `/host-tester` resmi tetap tertutup.
-- Temuan baru yang **belum diperbaiki di kode** dicatat sebagai utang teknis: scheme `https://` hilang saat normalisasi; legacy port hardcoded 80; algoritma upload belum endpoint-aware; WSS dan `--ca-bundle` belum ada. Daftar lengkap ada di `SIMULASI.md` section 8.
-- Kesimpulan section 7 tidak berubah: tetap **1:1-style replacement**, kini dengan bukti protokol yang jauh lebih kuat.
+**Addendum lanjutan — cross-validation CLI resmi:** official Speedtest CLI `1.2.0.84` diarahkan lewat `/etc/hosts` (`myspeed.gorge.net` → `127.0.0.1`) dan menyelesaikan speedtest penuh ke daemon lokal (`exit 0`, `server.ip=127.0.0.1`, 4 variasi). Temuan `--ca-certificate`, `serverhost=`, handshake `HELLO`, dan TCP-suite biasa dipakai untuk menaikkan code ke **v1.2.0**: `--ca-bundle`, `--legacy-port`, `--upload-mode`, `--daemon-tls`, `input_scheme`, `options{}`. Semua varian HTTPS **19/19 PASSED**, kontrol negatif sengaja gagal sesuai harapan, form 1:1 tetap identik, regresi versi/API/target asli lolos. Baca `ooklaserver/sim/CROSS_VALIDATION.md`. Kesimpulan section 7 tidak berubah: tetap 1:1-style replacement dengan batas backend resmi yang tertutup.

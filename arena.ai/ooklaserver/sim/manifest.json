@@ -1,6 +1,6 @@
 {
-  "generated": "2026-11-03 Asia/Jakarta",
-  "purpose": "Real OoklaServer simulation on localhost:8080 to replace assumptions with observed protocol behavior",
+  "generated": "2026-11-03 Asia/Jakarta (updated after official Speedtest CLI cross-validation)",
+  "purpose": "Real OoklaServer + official Speedtest CLI cross-validation on localhost:8080; drives v1.2.0 code correctness",
   "sandbox": {
     "uname": "Linux e2b.local 6.1.158+ x86_64 GNU/Linux",
     "arch": "x86_64",
@@ -209,16 +209,113 @@
     "https://support.ookla.com/hc/en-us/articles/44460805417361-Basic-Server-Daemon-Configuration-Options",
     "https://support.ookla.com/hc/en-us/articles/44460770473745-Advanced-Server-Daemon-Configuration",
     "https://www.scribd.com/document/719336642/Ookla-Server-Tester",
-    "http://speedtest.lungit.com/http_legacy_fallback.zip"
+    "http://speedtest.lungit.com/http_legacy_fallback.zip",
+    "https://install.speedtest.net/app/cli/ookla-speedtest-1.2.0-linux-x86_64.tgz",
+    "https://cli.speedtest.net/api/cli/config"
   ],
   "what_to_update": [
-    "Add a TLS/daemon-mode hint: normalize_target() currently discards https:// scheme, so netgauge/websocket/crossdomain always use plain HTTP even when the target is HTTPS-only.",
-    "Make legacy fallback port configurable (80 vs target port 8080). The official daemon serves /speedtest/* on 8080 too; the Scribd result schema shows the tester historically used http://<bare-host> on port 80.",
-    "Make upload body/response algorithm endpoint-aware: legacy PHP on port 80 uses +502 overhead; OoklaServer daemon on 8080 returns raw Content-Length as size=<body_length>.",
-    "Add --ca-bundle / SSL_CERT_FILE support to CLI and web app for lab self-signed CAs; currently relies on system trust or env var.",
-    "Consider probing WSS as well as WS when TLS is enabled.",
-    "Keep allow_private documented for localhost/lab targets.",
-    "Process lifecycle: OoklaServer -d ignored SIGTERM from stop_process once; manual kill -TERM/-KILL was needed.",
-    "Legacy fallback zip is 95 MB; store in excluded .cache or re-download, do not commit to the comparison repo."
-  ]
+    "DONE v1.2.0: --ca-bundle / ca_bundle with strict verification (mirrors official CLI --ca-certificate).",
+    "DONE v1.2.0: configurable legacy_port (daemon also serves /speedtest/* on 8080).",
+    "DONE v1.2.0: endpoint-aware upload_mode auto|legacy|native with detected_mode reporting.",
+    "DONE v1.2.0: --daemon-tls for TLS NetGauge/WebSocket (wss) daemon checks.",
+    "DONE v1.2.0: input_scheme metadata + options{} in result JSON.",
+    "STILL OPEN: official /host-tester backend implementation remains hidden behind reCAPTCHA; regional watchdog behaviour not reproducible.",
+    "STILL OPEN: exact official result-page DOM/CSS remains unobserved; result layout stays documented approximation.",
+    "OPERATIONAL: /etc/hosts redirect must be re-added after sandbox restart (outside workspace snapshot).",
+    "OPERATIONAL: OoklaServer -d may ignore SIGTERM; stop-all.sh falls back to kill -KILL.",
+    "OPERATIONAL: future GitHub pushes need a fresh PAT; previous disposable token was removed."
+  ],
+  "clone_code_version": "1.2.0",
+  "official_speedtest_cli": {
+    "url": "https://install.speedtest.net/app/cli/ookla-speedtest-1.2.0-linux-x86_64.tgz",
+    "tgz_size": 1106829,
+    "tgz_sha256": "5690596c54ff9bed63fa3732f818a05dbc2db19ad36ed68f21ca5f64d5cfeeb7",
+    "last_modified": "Tue, 09 Aug 2022 21:22:02 GMT",
+    "etag": "76de75a734cf98d70eee0d362bad365a",
+    "binary_size": 2613400,
+    "binary_path": "/home/user/speedtest-cli/x86_64/speedtest",
+    "version": "Speedtest by Ookla 1.2.0.84 (ea6b6773cf) Linux/x86_64-linux-musl 6.1.158+ x86_64",
+    "file": "ELF 64-bit LSB executable, x86-64, statically linked, stripped",
+    "key_flags": [
+      "-L/--servers",
+      "-s/--server-id",
+      "-o/--host",
+      "--ca-certificate",
+      "-f/--format",
+      "-p/--progress",
+      "-v",
+      "--accept-license",
+      "--accept-gdpr"
+    ]
+  },
+  "hosts_redirect": {
+    "domain": "myspeed.gorge.net",
+    "server_id": 4063,
+    "port": 8080,
+    "entry": "127.0.0.1\tmyspeed.gorge.net",
+    "not_redirected": [
+      "cli.speedtest.net",
+      "results.speedtest.net"
+    ],
+    "config_api": "https://cli.speedtest.net/api/cli/config?...&serverhost=myspeed.gorge.net&...",
+    "persistence": "/etc/hosts is outside /home/user; NOT in workspace snapshot; re-run scripts/add-hosts-redirect.sh after restart",
+    "cleanup": "scripts/remove-hosts-redirect.sh"
+  },
+  "cli_cross_validation": {
+    "runs": {
+      "cli-cross-check.json": {
+        "variant": "--host=myspeed.gorge.net",
+        "exit": 0,
+        "server_ip": "127.0.0.1"
+      },
+      "cli-serverid.json": {
+        "variant": "--server-id=4063",
+        "exit": 0,
+        "server_ip": "127.0.0.1"
+      },
+      "cli-ca-cert.json": {
+        "variant": "--ca-certificate=ca-bundle-cli.pem",
+        "exit": 0,
+        "server_ip": "127.0.0.1"
+      },
+      "cli-http-mode.json": {
+        "variant": "HTTP-mode daemon",
+        "exit": 0,
+        "server_ip": "127.0.0.1"
+      },
+      "cli-final-https.json": {
+        "variant": "final HTTPS daemon + combined CA + -v",
+        "exit": 0,
+        "server_ip": "127.0.0.1"
+      }
+    },
+    "negative_control": "--ca-certificate=ca.crt (lab CA only) -> exit 2: Configuration - SSL peer certificate ... not OK; proves --ca-certificate replaces trust store",
+    "evidence_log": "results/cli-final-https.log (device identifiers redacted)",
+    "config_api_snapshot": "results/cli-config-api.json (licenseKey redacted)"
+  },
+  "ca_bundle_combined": {
+    "path": "/home/user/ooklaserver/sim/certs/ca-bundle-cli.pem",
+    "contents": "/etc/ssl/certs/ca-certificates.crt + certs/ca.crt",
+    "size": 226000,
+    "reason": "official CLI --ca-certificate replaces the trust store, so public CAs + lab CA must be in one bundle"
+  },
+  "clone_v12_options": {
+    "--ca-bundle / ca_bundle": "PEM CA bundle for strict TLS; replaces default trust store; verification never disabled",
+    "--legacy-port / legacy_port": "port for legacy fallback (default 80)",
+    "--upload-mode / upload_mode": "auto | legacy | native (default auto); reports detected_mode",
+    "--daemon-tls / daemon_tls": "wrap NetGauge/WebSocket/crossdomain daemon checks in TLS (wss)",
+    "input_scheme": "metadata of the original input URL scheme",
+    "options{}": "all advanced options recorded in result JSON"
+  },
+  "clone_v12_results": {
+    "http_mode": "18 PASSED / 1 FAILED / 19 (only https); legacy-port 8080 + upload-mode auto/native also 18/19",
+    "https_mode": "19 PASSED / 0 FAILED / 19 for default, --ca-bundle, --daemon-tls, --legacy-port 8080, full URL, and advanced /api/test",
+    "negative_controls": {
+      "upload-mode=legacy-with-legacy-port-8080": "16/19 (upload + max_upload FAILED, as expected)",
+      "bad ca_bundle": "exit 2 / HTTP 400 clean error",
+      "bad legacy_port": "exit 2 clean error"
+    },
+    "form_integrity_sha256": "25e17aa35ba498ea79e30f1be61e2c7994a5de7af6645c816f58770909a5436d (identical before/after patch)",
+    "result_dir": "results/v1.2/"
+  }
 }

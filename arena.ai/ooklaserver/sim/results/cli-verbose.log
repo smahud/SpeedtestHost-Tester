@@ -1,0 +1,46 @@
+[2026-11-02 20:46:25.527] [info] Resolved address 1: 104.17.148.22
+[2026-11-02 20:46:25.527] [info] Resolved address 2: 104.17.147.22
+[2026-11-02 20:46:25.602] [info] HTTP request (effective url: https://cli.speedtest.net/api/cli/config?deviceId=<redacted>&hid=<redacted>&serverhost=myspeed.gorge.net&sid=<redacted>&uname=Linux%206.1.158%2B%20%231%20SMP%20PREEMPT_DYNAMIC%20Wed%20Sep%2030%2012%3A40%3A02%20UTC%202026%20x86_64) completed with response code 200
+[2026-11-02 20:46:25.602] [info] configuration content:
+{"suite":{"global":{"engine":{"isUploadFirst":false,"testDurationSeconds":15,"threadCount":4,"packetSizeBytes":32000000},"dynamic":{"stableStop":{"isEnabled":true},"download":{"isScalingEnabled":true,"maxConnections":32}},"loadedLatency":{"enableUdp":true,"enableTcp":true}},"testStage":{"latency":{"pingCount":5},"upload":{"isServerUploadEnabled":true,"isClientPrimaryMeasureMethod":false}}},"app":{"ispName":"Google Cloud","traceLevel":2,"licenseKey": "<redacted: public Ookla config value>","license":{"message":"You may only use this Speedtest software and information generated\nfrom it for personal, non-commercial use, through a command line\ninterface on a personal computer. Your use of this software is subject\nto the End User License Agreement, Terms of Use and Privacy Policy at\nthese URLs:\n\n\thttps://www.speedtest.net/about/eula\n\thttps://www.speedtest.net/about/terms\n\thttps://www.speedtest.net/about/privacy","version":"aaa8331c62dcaeaf7cbefe8de3952b0240ccae4424412c2e498eeb1beb84b20b"},"saveTestResultUrl":"https://results.speedtest.net/reports","resultFormat":"json"},"servers":[{"id":"4063","host":"myspeed.gorge.net:8080","name":"Hood River, OR","country":"United States","sponsor":"Gorge Networks","sponsored":false,"host_functional":"1"}]}
+
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Configuration expiry date: 1794268800","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Server count: 1","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"app.version: 1.2.0.84 (ea6b6773cf)","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"server selected: 4063","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Server id: 4063","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Name: Hood River, OR","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Country: United States","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Sponsor: Gorge Networks","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Running TCP test suite","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Running Speedtest against host:port myspeed.gorge.net:8080","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Starting stage 1 of type 2","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Resolved address 1: 127.0.0.1","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Opening socket to '127.0.0.1'","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Ping 1: 0.19 ms (0.19ms min, 0.00ms jitter)","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Ping 2: 0.16 ms (0.16ms min, 0.03ms jitter)","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Ping 3: 0.15 ms (0.15ms min, 0.02ms jitter)","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Ping 4: 0.13 ms (0.13ms min, 0.02ms jitter)","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Ping 5: 0.11 ms (0.11ms min, 0.02ms jitter)","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Final Ping: 0.11 ms","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Stage 1 completed","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:25Z","message":"Starting stage 2 of type 3","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:34Z","message":"Stage 2 completed","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:34Z","message":"Smoothing graph for test with 0.580 progress, with duration of 0 ms in 0 updates","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:34Z","message":"Starting stage 3 of type 4","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:34Z","message":"Packet loss sent=173, received=173, dupes=0, maxId=172","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:37Z","message":"Loaded latency: cannot read response.: [11] Resource temporarily unavailable","level":"warning"}
+{"type":"log","timestamp":"2026-11-02T20:46:46Z","message":"Stage 3 completed","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:46Z","message":"Smoothing graph for test with 0.781 progress, with duration of 0 ms in 0 updates","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:46Z","message":"final result - serverid: 4063 ping: 0 download: 86501264 upload: 58312839","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:46Z","message":"latency 0ms jitter: 0.02ms packet loss 0.00%","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:46Z","message":"total download bytes: 91471999771","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:46Z","message":"total download stage duration: 8706.911000 ms","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:46Z","message":"total upload bytes: 76341771066","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:46Z","message":"total upload stage duration: 11708.000000 ms","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:46Z","message":"Resolved address 1: 104.17.148.22","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:46Z","message":"Resolved address 2: 104.17.147.22","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:46Z","message":"Resolved address 1: 104.17.147.22","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:46Z","message":"Resolved address 2: 104.17.148.22","level":"info"}
+{"type":"log","timestamp":"2026-11-02T20:46:46Z","message":"No libz support available, not compressing data.","level":"warning"}
+{"type":"log","timestamp":"2026-11-02T20:46:46Z","message":"HTTP request (effective url: https://results.speedtest.net/reports) completed with response code 200","level":"info"}

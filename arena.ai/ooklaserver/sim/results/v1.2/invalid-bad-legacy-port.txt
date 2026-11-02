@@ -1,0 +1,2 @@
+exit=2
+stderr=error: --legacy-port must be between 1 and 65535

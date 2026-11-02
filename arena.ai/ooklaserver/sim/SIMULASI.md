@@ -255,18 +255,22 @@ Artefak:
 
 ---
 
-## 8. Daftar hal yang perlu di-update nantinya
+## 8. Daftar pembaruan — status setelah cross-validation CLI (v1.2.0)
 
-1. **Scheme/TLS hint hilang saat normalisasi.** `normalize_target()` membuang `https://`, sehingga `netgauge`, `websocket`, dan `crossdomain` selalu memakai plain HTTP. Untuk server yang benar-benar TLS-only, ini akan gagal. Perlu flag seperti `--tls-daemon` atau menyimpan scheme sebagai metadata.
-2. **Legacy fallback port hardcoded 80.** OoklaServer 2.11 ternyata juga menyajikan `/crossdomain.xml`, `/speedtest/latency.txt`, `/speedtest/upload.php`, dan sepuluh JPEG di **8080**. Skema Scribd memakai port 80. Perlu opsi `legacy_port` / probe keduanya, bukan hardcoded.
-3. **Algoritma upload berbeda per endpoint.** Legacy PHP `+502`; daemon `size=Content-Length`. `upload_check()` harus tahu endpoint mana yang ditembak.
-4. **CA bundle untuk lab.** Tambahkan `--ca-bundle` / `SSL_CERT_FILE` eksplisit ke CLI dan dokumentasi web, supaya tidak bergantung pada `update-ca-certificates` sistem.
-5. **WSS.** Clone baru menguji `ws://`; padahal daemon mendukung `wss://` di port sama. Perlu probe keduanya saat TLS aktif.
-6. **`allow_private` wajib untuk localhost.** Sudah ada, tapi harus tetap dipanggil dalam semua script CI/simulasi.
-7. **Auto-update & Let's Encrypt harus mati di lab.** Jika tidak, binary mencoba `host-api.speedtest.net` dan dapat mengganti dirinya sendiri.
-8. **Lifecycle proses.** `-d` lebih aman, tetapi SIGTERM kadang diabaikan; script stop harus fallback ke `kill -KILL`.
-9. **Ukuran artefak.** Zip legacy 95 MB dan browser headless 681 MB tidak boleh masuk repo perbandingan; simpan di `.cache`/`/tmp` atau unduh ulang.
-10. **Versi binary.** `2.11.5.2` / build `2026-06-04.1737.7d0993d` adalah baseline. Jika `stable` berganti, bandingkan SHA-256, `--version`, dan `HELLO` sebelum memperbarui ekspektasi tester.
+| # | Temuan awal | Status | Implementasi |
+| --- | --- | --- | --- |
+| 1 | Scheme/TLS hint hilang saat normalisasi | ✅ **selesai** | `input_scheme` disimpan sebagai metadata; opsi `--daemon-tls` / `daemon_tls=1` membungkus NetGauge/WebSocket/crossdomain dengan TLS |
+| 2 | Legacy fallback port hardcoded 80 | ✅ **selesai** | `--legacy-port N` / `legacy_port=N`, default tetap 80 agar hasil lama tidak berubah |
+| 3 | Algoritma upload berbeda per endpoint | ✅ **selesai** | `--upload-mode auto\|legacy\|native`; `detected_mode` dilaporkan (`legacy-php` atau `native-daemon`) |
+| 4 | CA bundle untuk lab belum eksplisit | ✅ **selesai** | `--ca-bundle FILE` / `ca_bundle=`, validasi PEM, **tidak pernah** mematikan verifikasi |
+| 5 | WSS belum diuji | ✅ **selesai** | `--daemon-tls` mengubah `ws` menjadi `wss` dan menambah `transport : wss / TLS` pada detail |
+| 6 | `allow_private` wajib untuk localhost | ✅ tetap | Dipanggil di semua script `run-v1.2.py` / `test-v1.2.sh` |
+| 7 | Auto-update & Let's Encrypt harus mati | ✅ tetap | Kedua config simulasi memakai `false` |
+| 8 | `-d` kadang abaikan SIGTERM | ✅ tetap | `stop-all.sh` fallback `kill -KILL` |
+| 9 | Artefak besar tidak boleh masuk repo | ✅ tetap | Zip 95 MB di `.cache`, Playwright di `/tmp`, binary aarch64 tidak dicopy ke repo |
+| 10 | Baseline versi binary | ✅ tetap | `2.11.5.2` / `2026-06-04.1737.7d0993d`; bandingkan SHA-256 saat update |
+
+Bukti lengkap cross-analysis ada di [`CROSS_VALIDATION.md`](CROSS_VALIDATION.md). Form 1:1 tidak berubah: hash halaman sebelum/sesudah patch identik `25e17aa35b…5436d`.
 
 ---
 
@@ -287,15 +291,20 @@ cd /home/user/ooklaserver/sim/http  && /home/user/ooklaserver/x86_64/OoklaServer
 # atau
 cd /home/user/ooklaserver/sim/https && /home/user/ooklaserver/x86_64/OoklaServer -d
 
-# 5. Jalankan app clone dengan CA lab
-SSL_CERT_FILE=/home/user/ooklaserver/sim/certs/ca.crt python3 /home/user/app.py
+# 5. Jalankan app clone dengan CA lab (bundle gabungan)
+SSL_CERT_FILE=/home/user/ooklaserver/sim/certs/ca-bundle-cli.pem python3 /home/user/app.py
 
-# 6. Uji
-./host-tester localhost:8080 --allow-private --json
-curl 'http://127.0.0.1:3000/api/test?host=localhost:8080&allow_private=1'
+# 6. Unduh klien resmi + petakan domain server ke localhost
+./sim/scripts/reproduce-download-cli.sh
+./sim/scripts/cross-validate-cli.sh
+
+# 7. Uji clone v1.2.0
+./sim/scripts/test-v1.2.sh https
+./host-tester localhost:8080 --allow-private --ca-bundle sim/certs/ca.crt --json
+curl 'http://127.0.0.1:3000/api/test?host=localhost:8080&allow_private=1&legacy_port=8080&upload_mode=auto'
 ```
 
-Script pendek ada di `scripts/`. Log kunci startup ada di `results/server-logs.md`.
+Script lengkap ada di `scripts/`. Log kunci startup ada di `results/server-logs.md`, hasil v1.2.0 di `results/v1.2/`.
 
 ---
 
@@ -306,4 +315,23 @@ Script pendek ada di `scripts/`. Log kunci startup ada di `results/server-logs.m
 - Ookla Support: HTTPS/TLS, required ports, properties options, basic/advanced daemon config (URL di bagian 4)
 - Scribd `719336642` untuk skema hasil `Test results`
 - `http://speedtest.lungit.com/http_legacy_fallback.zip` untuk paket legacy
-- Observasi langsung: `strings`, `--version`, `--help`, `ss`, `openssl s_client`, raw socket, WebSocket/WSS, `curl`, CLI clone, `/api/test` clone
+- `https://install.speedtest.net/app/cli/ookla-speedtest-1.2.0-linux-x86_64.tgz` untuk klien resmi
+- `https://cli.speedtest.net/api/cli/config` untuk daftar server resmi
+- Observasi langsung: `strings`, `--version`, `--help`, `ss`, `openssl s_client`, raw socket, WebSocket/WSS, `curl`, CLI clone, `/api/test` clone, log verbose `speedtest -v -v -v`
+
+---
+
+## 11. Cross-validation dengan official Speedtest CLI (ringkas)
+
+User meminta tes lanjutan: pakai **client Speedtest CLI resmi**, arahkan ke server host manapun, ambil domainnya, lalu jadikan domain itu `localhost` supaya klien menembak OoklaServer lokal.
+
+- Klien: `Speedtest by Ookla 1.2.0.84 (ea6b6773cf)`, tarball 1.106.829 B, SHA-256 `5690596c…cfeeb7`.
+- Domain dari `./speedtest -L`: `myspeed.gorge.net` (id 4063, port 8080).
+- `/etc/hosts`: `127.0.0.1 myspeed.gorge.net`. **Hanya domain server** yang dialihkan; `cli.speedtest.net` dan `results.speedtest.net` tetap ke Cloudflare.
+- Hasil: 4 variasi (`--host`, `--server-id`, `--ca-certificate`, daemon HTTP mode) semuanya **exit 0**, `server.ip = 127.0.0.1`, `ping ≈ 0,1–0,2 ms`, download ≈ 10 Gbps, upload ≈ 7 Gbps, `packetLoss 0`, `result.persisted true`.
+- Log verbose membuktikan `Running Speedtest against host:port myspeed.gorge.net:8080` → `Resolved address 1: 127.0.0.1`.
+- Temuan kunci: CLI resmi punya `--ca-certificate` yang **menggantikan** trust store (lab-CA saja → exit 2), sehingga clone v1.2.0 diberi `--ca-bundle` dengan semantika sama.
+- Temuan kunci: CLI memakai TCP suite biasa walaupun daemon punya TLS → probe daemon plain-HTTP pada clone sudah benar secara arsitektur; `https` tetap probe terpisah.
+- Dampak code: `app.py` + `cli.py` naik ke **v1.2.0** dengan `--ca-bundle`, `--legacy-port`, `--upload-mode`, `--daemon-tls`, `input_scheme`, dan `options{}`. Semua hasil **19/19 PASSED** pada HTTPS mode, termasuk variasi `--legacy-port 8080` dan `--daemon-tls`.
+
+Dokumen lengkap: [`CROSS_VALIDATION.md`](CROSS_VALIDATION.md).

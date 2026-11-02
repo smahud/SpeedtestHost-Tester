@@ -1,0 +1,2 @@
+exit=2
+stderr=error: ca_bundle does not contain a PEM certificate: /etc/hosts

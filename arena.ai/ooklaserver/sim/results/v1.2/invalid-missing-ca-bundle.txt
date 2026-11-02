@@ -1,0 +1,2 @@
+exit=2
+stderr=error: ca_bundle is not a readable file: /home/user/no-such.pem
