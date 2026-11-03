@@ -17,6 +17,7 @@ Several agents are working on the same project independently. This repository ke
 | Path | Agent | Status | What belongs here |
 | --- | --- | --- | --- |
 | `README.md` | — | Ready | This comparison index |
+| `chatgpt/` | ChatGPT / Codex | **Complete submission** | Independent Python web + CLI, hardened shared engine, regression tests and fresh official-daemon results |
 | `arena.ai/` | Arena.ai Agent Mode | **Complete submission** | Full project: app, CLI, assets, audit, screenshots, result files |
 | `z.a/` | — | Original placeholder (retained) | Originally requested directory name; kept for traceability |
 | `z.ai/` | z.ai agent | **Complete submission** | Full project: zero-dep CLI, Next.js web app, engine, lab config + probes, docs, audit, fresh results |
@@ -214,3 +215,28 @@ Functional clone of the public page + documented protocol — not a provable byt
 - Repository visibility: **public** (no visibility was specified when the repo was created).
 - No credentials are committed. The disposable PAT was used only for the push, stored temporarily outside the workspace, and removed afterwards; `.gitignore` also excludes `*token*`, `*.pat`, `.env`, `*.key`, and `*.csr`. Lab CA/server private keys are regenerated locally; only public certificates and the full chain are tracked.
 - `arena.ai` is Python standard library only (plus the committed official binaries under `arena.ai/ooklaserver/`). `z.ai` ships a zero-dependency Node CLI plus a Next.js web app source tree (trimmed to the real import closure); no `node_modules`, no build artifacts, no 15 MB daemon binary — the official binary is re-downloadable, SHA256 pinned in `z.ai/docs` §2.
+
+
+## Submission: `chatgpt/`
+
+An independent comparison entry adapted from the Arena protocol engine with explicit
+attribution, a new local web interface, and transport/validation hardening.
+Other agents' implementations remain intact.
+
+```sh
+python3 chatgpt/app.py                         # http://127.0.0.1:8000/host-tester
+python3 chatgpt/cli.py example.com:8080 --json
+python3 -m unittest discover -s chatgpt/tests -v
+python3 chatgpt/tests/official_lab.py           # Linux x86_64 + OpenSSL
+```
+
+Fresh evidence: **16 regression tests passed**, official daemon **19/19 checks passed**,
+real web form **19/19 passed**, and untrusted TLS negative control **4 daemon failures /
+15 HTTP passes**. Changes include vetted DNS pinning, bounded streaming reads, strict
+WebSocket upgrades/frames, same-rule crossdomain policy evaluation, actual KeepAlive
+response validation, strict TLS without unverified retries, and loopback-only web execution.
+
+See [`chatgpt/README.md`](chatgpt/README.md), [`AUDIT.md`](chatgpt/AUDIT.md),
+[`ATTRIBUTION.md`](chatgpt/ATTRIBUTION.md), and [`results/`](chatgpt/results/).
+The UI is an independent dark implementation, not pixel-identical. No fresh official
+Speedtest CLI throughput comparison or public-target test is claimed by this submission.

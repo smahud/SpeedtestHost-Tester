@@ -1,0 +1,1 @@
+GET form → POST target → shared CLI → official daemon → HTML results: 19 passed, 0 failed.

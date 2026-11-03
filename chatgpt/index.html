@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ookla Server Tester · ChatGPT edition</title><link rel="stylesheet" href="/style.css"></head>
+<body><main><div class="eyebrow">HOST DIAGNOSTICS <span>CHATGPT EDITION</span></div>
+<h1><a href="/host-tester">Ookla Server Tester</a></h1>
+<p class="intro">Check whether your OoklaServer is reachable and configured correctly. Test the daemon, WebSocket connection, TLS certificate, and legacy HTTP files from this computer.</p>
+<form action="/host-tester" method="post" id="host-tester-form"><fieldset><legend>OoklaServer / Netgauge TCP</legend><label for="ookla-server">Host <span aria-hidden="true">*</span></label><input id="ookla-server" name="ookla-server" type="text" value="__HOST__" required maxlength="2048" autocomplete="off" spellcheck="false" aria-describedby="host-hint"><p id="host-hint" class="hint">test.yourhost.net:8080 · A domain alone defaults to port 8080.</p><input type="hidden" name="csrf" value="__CSRF__"><button type="submit">Submit <span aria-hidden="true">→</span></button><p class="hint">Runs 19 checks and transfers about 105 MB of test data. Results may take up to 3 minutes. Submit once and wait for the page to return.</p></fieldset></form>
+__RESULT__
+<footer>Independent local tester · No CAPTCHA, ads, or external resources.<br>Protocol checks are an approximation of the public tester, not official certification.</footer></main></body></html>

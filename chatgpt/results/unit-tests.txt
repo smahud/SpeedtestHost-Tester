@@ -1,0 +1,27 @@
+test_invalid_input_exit_two (test_engine.CliTests.test_invalid_input_exit_two) ... ok
+test_refused_port_produces_nineteen_failures (test_engine.CliTests.test_refused_port_produces_nineteen_failures) ... ok
+test_bounded_stream_retains_only_prefix (test_engine.EngineTests.test_bounded_stream_retains_only_prefix) ... ok
+test_hello_requires_whole_message (test_engine.EngineTests.test_hello_requires_whole_message) ... ok
+test_keepalive_404_is_not_success (test_engine.EngineTests.test_keepalive_404_is_not_success) ... ok
+test_mixed_dns_never_falls_back_to_private (test_engine.EngineTests.test_mixed_dns_never_falls_back_to_private) ... ok
+test_normalization (test_engine.EngineTests.test_normalization) ... ok
+test_policy_port_belongs_to_same_rule (test_engine.EngineTests.test_policy_port_belongs_to_same_rule) ... ok
+test_websocket_coalescing_fragmentation_and_ping (test_engine.EngineTests.test_websocket_coalescing_fragmentation_and_ping) ... ok
+test_ws_rejects_giant_masked_and_invalid_control_frames (test_engine.EngineTests.test_ws_rejects_giant_masked_and_invalid_control_frames) ... ok
+test_form_and_health (test_engine.WebTests.test_form_and_health) ... 127.0.0.1 - - [03/Nov/2026 09:44:22] "GET /host-tester HTTP/1.1" 200 -
+127.0.0.1 - - [03/Nov/2026 09:44:22] "GET /health HTTP/1.1" 200 -
+ok
+test_get_api_cannot_trigger_probe (test_engine.WebTests.test_get_api_cannot_trigger_probe) ... 127.0.0.1 - - [03/Nov/2026 09:44:22] "GET /api/test?host=localhost HTTP/1.1" 404 -
+ok
+test_host_rebinding_rejected (test_engine.WebTests.test_host_rebinding_rejected) ... 127.0.0.1 - - [03/Nov/2026 09:44:22] "GET / HTTP/1.1" 403 -
+ok
+test_missing_csrf_does_not_execute (test_engine.WebTests.test_missing_csrf_does_not_execute) ... 127.0.0.1 - - [03/Nov/2026 09:44:22] "POST /host-tester HTTP/1.1" 403 -
+ok
+test_oversize_request (test_engine.WebTests.test_oversize_request) ... 127.0.0.1 - - [03/Nov/2026 09:44:22] "POST /host-tester HTTP/1.1" 413 -
+ok
+test_untrusted_results_escaped (test_engine.WebTests.test_untrusted_results_escaped) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 1.104s
+
+OK
