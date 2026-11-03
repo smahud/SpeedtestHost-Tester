@@ -152,3 +152,33 @@ regional watchdogs) — see `../AUDIT.md` §3.
 | `zai-engine/zai-cli-lab-run.txt` / `.json` | z.ai engine v1.0.1 vs the same daemon (10/10 PASS) |
 | `zai-engine/daemon-access-zai-cli.txt` | 3 624 requests — the full host-tester surface, URL-encoded as the daemon logs it |
 | `zai-engine/daemon-stdout-zai-cli.txt` | daemon view during the z.ai runs |
+
+---
+
+# Round 4 (2026-11-03) — non-publishing re-validation with v1.1.0
+
+Round 4 repeats the official-client experiment with two differences:
+
+1. **Non-publishing guarantee.** The proxy (`../lab/scripts/cv-proxy.py`, a
+   hardened adaptation of the round-2/3 MITM proxy) now **refuses every
+   connection to `results.speedtest.net`** — the CLI (1.2.0.84, which has no
+   `--no-submit` option) completed its measurements but could not submit the
+   artificial loopback results as genuine public data. Rounds 2/3 allowed that
+   submission; that is now considered a methodology defect and is deliberately
+   not repeated.
+2. Fresh binaries (SHA-256 re-verified: identical to the round-2/3 pins) and
+   the CLI's own top pick re-confirmed as server 43356 (`1010.hkspeedtest.com`).
+
+## Result (evidence: `round-4/`)
+
+- CLI exit **0**; `serverSelection.servers[0] = {id: 43356, host: "localhost",
+  port: 8080}` — a genuine test flow against the local official daemon:
+  idle latency **0.053 ms**, download ≈ **64.8 Gbit/s** (52.3 GB / 6.4 s),
+  upload ≈ **47.9 Gbit/s** (70.2 GB / 12.8 s), packet loss **0**.
+- Proxy log: config fetched live 3× with the CLI's own query (license genuine),
+  then `[BLOCKED] CONNECT results.speedtest.net:443 -> refused`.
+- Daemon access-log delta: **0 HTTP entries** — the official client speaks pure
+  netgauge; the daemon console log shows the netgauge session (worker threads,
+  connect/disconnect churn) exactly in the run window.
+
+Full analysis: [`../validation/CROSS_VALIDATION.md`](../validation/CROSS_VALIDATION.md).

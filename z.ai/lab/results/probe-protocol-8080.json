@@ -1,0 +1,346 @@
+{
+  "host": "localhost",
+  "port": 8080,
+  "ip": "::1",
+  "when": "2026-11-03T13:30:39.420Z",
+  "results": [
+    {
+      "group": "http",
+      "name": "GET /",
+      "expectation": "documented",
+      "result": "documented",
+      "detail": "HTTP/1.1 200 OK · body[:60]=\"<html><head><title>OoklaServer</title></head><body><h1>Ookla\"",
+      "status": 200,
+      "body": "<html><head><title>OoklaServer</title></head><body><h1>OoklaServer</h1><p>It worked!<br /></p></body></html>\n",
+      "headers": "HTTP/1.1 200 OK\r\nDate: Tue, 03 Nov 2026 13:30:16 GMT\r\nConnection: Keep-Alive\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\nContent-Security-Policy: default-src 'none'; frame-ancestors 'none'; script-src 'none'; object-src 'none';  connect-src *; upgrade-insecure-requests\r\nContent-Type: text/html\r\nContent-Length: 109"
+    },
+    {
+      "group": "http",
+      "name": "GET /hi",
+      "expectation": "documented",
+      "result": "documented",
+      "detail": "HTTP/1.1 200 OK · body[:60]=\"hello 2.11 (2.11.5) 2026-06-04.1737.7d0993d\\n\"",
+      "status": 200,
+      "body": "hello 2.11 (2.11.5) 2026-06-04.1737.7d0993d\n",
+      "headers": "HTTP/1.1 200 OK\r\nDate: Tue, 03 Nov 2026 13:30:17 GMT\r\nConnection: Keep-Alive\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\nContent-Security-Policy: default-src 'none'; frame-ancestors 'none'; script-src 'none'; object-src 'none';  connect-src *; upgrade-insecure-requests\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Length: 44"
+    },
+    {
+      "group": "http",
+      "name": "GET /speedtest/latency.txt",
+      "expectation": "documented",
+      "result": "documented",
+      "detail": "HTTP/1.1 200 OK · body[:60]=\"test=test\\n\"",
+      "status": 200,
+      "body": "test=test\n",
+      "headers": "HTTP/1.1 200 OK\r\nDate: Tue, 03 Nov 2026 13:30:17 GMT\r\nConnection: Keep-Alive\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\nContent-Security-Policy: default-src 'none'; frame-ancestors 'none'; script-src 'none'; object-src 'none';  connect-src *; upgrade-insecure-requests\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Length: 10"
+    },
+    {
+      "group": "http",
+      "name": "GET /crossdomain.xml",
+      "expectation": "documented",
+      "result": "documented",
+      "detail": "HTTP/1.1 200 OK · body[:60]=\"<?xml version=\\\"1.0\\\"?>\\n<cross-domain-policy>\\n<allow-access-fr\"",
+      "status": 200,
+      "body": "<?xml version=\"1.0\"?>\n<cross-domain-policy>\n<allow-access-from domain=\"*\" to-ports=\"8080\"/>\n</cross-domain-policy>\n",
+      "headers": "HTTP/1.1 200 OK\r\nDate: Tue, 03 Nov 2026 13:30:17 GMT\r\nConnection: Keep-Alive\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\nContent-Security-Policy: default-src 'none'; frame-ancestors 'none'; script-src 'none'; object-src 'none';  connect-src *; upgrade-insecure-requests\r\nContent-Type: text/xml\r\nContent-Length: 115"
+    },
+    {
+      "group": "http",
+      "name": "GET /speedtest/upload.php",
+      "expectation": "documented",
+      "result": "documented",
+      "detail": "HTTP/1.1 404 Not Found · body[:60]=\"\"",
+      "status": 404,
+      "body": "",
+      "headers": "HTTP/1.1 404 Not Found\r\nDate: Tue, 03 Nov 2026 13:30:18 GMT\r\nConnection: Close\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\nContent-Security-Policy: default-src 'none'; frame-ancestors 'none'; script-src 'none'; object-src 'none';  connect-src *; upgrade-insecure-requests"
+    },
+    {
+      "group": "http",
+      "name": "GET /speedtest/server.php",
+      "expectation": "documented",
+      "result": "documented",
+      "detail": "HTTP/1.1 404 Not Found · body[:60]=\"\"",
+      "status": 404,
+      "body": "",
+      "headers": "HTTP/1.1 404 Not Found\r\nDate: Tue, 03 Nov 2026 13:30:18 GMT\r\nConnection: Close\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\nContent-Security-Policy: default-src 'none'; frame-ancestors 'none'; script-src 'none'; object-src 'none';  connect-src *; upgrade-insecure-requests"
+    },
+    {
+      "group": "http",
+      "name": "GET /favicon.ico",
+      "expectation": "documented",
+      "result": "documented",
+      "detail": "HTTP/1.1 404 Not Found · body[:60]=\"\"",
+      "status": 404,
+      "body": "",
+      "headers": "HTTP/1.1 404 Not Found\r\nDate: Tue, 03 Nov 2026 13:30:18 GMT\r\nConnection: Close\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\nContent-Security-Policy: default-src 'none'; frame-ancestors 'none'; script-src 'none'; object-src 'none';  connect-src *; upgrade-insecure-requests"
+    },
+    {
+      "group": "http",
+      "name": "GET /definitely-not-here",
+      "expectation": "documented",
+      "result": "documented",
+      "detail": "HTTP/1.1 404 Not Found · body[:60]=\"\"",
+      "status": 404,
+      "body": "",
+      "headers": "HTTP/1.1 404 Not Found\r\nDate: Tue, 03 Nov 2026 13:30:18 GMT\r\nConnection: Close\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\nContent-Security-Policy: default-src 'none'; frame-ancestors 'none'; script-src 'none'; object-src 'none';  connect-src *; upgrade-insecure-requests"
+    },
+    {
+      "group": "http",
+      "name": "HEAD random*.jpg (10 sizes)",
+      "expectation": "200 + Content-Length",
+      "result": "200+CL",
+      "detail": "[{\"file\":\"/speedtest/random350x350.jpg\",\"headStatus\":200,\"contentLength\":245388},{\"file\":\"/speedtest/random500x500.jpg\",\"headStatus\":200,\"contentLength\":505544},{\"file\":\"/speedtest/random750x750.jpg\",\"headStatus\":200,\"contentLength\":1118012},{\"file\":\"/speedtest/random1000x1000.jpg\",\"headStatus\":200,\"contentLength\":1986284},{\"file\":\"/speedtest/random1500x1500.jpg\",\"headStatus\":200,\"contentLength\":4468241},{\"file\":\"/speedtest/random2000x2000.jpg\",\"headStatus\":200,\"contentLength\":7907740},{\"file\":\"/speedtest/random2500x2500.jpg\",\"headStatus\":200,\"contentLength\":12407926},{\"file\":\"/speedtest/random3000x3000.jpg\",\"headStatus\":200,\"contentLength\":17816816},{\"file\":\"/speedtest/random3500x3500.jpg\",\"headStatus\":200,\"contentLength\":24262167},{\"file\":\"/speedtest/random4000x4000.jpg\",\"headStatus\":200,\"contentLength\":31625365}]",
+      "table": [
+        {
+          "file": "/speedtest/random350x350.jpg",
+          "headStatus": 200,
+          "contentLength": 245388
+        },
+        {
+          "file": "/speedtest/random500x500.jpg",
+          "headStatus": 200,
+          "contentLength": 505544
+        },
+        {
+          "file": "/speedtest/random750x750.jpg",
+          "headStatus": 200,
+          "contentLength": 1118012
+        },
+        {
+          "file": "/speedtest/random1000x1000.jpg",
+          "headStatus": 200,
+          "contentLength": 1986284
+        },
+        {
+          "file": "/speedtest/random1500x1500.jpg",
+          "headStatus": 200,
+          "contentLength": 4468241
+        },
+        {
+          "file": "/speedtest/random2000x2000.jpg",
+          "headStatus": 200,
+          "contentLength": 7907740
+        },
+        {
+          "file": "/speedtest/random2500x2500.jpg",
+          "headStatus": 200,
+          "contentLength": 12407926
+        },
+        {
+          "file": "/speedtest/random3000x3000.jpg",
+          "headStatus": 200,
+          "contentLength": 17816816
+        },
+        {
+          "file": "/speedtest/random3500x3500.jpg",
+          "headStatus": 200,
+          "contentLength": 24262167
+        },
+        {
+          "file": "/speedtest/random4000x4000.jpg",
+          "headStatus": 200,
+          "contentLength": 31625365
+        }
+      ]
+    },
+    {
+      "group": "http",
+      "name": "GET /hi WITHOUT User-Agent header",
+      "expectation": "500 (daemon requires UA — verified behavior)",
+      "result": "HTTP/1.1 500 Internal Server Error",
+      "detail": "HTTP/1.1 500 Internal Server Error"
+    },
+    {
+      "group": "http",
+      "name": "GET random350 with Range: bytes=0-1023",
+      "expectation": "unknown (probe)",
+      "result": "HTTP/1.1 200 OK",
+      "detail": "range-support=no · CL=245388",
+      "headers": "HTTP/1.1 200 OK\r\nDate: Tue, 03 Nov 2026 13:30:21 GMT\r\nConnection: Keep-Alive\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\nContent-Security-Policy: default-src 'none'; frame-ancestors 'none'; script-src 'none'; object-src 'none';  connect-src *; upgrade-insecure-requests\r\nContent-Type: image/jpeg\r\nContent-Length: 245388"
+    },
+    {
+      "group": "http",
+      "name": "POST /speedtest/upload.php (sent 1010 bytes)",
+      "expectation": "200 · size=<sent bytes>",
+      "result": "exact-match",
+      "detail": "size=1009",
+      "sent": 1009,
+      "returned": 1009
+    },
+    {
+      "group": "http",
+      "name": "POST /speedtest/upload.php?callback=test",
+      "expectation": "probe",
+      "result": "HTTP/1.1 200 OK",
+      "detail": "size=1009"
+    },
+    {
+      "group": "http",
+      "name": "CORS: Origin: https://www.speedtest.net",
+      "expectation": "probe (does daemon send ACAO?)",
+      "result": "ACAO=https://www.speedtest.net",
+      "headers": "HTTP/1.1 200 OK\r\nDate: Tue, 03 Nov 2026 13:30:22 GMT\r\nConnection: Keep-Alive\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\nContent-Security-Policy: default-src 'none'; frame-ancestors 'none'; script-src 'none'; object-src 'none';  connect-src *; upgrade-insecure-requests\r\nAccess-Control-Allow-Origin: https://www.speedtest.net\r\nVary: Origin\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Length: 10"
+    },
+    {
+      "group": "http",
+      "name": "GET / with foreign Host header",
+      "expectation": "probe (redirect or direct 200?)",
+      "result": "HTTP/1.1 200 OK",
+      "detail": "no Location header"
+    },
+    {
+      "group": "http",
+      "name": "Keep-Alive: 2 requests on one socket",
+      "expectation": "2x 200 on persistent connection",
+      "result": "persistent-ok",
+      "detail": "HTTP/1.1 200 OK | HTTP/1.1 200 OK",
+      "responses": [
+        "HTTP/1.1 200 OK",
+        "HTTP/1.1 200 OK"
+      ]
+    },
+    {
+      "group": "netgauge-tcp",
+      "name": "raw TCP \"HI\\n\"",
+      "expectation": "HELLO <version>",
+      "result": "HELLO",
+      "detail": "HELLO 2.11 (2.11.5) 2026-06-04.1737.7d0993d"
+    },
+    {
+      "group": "netgauge-tcp",
+      "name": "raw TCP \"PING <epoch-ms>\"",
+      "expectation": "PONG <epoch-ms>",
+      "result": "PONG",
+      "detail": "PONG 1793712624040"
+    },
+    {
+      "group": "netgauge-tcp",
+      "name": "raw TCP \"DOWNLOAD 100000\"",
+      "expectation": "EXACTLY 100000 bytes; the 'DOWNLOAD ' 9-byte prefix is PART of the payload",
+      "result": "exact-100000-bytes-incl-prefix",
+      "detail": "prefix=\"DOWNLOAD hK\\\"\""
+    },
+    {
+      "group": "netgauge-tcp",
+      "name": "raw TCP \"UPLOAD 2048\" + payload",
+      "expectation": "OK <bytes> <epoch-ms>",
+      "result": "resp=",
+      "detail": ""
+    },
+    {
+      "group": "netgauge-tcp",
+      "name": "raw TCP \"GARBAGE_COMMAND\"",
+      "expectation": "ERROR",
+      "result": "ERROR",
+      "detail": "ERROR"
+    },
+    {
+      "group": "ws",
+      "name": "WS upgrade on \"/ws\"",
+      "expectation": "101 upgrade",
+      "result": "101-upgrade",
+      "detail": "acceptValid=true"
+    },
+    {
+      "group": "ws",
+      "name": "WS upgrade on \"/\"",
+      "expectation": "probe (does path matter?)",
+      "result": "http-200",
+      "detail": ""
+    },
+    {
+      "group": "ws",
+      "name": "WS upgrade on \"/anything-else\"",
+      "expectation": "probe (does path matter?)",
+      "result": "http-404",
+      "detail": ""
+    },
+    {
+      "group": "ws",
+      "name": "netgauge over WS: \"HI\\n\" on /ws",
+      "expectation": "HELLO <version>",
+      "result": "HELLO",
+      "detail": "HELLO 2.11 (2.11.5) 2026-06-04.1737.7d0993d"
+    },
+    {
+      "group": "ws",
+      "name": "WSS upgrade on /ws (same port 8080)",
+      "expectation": "101 upgrade over TLS",
+      "result": "101-upgrade",
+      "detail": "acceptValid=true"
+    },
+    {
+      "group": "tls",
+      "name": "handshake forcing TLSv1.0",
+      "expectation": "rejected (minimumTLSProtocol=1.2)",
+      "result": "rejected (protocol_version alert)"
+    },
+    {
+      "group": "tls",
+      "name": "handshake forcing TLSv1.1",
+      "expectation": "rejected (minimumTLSProtocol=1.2)",
+      "result": "rejected (protocol_version alert)"
+    },
+    {
+      "group": "tls",
+      "name": "handshake forcing TLSv1.2",
+      "expectation": "accepted",
+      "result": "accepted (TLSv1.2)"
+    },
+    {
+      "group": "tls",
+      "name": "handshake forcing TLSv1.3",
+      "expectation": "accepted",
+      "result": "accepted (TLSv1.3)"
+    },
+    {
+      "group": "tls",
+      "name": "strict verify, CA bundle, SAN localhost",
+      "expectation": "verify-ok",
+      "result": "verify-ok",
+      "detail": "subject=lab.ookla.test issuer=zai Lab Root CA"
+    },
+    {
+      "group": "tls",
+      "name": "strict verify, wrong hostname",
+      "expectation": "verify-FAIL (hostname mismatch)",
+      "result": "verify-FAIL",
+      "detail": "Hostname/IP does not match certificate's altnames: Host: wrong.ookla.test. is not in the cert's altnames: DNS:lab.ookla.test, DNS:localhost, IP Address:127.0.0.1, IP Address:0:0:0:0:0:0:0:1"
+    },
+    {
+      "group": "tls",
+      "name": "strict verify, no trusted CA",
+      "expectation": "verify-FAIL (self-signed/untrusted)",
+      "result": "verify-FAIL",
+      "detail": "unable to verify the first certificate; if the root CA is installed locally, try running Node.js with --use-system-ca"
+    },
+    {
+      "group": "netgauge-udp",
+      "name": "UDP probe: HI\\n text",
+      "expectation": "probe (proprietary protocol — is any response returned?)",
+      "result": "no-response",
+      "detail": "timeout"
+    },
+    {
+      "group": "netgauge-udp",
+      "name": "UDP probe: PING text",
+      "expectation": "probe (proprietary protocol — is any response returned?)",
+      "result": "no-response",
+      "detail": "timeout"
+    },
+    {
+      "group": "netgauge-udp",
+      "name": "UDP probe: 8 zero bytes",
+      "expectation": "probe (proprietary protocol — is any response returned?)",
+      "result": "no-response",
+      "detail": "timeout"
+    },
+    {
+      "group": "netgauge-udp",
+      "name": "UDP probe: 1 zero byte",
+      "expectation": "probe (proprietary protocol — is any response returned?)",
+      "result": "no-response",
+      "detail": "timeout"
+    }
+  ]
+}

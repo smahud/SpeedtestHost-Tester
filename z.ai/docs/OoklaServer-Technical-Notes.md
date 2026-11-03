@@ -390,3 +390,45 @@ dengan config asli yang diambil live memakai query string milik client
 | 8 | `GET /`, `GET /speedtest/latency.txt`, `POST /speedtest/upload.php`, `GET /crossdomain.xml` (cek) |
 
 Semua permintaan mengirim User-Agent browser (syarat produksi, §9.1).
+
+---
+
+## 14. Round 4 (2026-11-03) — temuan lab baru (audit independen, engine v1.1.0)
+
+> Bukti: `../lab/results/probe-protocol-8080.json`, `probe-cors-upload.json`,
+> matriks lengkap di `../validation/PROTOCOL_MATRIX.md`.
+
+1. **`GET /hi`** → `hello 2.11 (2.11.5) 2026-06-04.1737.7d0993d` (44 B) —
+   endpoint versi via HTTP polos (adopsi: fallback deteksi versi di engine v1.1.0).
+2. **HTTP tanpa header `User-Agent` → 500 Internal Server Error** (perilaku inti
+   daemon, BUKAN filter opsional `userAgentFilterEnabled`; UA kosong `User-Agent:`
+   tetap 200). Konsekuensi: UA wajib selalu dikirim — kini terverifikasi lebih kuat.
+3. **Redirect nama-kanonik 307**: setiap GET HTTP-polos yang `Host`-nya tidak
+   cocok dengan SAN sertifikat (port dibuang, bracket TIDAK dibuang) dijawab
+   `307 → https://<nama-kanonik-cert>:<port>/`. `Host: [::1]:8080` → 307 meski
+   `IP::1` ada di SAN. Upgrade WS `/ws` tetap jalan untuk Host tidak-cocok.
+   Implikasi: target IPv6-literal/hostname-salah TIDAK bisa mencapai endpoint
+   HTTP legacy di daemon 2.11 — engine v1.1.0 melaporkannya dengan penjelasan
+   redirect, bukan error DNS menyesatkan (bug v1.0.1, FINDINGS Z-4.1).
+4. **CORS**: `Origin: <nilai>` → `Access-Control-Allow-Origin: <nilai>` (reflektif,
+   permissif); `Origin: null` / tanpa Origin → tanpa ACAO.
+5. **`Range:` diabaikan** — GET random350 dengan `Range: bytes=0-1023` tetap
+   mengembalikan body utuh 245.388 B tanpa `Content-Range`.
+6. **Lantai TLS 1.2 dipaksakan server** — penawaran TLS 1.0/1.1 (SECLEVEL=0)
+   ditolak `alert protocol version`; 1.2/1.3 diterima; verifikasi ketat
+   (CA+hostname) terbukti lulus/gagal sesuai skenario sertifikat
+   (valid/kedaluwarsa/hostname-salah — PKI lab `lab/scripts/gen-certs.sh`).
+7. **UDP netgauge**: probe teks/binary naif tidak mendapat respons (protokol
+   biner proprietary), namun CLI resmi mencatat `packetLoss: 0` ke daemon yang
+   sama → jalur UDP hidup dengan framing yang benar (OBSERVASI).
+8. **Netgauge TCP**: `DOWNLOAD 100000` = tepat 100.000 byte (prefix ASCII
+   `DOWNLOAD ` 9 byte TERMASUK payload); `UPLOAD 2048` → `OK 2048 <epoch-ms>`
+   (payload boleh satu burst maupun tertunda); `upload.php` → `size=` = jumlah
+   byte body PERSIS (1009 → 1009).
+9. **WS path-sensitive**: hanya `/ws` (dan `/ws/`) yang di-upgrade (101,
+   accept-key valid); `/` → 200; path lain → 404 (case-sensitive).
+10. **Cross-validation non-publishing (Round 4)**: CLI resmi 1.2.0.84
+    menyelesaikan test penuh ke daemon lab (exit 0, server `localhost:8080`,
+    latensi idle 0,053 ms, DL ≈64,8 Gbps, UL ≈47,9 Gbps, loss 0%) dengan
+    **submission ke results.speedtest.net DIBLOKIR proxy** — tidak ada data
+    artifisial yang dikirim publik. Delta access log = 0 (murni netgauge).

@@ -24,7 +24,7 @@
 import { runHostTest, parseTarget } from "../lib/host-tester";
 import { formatBytes, formatMbit } from "../lib/host-tester-types";
 
-const VERSION = "1.0.1";
+const VERSION = "1.1.0";
 
 /* ------------------------------ flags ------------------------------ */
 
@@ -262,6 +262,13 @@ async function main(): Promise<number> {
 
     stopSpinner();
     process.off("SIGINT", onSigint);
+
+    // An interrupted run (SIGINT) exits 130 even when the engine returned a
+    // partial summary — "successfully completed" would be misleading.
+    if (ctrl.signal.aborted) {
+      if (!args.json) write("\n  Aborted.\n\n");
+      return 130;
+    }
 
     if (args.json) {
       write(JSON.stringify(summary, null, 2) + "\n");

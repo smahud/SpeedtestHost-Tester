@@ -1,0 +1,10 @@
+# z.ai workspace — lab artifacts that must NOT be committed:
+#  - official binaries (redistribution not permitted; re-download from Ookla,
+#    SHA-256 pinned in validation/ENVIRONMENT.md and docs)
+#  - lab PKI incl. private keys (regenerate with lab/scripts/gen-certs.sh)
+#  - daemon run directory (extracted binaries, certs, pids, logs)
+lab/binaries/
+lab/run/
+lab/certs/
+# logs (root .gitignore also covers *.log)
+lab/logs/

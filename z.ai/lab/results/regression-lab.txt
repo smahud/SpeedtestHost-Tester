@@ -1,0 +1,20 @@
+# z.ai Host Tester regression battery — mode: lab
+
+[live official daemon — localhost:8080, valid lab cert]
+  ok   lab localhost: exit 0
+  ok   lab localhost: verdict ok, 10/10
+  ok   lab localhost: daemon version 2.11.5.2
+  ok   lab localhost: crossdomain domain="*" pass
+  ok   lab localhost: https detail includes trust info
+  ok   lab localhost: measurements present
+  ok   lab 127.0.0.1: exit 0 / 10/10
+
+[live official daemon — [::1]:8080 (Host not in SANs due to brackets)]
+  ok   lab [::1]: exit 1 (endpoints genuinely unreachable via bracketed Host)
+  ok   lab [::1]: NO misleading ENOTFOUND
+  ok   lab [::1]: daemon check passes with redirect explanation
+  ok   lab [::1]: latency check fails with redirect explanation
+  ok   lab [::1]: netgauge works over IPv6
+  ok   lab [::1]: keep-alive inspects 307 headers
+
+# 13 passed, 0 failed

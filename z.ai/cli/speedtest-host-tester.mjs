@@ -3,6 +3,8 @@
 // src/lib/host-tester.ts
 import http from "node:http";
 import https from "node:https";
+import tls from "node:tls";
+import net from "node:net";
 import crypto from "node:crypto";
 import dns from "node:dns";
 
@@ -137,6 +139,8 @@ function parseTarget(raw) {
     host = m[1];
     if (m[2])
       port = parseInt(m[2], 10);
+  } else if (/^[0-9a-fA-F:.]+$/.test(s) && (s.includes("::") || (s.match(/:/g) ?? []).length >= 2)) {
+    host = s;
   } else {
     const m = s.match(/^(.+):(\d+)$/);
     if (m) {
@@ -148,12 +152,14 @@ function parseTarget(raw) {
   }
   if (!host || port < 1 || port > 65535)
     return null;
-  const isIPv4 = /^\d{1,3}(\.\d{1,3}){3}$/.test(host);
-  const isIPv6 = host.includes(":");
+  const isIPv4 = net.isIP(host) === 4;
+  const isIPv6 = net.isIP(host) === 6;
   const isHostname = /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*$/.test(host);
   if (!isIPv4 && !isIPv6 && !isHostname)
     return null;
   if (isIPv4 && host.split(".").some((p) => parseInt(p, 10) > 255))
+    return null;
+  if (!isIPv4 && /^\d+\.\d+\.\d+\.\d+$/.test(host))
     return null;
   return { host, port };
 }
@@ -189,7 +195,7 @@ function wsConnect(opts) {
       method: "GET",
       timeout: opts.timeoutMs ?? 8000,
       headers: {
-        Host: `${opts.host}:${opts.port}`,
+        Host: `${opts.host.includes(":") && !opts.host.startsWith("[") ? `[${opts.host}]` : opts.host}:${opts.port}`,
         Upgrade: "websocket",
         Connection: "Upgrade",
         "Sec-WebSocket-Key": key,
@@ -387,16 +393,39 @@ async function netgaugeProbe(host, port, pings, signal) {
   }
   return { ok: false, error: lastErr };
 }
+function tlsTrustProbe(host, port, timeoutMs) {
+  return new Promise((resolve) => {
+    const socket = tls.connect({
+      host,
+      port,
+      rejectUnauthorized: true,
+      ...isIpAddress(host) ? {} : { servername: host },
+      timeout: timeoutMs
+    });
+    socket.on("secureConnect", () => {
+      socket.destroy();
+      resolve({ trusted: true });
+    });
+    socket.on("error", (e) => {
+      resolve({ trusted: false, reason: e.code ?? e.message });
+    });
+    socket.on("timeout", () => {
+      socket.destroy();
+      resolve({ trusted: false, reason: "timeout" });
+    });
+  });
+}
 function httpsCheck(host, port, timeoutMs) {
   return new Promise((resolve) => {
     let settled = false;
-    const done = (ok, detail) => {
+    const done = (ok, status, detail) => {
       if (!settled) {
         settled = true;
-        resolve({ ok, detail });
+        resolve({ ok, status, detail });
       }
     };
     let tlsInfo = "";
+    let certWarn = "";
     const req = https.request({
       host,
       port,
@@ -406,10 +435,14 @@ function httpsCheck(host, port, timeoutMs) {
       ...isIpAddress(host) ? {} : { servername: host },
       timeout: timeoutMs,
       headers: { "User-Agent": BROWSER_UA }
-    }, (res) => {
+    }, async (res) => {
       res.resume();
       const statusOk = (res.statusCode ?? 0) > 0;
-      done(statusOk, `HTTPS ${res.statusCode ?? "???"}${tlsInfo ? ` · ${tlsInfo}` : ""}`);
+      const trust = await tlsTrustProbe(host, port, timeoutMs).catch(() => ({ trusted: false, reason: "probe-error" }));
+      const trustNote = trust.trusted ? "trust: publicly trusted ✓" : `trust: not publicly trusted (${trust.reason ?? "unknown"})`;
+      const loc = res.headers.location ? ` · → ${res.headers.location}` : "";
+      const detail = `HTTPS ${res.statusCode ?? "???"}${loc}${tlsInfo ? ` · ${tlsInfo}` : ""} · ${trustNote}${certWarn ? ` · ⚠ ${certWarn}` : ""}`;
+      done(statusOk, certWarn ? "warn" : "pass", detail);
     });
     req.on("socket", (sock) => {
       sock.on("secureConnect", () => {
@@ -417,17 +450,26 @@ function httpsCheck(host, port, timeoutMs) {
           const cert = sock.getPeerCertificate();
           const proto = typeof sock.getProtocol === "function" ? sock.getProtocol() : "";
           const cn = cert && cert.subject && (cert.subject.CN || cert.subject.O) || "self-signed/unknown";
+          const issuer = cert && cert.issuer && (cert.issuer.CN || cert.issuer.O) ? ` · issuer=${cert.issuer.CN || cert.issuer.O}` : "";
           let exp = "";
           if (cert && cert.valid_to) {
             const days = Math.round((new Date(cert.valid_to).getTime() - Date.now()) / 86400000);
             exp = `, valid ${days}d`;
+            if (days < 0)
+              certWarn = `certificate EXPIRED ${-days}d ago`;
           }
-          tlsInfo = `${proto}, CN=${cn}${exp}`;
+          if (cert && typeof cert.subjectaltname === "string" && cert.subjectaltname && !isIpAddress(host)) {
+            const sans = String(cert.subjectaltname).split(", ").map((s) => s.trim());
+            const hostMatch = sans.some((s) => s === `DNS:${host}` || s === `DNS:*.${host.split(".").slice(1).join(".")}`);
+            if (!hostMatch)
+              certWarn = certWarn || `hostname "${host}" is not in the certificate SANs (${sans.slice(0, 4).join(", ")}…)`;
+          }
+          tlsInfo = `${proto}, CN=${cn}${issuer}${exp}`;
         } catch {}
       });
     });
     req.on("timeout", () => req.destroy(new Error("HTTPS connection timeout")));
-    req.on("error", (e) => done(false, e.message));
+    req.on("error", (e) => done(false, "fail", e.message));
     req.end();
   });
 }
@@ -436,8 +478,17 @@ async function fetchCheck(url, init, group) {
     ...init,
     signal: group.signal,
     cache: "no-store",
+    redirect: "manual",
     headers: { ...BROWSER_HEADERS, ...init.headers }
   });
+}
+function explainRedirect(res) {
+  if (res.status < 300 || res.status > 399)
+    return null;
+  const loc = res.headers.get("location");
+  if (!loc)
+    return `HTTP ${res.status} redirect without Location header`;
+  return `server redirected to ${loc} — the daemon serves its legacy HTTP endpoints only for hostnames matching the certificate SANs; test with the certificate hostname (or fix the certificate) [verified official OoklaServer 2.11 behavior]`;
 }
 async function runHostTest(input, handlers = {}, options = {}) {
   const { onEvent = () => {}, signal } = handlers;
@@ -496,12 +547,20 @@ async function runHostTest(input, handlers = {}, options = {}) {
   });
   let rootHeaders = null;
   let rootOk = false;
+  let rootRedirect = null;
   await runCheck("daemon", "OoklaServer daemon connection", async () => {
     const g = new SignalGroup([globalSignal], 1e4);
     try {
       const res = await fetchCheck(`${base}/`, { method: "GET" }, g);
       rootHeaders = res.headers;
       rootOk = res.ok || res.status < 500;
+      rootRedirect = explainRedirect(res);
+      if (rootRedirect) {
+        return {
+          status: "pass",
+          detail: `OoklaServer daemon responding · ${rootRedirect}`
+        };
+      }
       const body = (await res.text()).slice(0, 512);
       const server = res.headers.get("server") || "";
       const isOokla = /ooklaserver/i.test(body) || /ooklaserver/i.test(server);
@@ -519,11 +578,33 @@ async function runHostTest(input, handlers = {}, options = {}) {
   emit({ type: "phase", phase: "netgauge", status: "start" });
   const ng = await netgaugeProbe(host, port, opts.netgaugePings, globalSignal);
   emit({ type: "phase", phase: "netgauge", status: "end" });
+  let hiVersion;
+  let hiError;
+  {
+    const g = new SignalGroup([globalSignal], 6000);
+    try {
+      const res = await fetchCheck(`${base}/hi`, { method: "GET" }, g);
+      const body = (await res.text()).slice(0, 128);
+      const m = body.match(/^hello\s+(.+)$/im);
+      if (res.ok && m)
+        hiVersion = m[1].trim();
+    } catch (e) {
+      hiError = errText(e);
+    } finally {
+      g.cleanup();
+    }
+  }
   await runCheck("daemon-version", "OoklaServer daemon version", async () => {
     if (ng.ok && ng.version) {
       return { status: "pass", detail: ng.version };
     }
-    return { status: "fail", detail: `version unavailable — netgauge handshake failed (${ng.error ?? "unknown"})` };
+    if (hiVersion) {
+      return {
+        status: "pass",
+        detail: `${hiVersion} · via GET /hi (netgauge handshake failed: ${ng.error ?? "unknown"})`
+      };
+    }
+    return { status: "fail", detail: `version unavailable — netgauge handshake failed (${ng.error ?? "unknown"})${hiError ? ` · GET /hi failed (${hiError})` : ""}` };
   });
   await runCheck("netgauge", "Netgauge / WebSocket (port " + port + ")", async () => {
     if (ng.ok) {
@@ -538,7 +619,7 @@ async function runHostTest(input, handlers = {}, options = {}) {
   });
   await runCheck("https", "HTTPS functionality", async () => {
     const r = await httpsCheck(host, port, 8000);
-    return { status: r.ok ? "pass" : "fail", detail: r.detail };
+    return { status: r.status, detail: r.detail };
   });
   await runCheck("keepalive", "Keep-Alive", async () => {
     const conn = rootHeaders?.get("connection") ?? "";
@@ -555,6 +636,9 @@ async function runHostTest(input, handlers = {}, options = {}) {
     const g = new SignalGroup([globalSignal], 8000);
     try {
       const res = await fetchCheck(`${base}/speedtest/latency.txt`, { method: "GET" }, g);
+      const redir = explainRedirect(res);
+      if (redir)
+        return { status: "fail", detail: redir };
       const body = (await res.text()).slice(0, 64);
       if (res.ok && body.length > 0) {
         latencyFileOk = true;
@@ -569,12 +653,15 @@ async function runHostTest(input, handlers = {}, options = {}) {
   await runCheck("images", "Download image files (random*.jpg)", async () => {
     const g = new SignalGroup([globalSignal], 8000);
     try {
+      let redirectDetail = null;
       for (const s of SPEEDTEST_IMAGE_SIZES) {
         let bytes = null;
         let status = 0;
         try {
           const res = await fetchCheck(`${base}${speedtestImagePath(s)}`, { method: "HEAD" }, g);
           status = res.status;
+          if (!redirectDetail)
+            redirectDetail = explainRedirect(res);
           const cl = res.headers.get("content-length");
           bytes = cl ? parseInt(cl, 10) : null;
           if (res.status === 405 || res.ok && bytes == null) {
@@ -588,6 +675,9 @@ async function runHostTest(input, handlers = {}, options = {}) {
             throw e;
         }
         imageSizes.push({ size: s, bytes: res_ok(status) ? bytes : null });
+      }
+      if (redirectDetail && imageSizes.every((i) => i.bytes == null)) {
+        return { status: "fail", detail: redirectDetail };
       }
     } finally {
       g.cleanup();
@@ -616,6 +706,9 @@ async function runHostTest(input, handlers = {}, options = {}) {
         },
         body: probe
       }, g);
+      const redir = explainRedirect(res);
+      if (redir)
+        return { status: "fail", detail: redir };
       const body = (await res.text()).slice(0, 128);
       if (res.ok && /^size=\d+/i.test(body)) {
         uploadScriptOk = true;
@@ -630,9 +723,22 @@ async function runHostTest(input, handlers = {}, options = {}) {
     const g = new SignalGroup([globalSignal], 8000);
     try {
       const res = await fetchCheck(`${base}/crossdomain.xml`, { method: "GET" }, g);
-      const body = (await res.text()).slice(0, 512);
-      if (res.ok && /cross-domain-policy|allow-access-from/i.test(body)) {
-        return { status: "pass", detail: "HTTP 200 · policy found" };
+      const redir = explainRedirect(res);
+      if (redir)
+        return { status: "fail", detail: redir };
+      const body = (await res.text()).slice(0, 2048);
+      if (res.ok && /cross-domain-policy/i.test(body)) {
+        const domains = [...body.matchAll(/<allow-access-from[^>]*domain=\"([^\"]+)\"[^>]*>/gi)].map((m) => m[1]);
+        if (domains.includes("*")) {
+          return { status: "pass", detail: `HTTP 200 · allow-access-from domain="*"` };
+        }
+        if (domains.length > 0) {
+          return {
+            status: "warn",
+            detail: `HTTP 200 · policy allows only: ${domains.join(", ")} — Ookla expects domain="*"`
+          };
+        }
+        return { status: "warn", detail: `HTTP 200 · policy found but no allow-access-from rule parsed` };
       }
       return { status: "fail", detail: `HTTP ${res.status}` };
     } finally {
@@ -955,7 +1061,7 @@ async function uploadPhase(base, seconds, parentSignal, emit) {
 }
 
 // src/cli/main.ts
-var VERSION = "1.0.1";
+var VERSION = "1.1.0";
 function parseArgs(argv) {
   const args = {
     target: null,
@@ -1184,6 +1290,14 @@ async function main() {
     });
     stopSpinner();
     process.off("SIGINT", onSigint);
+    if (ctrl.signal.aborted) {
+      if (!args.json)
+        write(`
+  Aborted.
+
+`);
+      return 130;
+    }
     if (args.json) {
       write(JSON.stringify(summary, null, 2) + `
 `);

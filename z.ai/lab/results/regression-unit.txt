@@ -1,0 +1,58 @@
+# z.ai Host Tester regression battery — mode: unit
+
+[parseTarget]
+  ok   parse "host.example.com"
+  ok   parse "host.example.com:8080"
+  ok   parse "host.example.com:9090"
+  ok   parse "http://host.example.com:8080/"
+  ok   parse "https://host.example.com"
+  ok   parse "127.0.0.1"
+  ok   parse "127.0.0.1:8080"
+  ok   parse "[::1]"
+  ok   parse "[::1]:8080"
+  ok   parse "[2001:db8::1]:8080"
+  ok   parse "2001:db8::1"
+  ok   reject "host..example.com"
+  ok   reject "-bad.example.com"
+  ok   parse "::1"
+  ok   reject "host.example.com:notaport"
+  ok   reject "256.1.1.1"
+  ok   reject "host.example.com:0"
+  ok   reject "host.example.com:65536"
+  ok   reject ""
+  ok   reject "   "
+
+[cli behavior — no daemon needed]
+  ok   --help exits 0
+  ok   --help prints version
+  ok   no args exits 2
+  ok   invalid input "!!not a host!!" exits 2
+  ok   invalid input "host.example.com:notaport" exits 2
+  ok   invalid input "a b c" exits 2
+  ok   refused target exits 1
+  ok   refused target prints valid JSON
+  ok   refused target verdict not ok
+  ok   refused target fails daemon check
+  ok   NXDOMAIN exits 1
+  ok   NXDOMAIN resolution check fails with DNS error
+
+[mock daemon — normal mode]
+(node:5262) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/z/my-project/SpeedtestHost-Tester/z.ai/web/src/lib/host-tester.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/z/my-project/SpeedtestHost-Tester/z.ai/web/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok   mock: exit 1 (https fails — no TLS on mock)
+  ok   mock: 9/10 pass + https fail (no TLS on mock)
+  ok   mock: daemon version detected
+  ok   mock: crossdomain strict pass (domain="*")
+
+[mock daemon — redirect mode (canonical-name 307, like official 2.11)]
+  ok   redirect-mock, Host in SANs: exit 1 (https fails — no TLS on mock)
+  ok   redirect-mock, Host in SANs: 9/10 with only https failed
+  ok   redirect-mock, Host not in SANs: exit 1
+  ok   redirect-mock: no ENOTFOUND DNS errors
+  ok   redirect-mock: daemon check explains redirect
+  ok   redirect-mock: latency check explains redirect
+  ok   redirect-mock: keep-alive inspects 307 headers (pass)
+
+# 43 passed, 0 failed

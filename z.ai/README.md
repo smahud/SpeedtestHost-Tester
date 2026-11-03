@@ -100,6 +100,20 @@ material, logs, `node_modules`.
 
 ## Verification summary
 
+- **Round 4 — independent re-audit (current, v1.1.0).** Full re-validation with
+  freshly downloaded official binaries (SHA-256 re-verified against the pins):
+  engine **10/10 PASS** vs the official OoklaServer 2.11.5.2 lab (localhost +
+  127.0.0.1), **56-assertion regression battery** (unit + lab) green, official
+  Speedtest CLI 1.2.0 cross-validation re-run with a **non-publishing** proxy
+  (result submission blocked; exit 0; server `localhost:8080`; zero HTTP
+  requests — pure netgauge). Defects found & fixed: silent redirect-following
+  that turned the daemon's canonical-name 307 into misleading DNS errors
+  (impacts IPv6-literal targets), HTTPS check now surfaces expired/hostname-
+  mismatch/untrusted certificates (WARN + reasons) instead of passing silently,
+  crossdomain now requires `allow-access-from domain="*"`, `parseTarget`
+  hardened, SIGINT exit code 130, WS Host header bracketing. Full audit trail:
+  [`validation/`](validation/FINAL_REPORT.md) · findings:
+  [`validation/FINDINGS.md`](validation/FINDINGS.md).
 - **Round 1 — official server side.** Engine validated against the **official
   OoklaServer 2.11.5.2 binary** (build `2026-06-04.1737.7d0993d`, SHA256
   pinned) running in a local lab: **10/10 checks PASS** with real loopback

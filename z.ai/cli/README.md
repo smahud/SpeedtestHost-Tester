@@ -99,3 +99,29 @@ Lalu pengukuran dengan metodologi resmi Ookla (HTTP legacy):
 > memperbaiki target IPv6 literal (`[::1]:8080`) yang sebelumnya gagal
 > 5 cek karena URL dibangun tanpa bracket IPv6 — lihat
 > `../cross-validation/README.md`.
+
+---
+
+## v1.1.0 (2026-11-03, Round 4 audit)
+
+Perilaku baru yang perlu diketahui:
+
+- **Redirect daemon kini dijelaskan, tidak diikuti.** Jika `Host` target tidak
+  cocok dengan SAN sertifikat daemon, OoklaServer menjawab `307 → https://<nama-cert>:<port>/`.
+  v1.0.1 mengikuti redirect itu dan menampilkan error DNS menyesatkan
+  (`ENOTFOUND <nama-cert>`); v1.1.0 memeriksa koneksi daemon = PASS dengan
+  penjelasan redirect, dan 4 cek endpoint HTTP = FAIL dengan pesan yang bisa
+  ditindaklanjuti. **Gunakan hostname yang sesuai sertifikat** (bukan IP literal
+  IPv6) untuk hasil terbaik.
+- **Cek HTTPS kini melaporkan sertifikat**: protokol, CN, issuer, sisa masa
+  berlaku, status kepercayaan publik, dan kecocokan hostname. Sertifikat
+  kedaluwarsa / hostname tidak cocok → status **WARN** (bukan PASS diam-diam).
+- **Crossdomain kini ketat**: hanya `allow-access-from domain="*"` yang PASS;
+  domain lain → WARN dengan daftar domain.
+- **Deteksi versi punya fallback `GET /hi`** saat WebSocket netgauge terblokir.
+- **Kode exit baru: 130** — proses di-interrupt (SIGINT) di tengah test.
+- Input yang lebih ketat: `host:port` non-numerik, IPv4 typo (`256.1.1.1`),
+  dan bentuk tidak valid lain ditolak (exit 2).
+
+Kode exit lengkap: `0` semua cek lulus · `1` ada cek gagal · `2` input salah ·
+`130` di-abort (SIGINT).

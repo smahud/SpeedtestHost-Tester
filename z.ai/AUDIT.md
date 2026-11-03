@@ -190,3 +190,48 @@ Daemon-side signature reconfirmed: the official client again produced
 **zero HTTP access-log entries** (pure netgauge), while its netgauge session
 teardown is timestamped in the daemon log at the run window. Cross
 validation passes in both directions after the fix.
+
+## 9. Round 4 — independent re-audit, official-binary re-validation, defect fixes (v1.1.0)
+
+Full audit trail: [`validation/FINAL_REPORT.md`](validation/FINAL_REPORT.md) ·
+findings [`validation/FINDINGS.md`](validation/FINDINGS.md) · protocol matrix
+[`validation/PROTOCOL_MATRIX.md`](validation/PROTOCOL_MATRIX.md).
+
+Scope: fresh official binaries (SHA-256 re-verified = round-1 pins), new lab
+PKI (valid/expired/hostname-mismatch certs), 41-probe protocol battery,
+three-way cross-validation with a **non-publishing** proxy, 56-assertion
+regression battery, security review. Other agents' directories used strictly
+read-only; two concepts adopted and independently verified (mistral.ai's
+`GET /hi` + crossdomain `domain="*"` strictness; chatgpt's
+don't-follow-redirects principle → materialized as fix Z-4.1).
+
+Confirmed defects fixed (details in FINDINGS):
+
+| ID | Severity | Defect | Fix |
+| --- | --- | --- | --- |
+| Z-4.1 | HIGH | silent redirect-following → misleading `ENOTFOUND` failures (IPv6-literal / wrong-hostname targets) | `redirect:"manual"` + redirect explanations; daemon check passes (daemon IS responding), endpoint checks fail with actionable message |
+| Z-4.2 | MEDIUM | HTTPS check passed expired/mismatched/untrusted certs silently | detail now reports issuer/trust/hostname/expiry; expired & hostname-mismatch → WARN |
+| Z-4.3 | MEDIUM | `parseTarget` accepted `host:notaport` (misclassified as IPv6); bare IPv6 `2001:db8::1` mangled | `net.isIP()` classification + bare-IPv6 branch + dotted-quad typo rejection |
+| Z-4.4 | MEDIUM | crossdomain accepted any policy | strict `domain="*"` PASS, otherwise WARN with domains |
+| Z-4.5 | LOW | SIGINT exited 0 | exit 130 + "Aborted." |
+| Z-4.6 | LOW | WS Host header unbracketed for IPv6 | `[::1]:8080` form |
+| Z-4.7 | LOW | mock daemon IPv4-only, no `/hi`/redirect mode | dual-stack + `/hi` + `REDIRECT_MODE` |
+
+New verified protocol knowledge (this round): `GET /hi`; UA-less HTTP → 500
+(core behavior); 307 canonical-name redirect rule (Host ∉ SAN, brackets not
+stripped); CORS reflection; Range ignored; exact `DOWNLOAD n`/`UPLOAD`/
+`upload.php` byte semantics; TLS 1.0/1.1 rejected server-side; WS path
+sensitivity; UDP netgauge alive for the genuine client (packetLoss 0).
+
+Re-validation: v1.1.0 vs official daemon — 10/10 PASS (localhost, 127.0.0.1);
+`[::1]` now yields an accurate 6-pass/4-fail redirect diagnosis; expired cert →
+https WARN (verdict still ok); mismatch cert → https WARN + endpoint FAILs
+with redirect explanation. Official CLI 1.2.0.84 → local daemon: exit 0, full
+genuine test, **results.speedtest.net blocked** (no artificial public data),
+daemon access-log delta 0 (pure netgauge).
+
+Correction to Round 2's claim: "[::1]:8080 → 10/10 after the v1.0.1 fix" is
+**context-dependent** — it only held for a lab cert whose SAN set avoided the
+daemon's 307 canonical redirect. With `IP::1` in the SANs but a bracketed
+`Host: [::1]:8080`, the official daemon redirects and the legacy HTTP
+endpoints are unreachable. v1.1.0 reports this correctly.

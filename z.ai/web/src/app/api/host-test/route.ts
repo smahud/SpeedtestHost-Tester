@@ -11,10 +11,38 @@ function clamp(v: number | null, fallback: number, min: number, max: number): nu
 }
 
 /**
+ * Concurrency guard: each test opens 2–4 download threads + up to 4 upload
+ * workers against the target. Unbounded concurrent runs could exhaust local
+ * resources (sockets, memory) — cap the simultaneous in-process tests.
+ */
+const MAX_CONCURRENT_TESTS = 3;
+let activeTests = 0;
+
+/**
  * GET /api/host-test?target=host.example.com:8080&ds=10&us=10&ls=10
  * Streams NDJSON events (start/check/phase/speed/ping-sample/log/done/error).
+ *
+ * NOTE (security posture): this route is designed for LOCAL / lab use — it
+ * willfully connects to loopback and private addresses because testing an
+ * OoklaServer on the local network is the tool's purpose. Do not expose it
+ * publicly without an authentication layer and an egress allowlist.
  */
 export async function GET(req: NextRequest) {
+  if (activeTests >= MAX_CONCURRENT_TESTS) {
+    return Response.json(
+      { error: `Too many concurrent tests (max ${MAX_CONCURRENT_TESTS}). Try again shortly.` },
+      { status: 429 },
+    );
+  }
+  activeTests++;
+  try {
+    return await streamTest(req);
+  } finally {
+    activeTests--;
+  }
+}
+
+async function streamTest(req: NextRequest): Promise<Response> {
   const { searchParams } = new URL(req.url);
   const target = (searchParams.get("target") || "").trim();
 

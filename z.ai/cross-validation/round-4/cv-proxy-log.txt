@@ -1,0 +1,14 @@
+=== Round-4 CV proxy on 127.0.0.1:8888 (cli.speedtest.net -> crafted config; results.speedtest.net BLOCKED) ===
+[mitm] CONNECT cli.speedtest.net:443 -> TLS-terminating with lab cert
+[mitm] GET /api/cli/config?deviceId=63d904f3efce0f7ce64c71a11c2e2611055af088f17044fd4a51f1ee5dc32602&hid=SJL%251CH%2513%2516MMNS%2503SSXV%2500%2504%255B%2512%2515G%254
+[config] fetched with CLI's own query (2674 B); server 43356 host 1010.hkspeedtest.com:8080 -> localhost:8080
+[mitm] served crafted config (2891 B)
+[mitm] CONNECT cli.speedtest.net:443 -> TLS-terminating with lab cert
+[mitm] GET /api/cli/config?deviceId=63d904f3efce0f7ce64c71a11c2e2611055af088f17044fd4a51f1ee5dc32602&hid=SJL%251CH%2513%2516MMNS%2503SSXV%2500%2504%255B%2512%2515G%254
+[config] fetched with CLI's own query (2674 B); server 43356 host 1010.hkspeedtest.com:8080 -> localhost:8080
+[mitm] served crafted config (2891 B)
+[mitm] CONNECT cli.speedtest.net:443 -> TLS-terminating with lab cert
+[mitm] GET /api/cli/config?deviceId=63d904f3efce0f7ce64c71a11c2e2611055af088f17044fd4a51f1ee5dc32602&hid=SJL%251CH%2513%2516MMNS%2503SSXV%2500%2504%255B%2512%2515G%254
+[config] fetched with CLI's own query (2674 B); server 43356 host 1010.hkspeedtest.com:8080 -> localhost:8080
+[mitm] served crafted config (2891 B)
+[BLOCKED] CONNECT results.speedtest.net:443 -> refused (non-publishing guarantee)

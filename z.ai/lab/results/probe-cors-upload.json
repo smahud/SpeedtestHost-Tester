@@ -1,0 +1,15 @@
+{
+  "when": "2026-11-03T13:32:11.570Z",
+  "target": "localhost:8080",
+  "cors": {
+    "https://www.speedtest.net": "https://www.speedtest.net",
+    "https://speedtest.net": "https://speedtest.net",
+    "https://evil.example": "https://evil.example",
+    "null": "NONE",
+    "(no Origin header)": "NONE"
+  },
+  "rawUpload": {
+    "burst": "OK 2048 1793712732337",
+    "delayedPayload": "OK 2048 1793712732938"
+  }
+}

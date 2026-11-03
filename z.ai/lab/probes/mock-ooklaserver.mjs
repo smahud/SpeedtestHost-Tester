@@ -19,6 +19,16 @@ import crypto from "node:crypto";
 const PORT = Number(process.argv[2] || 8091);
 const VERSION = "2.11 (2.11.5-mock) 2026-06-04.1737.7d0993d";
 
+// REDIRECT_MODE=1: reproduce the official daemon's canonical-name redirect —
+// every plain-HTTP GET whose Host is not in CERT_SANS gets 307 ->
+// https://<CANONICAL>:<port>/ (verified against OoklaServer 2.11.5.2,
+// 2026-11-03). Used by the regression battery to test redirect handling.
+const REDIRECT_MODE = process.env.REDIRECT_MODE === "1";
+const CANONICAL = process.env.CANONICAL_HOST || "lab.ookla.test";
+const CERT_SANS = new Set(
+  (process.env.CERT_SANS || "lab.ookla.test,localhost,127.0.0.1").split(",").map((s) => s.trim()),
+);
+
 const IMAGE_SIZES = {
   350: 245388, 500: 505544, 750: 1118012, 1000: 1986284, 1500: 4468241,
   2000: 7907740, 2500: 12407926, 3000: 17816816, 3500: 24262167, 4000: 31625365,
@@ -96,6 +106,26 @@ function handleNetgauge(sock, messages) {
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const path = url.pathname;
+
+  if (REDIRECT_MODE) {
+    const hostNoPort = (req.headers.host || "").replace(/:\d+$/, "");
+    if (!CERT_SANS.has(hostNoPort)) {
+      const port = (req.headers.host || "").match(/:(\d+)$/)?.[1] || String(PORT);
+      res.writeHead(307, {
+        Location: `https://${CANONICAL}:${port}/`,
+        "Content-Length": 0,
+        Connection: "Keep-Alive",
+      });
+      res.end();
+      return;
+    }
+  }
+
+  if (path === "/hi") {
+    res.writeHead(200, { ...BASE_HEADERS, "Content-Type": "text/plain; charset=UTF-8", Connection: "Keep-Alive" });
+    res.end(`hello ${VERSION}\n`);
+    return;
+  }
 
   if (path === "/" || path === "") {
     res.writeHead(200, { ...BASE_HEADERS, "Content-Type": "text/html", Connection: "Keep-Alive" });
@@ -271,6 +301,11 @@ server.on("upgrade", (req, socket, head) => {
   socket.on("error", () => socket.destroy());
 });
 
-server.listen(PORT, "127.0.0.1", () => {
-  console.log(`[mock-ooklaserver] listening on http://127.0.0.1:${PORT} (netgauge WS on /ws)`);
+// Dual-stack like the official daemon (0.0.0.0 + [::]); fall back to IPv4-only
+server.listen(PORT, "::", () => {
+  console.log(`[mock-ooklaserver] listening on http://[::]:${PORT} dual-stack (netgauge WS on /ws)`);
+}).on("error", () => {
+  server.listen(PORT, "127.0.0.1", () => {
+    console.log(`[mock-ooklaserver] listening on http://127.0.0.1:${PORT} IPv4-only (netgauge WS on /ws)`);
+  });
 });
