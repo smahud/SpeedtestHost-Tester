@@ -7,7 +7,7 @@
 | Assigned directory (TARGET_DIR) | `z.ai/` — verified, all execution inside it |
 | Branch | `audit/z-ai-official-validation` |
 | Baseline SHA | `eab16976a4dbf48f36b0d81da5413cf2860e3cfa` |
-| Final SHA | `32c719b2fa8b99045cfd182af84cfab04c5fe0f8` (deliverable commit; this report + push metadata added in a follow-up commit — see git log) |
+| Final SHA | `32c719b2fa8b99045cfd182af84cfab04c5fe0f8` (deliverable commit; FINAL_REPORT, push-day re-verification and push metadata in follow-up commits — see git log) |
 | Deliverable version | Host Tester **v1.1.0** (engine + CLI bundle `43dc23e81a37d856e9b2391e7bd01bc03a1d2cf0a1201ffd54090668d8da7c55`) |
 
 ## B. Scope compliance
@@ -104,6 +104,7 @@ auth + egress gateway), loopback ≠ capacity.
 | Concurrency (4 parallel full runs) | 4× 10/10, daemon healthy | TEST_MATRIX |
 | Global timeout / SIGINT | capped at 10 s / exit 130 | TEST_MATRIX |
 | Official CLI cross-validation | exit 0, non-publishing | `cross-validation/round-4/` |
+| **Push-day re-verification (2026-11-04)** | unit 43/43 · live lab 13/13 · expired-cert `https` WARN re-confirmed · valid-cert full run 10/10 exit 0 · official-CLI CV re-run ×2 exit 0 (access-log delta 0, `persisted=false`) | `lab/results/*2026-11-04*`, `results/hasil-lab-official-daemon-v1.1.0-2026-11-04.txt` |
 | Web UI E2E | **NOT RE-RUN** (no UI change; R3 evidence stands) | limitation |
 
 ## I. Documentation
@@ -118,10 +119,11 @@ docs/OoklaServer-Technical-Notes.md.
 
 | Item | Status |
 | --- | --- |
-| Branch | `audit/z-ai-official-validation` (local) |
+| Branch | `audit/z-ai-official-validation` (local + GitHub `origin`) |
 | Deliverable commit | `32c719b2fa8b99045cfd182af84cfab04c5fe0f8` |
-| Push to GitHub | **NOT COMPLETED — BLOCKED**: the sandbox has no GitHub credentials (no token/SSH, non-interactive). `git push` fails with "could not read Username". The commit exists locally on the branch; a portable bundle was exported to the session download directory (`zai-audit-branch.bundle`, full history). To publish: run `git push -u origin audit/z-ai-official-validation` from a credentialed clone, or `git fetch zai-audit-branch.bundle audit/z-ai-official-validation && git push origin FETCH_HEAD:refs/heads/audit/z-ai-official-validation`. No pull request opened (requires the push first). |
-| Remote state | **Unverified** (push blocked) — the tested commit is the local `32c719b`, which matches the working tree. |
+| Push to GitHub | **COMPLETED 2026-11-04** — the repository owner provided a fine-grained PAT for the session; the branch was pushed over HTTPS as a fast-forward creation of `refs/heads/audit/z-ai-official-validation` from `main` @ `eab16976` (no force-push, no other branches touched). The token was used transiently on the push command line only — never written to any file, git config, or commit — and the owner is advised to revoke it (it was shared via chat). The previously exported `zai-audit-branch.bundle` is now redundant. |
+| Remote state | **Verified post-push** via `git ls-remote`: the remote branch head equals the pushed local HEAD (deliverable `32c719b` + push-day follow-up commits; see git log). |
+| Pull request | Not opened (not requested) — branch pushed for owner review/merge. |
 
 ## K. Production readiness
 
@@ -131,7 +133,7 @@ Justification: the diagnostic engine is validated against the official
 OoklaServer 2.11.5.2 binary across the full documented check surface, the
 negative/TLS/redirect scenarios, and a genuine official-client cross-validation,
 with a 56-assertion regression battery and complete reproducible lab. Remaining
-conditions: (1) push to GitHub pending credentials; (2) web app is explicitly a
+conditions: (1) push to GitHub — **completed 2026-11-04** (was: pending credentials); (2) web app is explicitly a
 local/lab tool — public deployment requires an auth/egress gateway; (3) Ookla's
 hidden verdict thresholds remain an approximation; (4) re-run the lab when
 Ookla ships a new daemon build (fingerprint watch). No claim of Ookla

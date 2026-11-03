@@ -31,7 +31,7 @@ cd run && tar xzf ../binaries/OoklaServer-linux-x86_64-static-musl.tgz \
 
 ```bash
 bash scripts/gen-certs.sh          # CA + valid/expired/mismatch certs -> certs/, run/cert.pem+key.pem
-cp run/OoklaServer.properties run/  # already committed in run/ — only if missing
+cp OoklaServer.properties run/    # committed lab config (8080, IPv6, access log ON) -> daemon working dir (push-day fix 2026-11-04: this step is REQUIRED — the tgz ships only .properties.default)
 cd run && nohup ./OoklaServer > ../logs/daemon-stdout.log 2>&1 & echo $! > ooklaserver.pid
 sleep 3
 curl -s http://localhost:8080/hi    # -> hello 2.11 (2.11.5) 2026-06-04.1737.7d0993d

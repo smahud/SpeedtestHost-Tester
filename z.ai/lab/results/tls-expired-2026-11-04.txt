@@ -1,0 +1,8 @@
+# TLS EXPIRED-cert scenario — push-day re-verification (2026-11-04)
+# daemon cert: certs/server-expired.crt (CN=lab.ookla.test, CA-signed, notAfter 2021-01-01)
+# expectation (v1.1.0, FINDINGS Z-4.2 / DECISIONS D2): https -> warn + explicit EXPIRED; functional verdict unaffected
+
+cli-exit      : 0
+verdict.ok    : true (passed 9/10, warn 1)
+https.status  : warn
+https.detail  : HTTPS 200 · TLSv1.3, CN=lab.ookla.test · issuer=zai Lab Root CA, valid -2133d · trust: not publicly trusted (CERT_HAS_EXPIRED) · ⚠ certificate EXPIRED 2133d ago

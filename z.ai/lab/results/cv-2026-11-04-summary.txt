@@ -1,0 +1,36 @@
+# Cross-validation — push-day re-verification (2026-11-04 Asia/Jakarta / 2026-11-03 19:27–19:33 UTC)
+# Daemon : official OoklaServer 2.11.5.2 build 2026-06-04.1737.7d0993d
+#          tgz sha256 ce180aa3ed9b3c099713cf37ea2ded48c1f799f47c534ab732e21cea61598159 (round-1 pin MATCH, fresh download)
+#          cert: VALID lab pair (CN=lab.ookla.test, SAN localhost/127.0.0.1/::1)
+# Client : official Ookla Speedtest CLI 1.2.0.84 (ea6b6773cf), sha256 31f1124c5ab8acdae6b9fe1741e704df420f9f2e7d429679fabe62075453c051 (round-1 pin MATCH)
+# Proxy  : scripts/cv-proxy.py — config-level redirect (non-publishing), results.speedtest.net BLOCKED
+
+## Run 1 (daemon without access logger — metrics only)
+- exit 0 · server localhost:8080 (id 43356) · ping latency 0.055 ms (jitter 0.005 ms)
+- download 66.84 Gbit/s · 49.79 GB · elapsed 6006 ms
+- upload   45.31 Gbit/s · 56.61 GB · elapsed 11047 ms
+- packetLoss 0 · result.persisted = false (non-publishing)
+- artifacts: cv-2026-11-04-cli.json / .stderr
+
+## Run 2 (access logger ON — sanity-verified first: 1 HTTP probe = +1 log line)
+- exit 0 · server localhost:8080 (id 43356) · ping latency 0.053 ms (jitter 0.002 ms)
+- download 67.48 Gbit/s · 34.76 GB · elapsed 4116 ms
+- upload   50.49 Gbit/s · 78.02 GB · elapsed 13513 ms
+- packetLoss 0 · result.persisted = false
+- access-log delta during the run: 0 entries → the official client made ZERO HTTP/WS
+  requests: pure raw netgauge (TCP/TLS + UDP), replicating the round-4 finding
+- artifacts: cv-2026-11-04-run2-cli.json / .stderr
+
+## Proxy log excerpt (logs/cv-proxy.log, run 2 — full log gitignored)
+  CONNECT cli.speedtest.net:443 -> TLS-terminating with lab cert
+  GET /api/cli/config?deviceId=…&hid=…            (the CLI's own genuine query, 2674 B)
+  [config] server 43356 host 1010.hkspeedtest.com:8080 -> localhost:8080
+  served crafted config (2891 B)
+  [BLOCKED] CONNECT results.speedtest.net:443 -> refused (non-publishing guarantee)
+
+## Interpretation
+Both surfaces of the official daemon are again proven by genuine clients on push day:
+the official CLI completes a full netgauge test (exit 0, packetLoss 0) while the
+z.ai Host Tester v1.1.0 validates the HTTP/WS host-tester surface (10/10 PASS, see
+../../results/hasil-lab-official-daemon-v1.1.0-2026-11-04.txt). No results were
+published to Ookla (persisted=false; results.speedtest.net refused at the proxy).

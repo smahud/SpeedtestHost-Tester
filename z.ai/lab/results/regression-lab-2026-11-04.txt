@@ -1,0 +1,28 @@
+# z.ai Host Tester regression battery — mode: lab (push-day re-verification)
+# date: 2026-11-03 19:22 UTC / 2026-11-04 Asia/Jakarta
+# daemon: official OoklaServer 2.11.5.2 build 2026-06-04.1737.7d0993d
+# tgz sha256: ce180aa3ed9b3c099713cf37ea2ded48c1f799f47c534ab732e21cea61598159 (pin match)
+# cert: VALID lab pair (CN=lab.ookla.test, SAN localhost/127.0.0.1/::1)
+
+# z.ai Host Tester regression battery — mode: lab
+
+[live official daemon — localhost:8080, valid lab cert]
+  ok   lab localhost: exit 0
+  ok   lab localhost: verdict ok, 10/10
+  ok   lab localhost: daemon version 2.11.5.2
+  ok   lab localhost: crossdomain domain="*" pass
+  ok   lab localhost: https detail includes trust info
+  ok   lab localhost: measurements present
+  ok   lab 127.0.0.1: exit 0 / 10/10
+
+[live official daemon — [::1]:8080 (Host not in SANs due to brackets)]
+  ok   lab [::1]: exit 1 (endpoints genuinely unreachable via bracketed Host)
+  ok   lab [::1]: NO misleading ENOTFOUND
+  ok   lab [::1]: daemon check passes with redirect explanation
+  ok   lab [::1]: latency check fails with redirect explanation
+  ok   lab [::1]: netgauge works over IPv6
+  ok   lab [::1]: keep-alive inspects 307 headers
+
+# 13 passed, 0 failed
+
+battery-exit=0

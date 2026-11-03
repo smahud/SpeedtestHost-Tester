@@ -12,6 +12,8 @@ lab-CA certificate) come first; the round-1–3 captures follow unchanged.
 | `../lab/results/regression-lab.txt` | live-daemon matrix (13 assertions) | all green (incl. `[::1]` redirect-diagnosis scenario) |
 | `../lab/results/probe-protocol-8080.json` | 41 protocol probes vs the official daemon | decoded in `../validation/PROTOCOL_MATRIX.md` |
 | `../cross-validation/round-4/` | official Speedtest CLI 1.2.0.84 → local daemon | exit 0, server `localhost:8080`, **submission blocked** (non-publishing) |
+| `hasil-lab-official-daemon-v1.1.0-2026-11-04.txt` | official daemon, `localhost:8080`, valid lab-CA cert — **push-day re-run** (2026-11-04) | **10/10 checks PASS** — ping 0.1 ms, download 10 377 Mbps (11.8 GB / 10.2 s), upload 2 122 Mbps (6.16 GB / 10.0 s) — loopback |
+| `../lab/results/*2026-11-04*` | push-day re-verification set: lab regression 13/13, expired-cert WARN scenario (Z-4.2), official-CLI cross-validation ×2 (non-publishing, access-log delta 0) | all green |
 
 ## Rounds 1–3 (2026-11-02)
 

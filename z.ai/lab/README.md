@@ -15,7 +15,7 @@ binaries themselves (re-download; SHA-256 pinned in
 | `scripts/probe-protocol.mjs` | 41-probe protocol battery: HTTP surface, HEAD/Range, upload semantics, CORS, keep-alive, raw TCP netgauge, WS path sensitivity + accept-key, TLS versions, strict CA/hostname verification, UDP probes → `results/probe-protocol-8080.json` |
 | `scripts/cv-proxy.py` | Round-4 **non-publishing** cross-validation proxy (rewrites server 43356 → `localhost:8080` in the live CLI config; **blocks `results.speedtest.net`**) |
 | `results/` | committed machine-readable evidence (probe JSON, CORS/upload evidence, regression logs, round-4 CLI run) |
-| `OoklaServer.properties` | (legacy, rounds 1–3) config used for the original 10/10 run — superseded by `run/OoklaServer.properties` (adds access log) |
+| `OoklaServer.properties` | lab daemon config — ports 8080 TCP+UDP, IPv6 on, auto-update off, **access log on**. Push-day fix (2026-11-04): the access-log block previously lived only in the gitignored `run/` copy; it is now committed here so the documented setup reproduces from the repo |
 | `OoklaServer.properties.default` | untouched official reference config — source of the config dictionary in `../docs` §4.2 |
 | `probes/mock-ooklaserver.mjs` | faithful mock daemon (HTTP + WS netgauge + `/hi` + `REDIRECT_MODE=1` canonical-307 mode, dual-stack) — powers the redirect regressions |
 | `probes/ws-probe*.mjs`, `ws-debug-prod.mjs` | raw probes from rounds 1–3 (handshake semantics, UA-filter finding) |

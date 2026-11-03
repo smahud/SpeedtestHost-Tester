@@ -28,10 +28,11 @@ zero-dependency Node CLI. It is NOT a speedtest client and NOT a daemon.
 | Validated version | **v1.1.0** (engine + CLI bundle rebuilt from it) |
 | Baseline audited | `eab16976a4dbf48f36b0d81da5413cf2860e3cfa` |
 | Deliver branch | `audit/z-ai-official-validation` (commit SHA: see FINAL_REPORT §J / git log) |
-| Regression battery | `node tests/regression.mjs unit` (43) + `… lab` (13) — **both green** |
+| Regression battery | `node tests/regression.mjs unit` (43) + `… lab` (13) — **both green** (re-verified on push day, 2026-11-04) |
 | Official binaries | OoklaServer 2.11.5.2 (`2026-06-04.1737.7d0993d`) + Speedtest CLI 1.2.0.84 — SHA-256 pinned in `validation/ENVIRONMENT.md` |
 | Verified vs official daemon | 10/10 PASS (localhost + 127.0.0.1); redirect/expired/mismatch scenarios behave as designed |
 | Cross-validation | official CLI → lab daemon, **non-publishing** (results.speedtest.net blocked), exit 0, zero HTTP requests (pure netgauge) |
+| Delivery | **pushed to GitHub (`origin`) 2026-11-04** — `audit/z-ai-official-validation`; owner PAT used transiently, never stored (FINAL_REPORT §J) |
 
 ## Key files
 

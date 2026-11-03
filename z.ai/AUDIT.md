@@ -235,3 +235,29 @@ Correction to Round 2's claim: "[::1]:8080 → 10/10 after the v1.0.1 fix" is
 daemon's 307 canonical redirect. With `IP::1` in the SANs but a bracketed
 `Host: [::1]:8080`, the official daemon redirects and the legacy HTTP
 endpoints are unreachable. v1.1.0 reports this correctly.
+
+## 10. Round 4 delivery — push-day re-verification & publication (2026-11-04)
+
+Before pushing, the whole validation was re-run fresh on push day (2026-11-04
+Asia/Jakarta / 2026-11-03 ~19:20–19:33 UTC) after the sandbox recycle:
+
+| Step | Result | Evidence |
+| --- | --- | --- |
+| official daemon re-download (stable channel) | tgz sha256 `ce180aa3…598159` — **round-1 pin match**; `GET /hi` → `hello 2.11 (2.11.5) 2026-06-04.1737.7d0993d` | pin recorded in `validation/ENVIRONMENT.md` |
+| regression unit | **43/43 PASS** | same battery as `lab/results/regression-unit.txt` |
+| regression lab (live official daemon, valid cert) | **13/13 PASS** incl. the `[::1]` redirect-diagnosis scenario | `lab/results/regression-lab-2026-11-04.txt` |
+| expired-cert scenario | `https` check **WARN**: "certificate EXPIRED 2133d ago" + `trust: not publicly trusted (CERT_HAS_EXPIRED)` — Z-4.2 fix re-confirmed live (verdict ok, 9/10 + 1 warn) | `lab/results/tls-expired-2026-11-04.{json,txt}` |
+| valid-cert full run (v1.1.0 CLI) | **10/10 PASS, exit 0** — download 10 377 Mbps / upload 2 122 Mbps (loopback) | `results/hasil-lab-official-daemon-v1.1.0-2026-11-04.txt` |
+| official CLI cross-validation ×2 | exit 0 · packetLoss 0 · `result.persisted=false` · run-2 access-log delta **0** (pure netgauge; logger sanity-verified beforehand) · `results.speedtest.net` blocked at the proxy | `lab/results/cv-2026-11-04*` |
+
+Reproducibility fix found during the re-run: the committed
+`lab/OoklaServer.properties` lacked the access-log logger block that the
+round-4 daemon runs actually used (it lived only in the gitignored `run/`
+copy, and `REPRODUCE.md` §2 referenced it incorrectly). Fixed: the block is
+now committed — "access log on" is reproducible from the repo — and the
+`REPRODUCE.md` config-copy step was corrected.
+
+Delivery: branch `audit/z-ai-official-validation` pushed to GitHub with an
+owner-provided fine-grained PAT (transient use — never stored in any file or
+git config; the owner should revoke it after use). Remote ref verified
+post-push via `git ls-remote`. Full delivery record: `validation/FINAL_REPORT.md` §J.
