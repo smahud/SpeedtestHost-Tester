@@ -140,7 +140,7 @@ fi
 [ -f "$CV_DIR/speedtest" ] || { fail "speedtest CLI tidak ditemukan setelah ekstraksi."; exit 1; }
 
 "$CV_DIR/speedtest" --accept-license --accept-gdpr --version >/dev/null
-ok "Speedtest CLI resmi siap: $("$CV_DIR/speedtest --version 2>/dev/null | head -n 1 || echo 1.2.0)"
+ok "Speedtest CLI resmi siap: $("$CV_DIR/speedtest" --version 2>/dev/null | head -n 1 || echo 1.2.0)"
 
 # -----------------------------------------------------------------------------
 # 2. Pilih server Ookla publik (id + domain) dari daftar resmi
