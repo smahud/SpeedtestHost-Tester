@@ -1,0 +1,11 @@
+
+   Speedtest by Ookla
+
+      Server: 1010 - 1010 -> LOCALHOST (lab official binary) (id: 43356)
+         ISP: Alibaba
+Idle Latency:     0.06 ms   (jitter: 0.00ms, low: 0.05ms, high: 0.06ms)
+    Download: 67050.32 Mbps (data used: 33.7 GB)                                                   
+                  0.18 ms   (jitter: 0.22ms, low: 0.11ms, high: 12.76ms)
+      Upload: 40288.78 Mbps (data used: 51.9 GB)                                                   
+                  0.15 ms   (jitter: 0.05ms, low: 0.08ms, high: 1.20ms)
+ Packet Loss:     0.0%

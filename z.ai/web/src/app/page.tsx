@@ -395,7 +395,7 @@ export default function HostTesterPage() {
                       autoComplete="off"
                       autoCapitalize="off"
                       spellCheck={false}
-                      className="h-12 border-white/10 bg-[#0d0e12] font-mono text-base placeholder:text-zinc-600"
+                      className="h-12 border-white/10 bg-[#0d0e12] font-mono text-base text-zinc-100 caret-zinc-100 placeholder:text-zinc-600"
                       aria-label="Server hostname and port"
                     />
                     <p className="mt-2 text-xs text-zinc-500">

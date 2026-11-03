@@ -119,4 +119,13 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Dark-form guard: keep typed text and caret visible even when the browser
+     repaints autofilled inputs with its own light palette. */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px #0d0e12 inset;
+    -webkit-text-fill-color: #f4f4f5;
+    caret-color: #f4f4f5;
+  }
 }

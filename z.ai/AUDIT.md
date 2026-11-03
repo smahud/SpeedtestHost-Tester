@@ -148,3 +148,45 @@ Findings:
    `web/src/lib/host-tester.ts` (shared by web + CLI); verified 10/10 with a
    green regression battery. This is precisely the class of defect the
    cross-validation was designed to surface.
+
+## 8. Round 3 — visual-bug fix + full re-test / re-audit / re-validation
+
+A user reported a visual bug: **typed text in the host input field was
+invisible** (text color = field background). Root cause: the shadcn `Card`
+component applies its own `text-card-foreground`; with no `.dark` class on
+`<html>` that resolves to the light-theme near-black `--foreground`
+(oklch 0.145). The page's dark palette (`bg-[#0d0e12]`, `text-zinc-100`) is
+hardcoded per-element, and the input was the only element relying on color
+inheritance — so typed text and caret rendered near-black on a near-black
+field (computed `color: lab(2.75)` on `background: rgb(13,14,18)`).
+
+Fix (web only, engine untouched):
+
+- `web/src/app/page.tsx` — explicit `text-zinc-100 caret-zinc-100` on the
+  host input.
+- `web/src/app/globals.css` — `input:-webkit-autofill` guard (inset
+  `#0d0e12` + `#f4f4f5` text) so browser autofill can never repaint the
+  field into an unreadable state.
+
+Verified headlessly (Chromium, before/after pixel audit —
+`audit/input-bug-before.png`, `audit/input-bug-after.png`): before = **0**
+light pixels in the input box, after = **364** core light pixels spanning
+exactly the typed string `localhost:8080`, brightest sample `rgb(244,244,245)`
+= zinc-100. A 3rd full E2E run through the fixed UI completed in 21.8 s:
+**10/10 checks PASS**, ping 0.4 ms avg, download 2572.77 Mbps, upload
+1388.80 Mbps, verdict "Server is publicly available and properly
+configured" (`audit/ui-retest-after-fix.png` not needed — same flow as
+`audit/ui-local-daemon.png`).
+
+Re-validation after the fix — both sides re-run fresh against the same lab
+daemon (official OoklaServer 2.11.5.2, SHA256 `f19e5ed240dc185b…`):
+
+| Client | Result | Evidence |
+| --- | --- | --- |
+| z.ai CLI v1.0.1 (SHA256 `e42580db13ff3678…`, unchanged) | 10/10 PASS · ping 0.6 ms avg · download 11588 Mbps · upload 2409 Mbps · 18.3 GB in 21.4 s | `cross-validation/zai-engine/zai-cli-retest-round3.json` |
+| **Official Ookla Speedtest CLI 1.2.0** (via config-level redirect, server 43356 `1010.hkspeedtest.com:8080` → `localhost:8080`) | idle latency 0.06 ms · download 67050 Mbps (33.7 GB) · upload 40289 Mbps (51.9 GB) · packet loss 0.0% | `cross-validation/official-cli/official-cli-retest-round3.txt` |
+
+Daemon-side signature reconfirmed: the official client again produced
+**zero HTTP access-log entries** (pure netgauge), while its netgauge session
+teardown is timestamped in the daemon log at the run window. Cross
+validation passes in both directions after the fix.
