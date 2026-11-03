@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ookla Server Tester</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Speedtest Sans", Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: #14161f;
+    background-image: radial-gradient(1200px 600px at 50% -10%, #1b2436 0%, #14161f 60%);
+    color: #e8ecf4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 16px 64px;
+  }
+  .wrap { width: 100%; max-width: 760px; }
+  .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .logo svg { display: block; }
+  h1 { font-size: 24px; font-weight: 700; letter-spacing: 0.2px; }
+  .desc { color: #97a0b5; font-size: 14px; line-height: 1.6; margin: 10px 0 28px; }
+  .card {
+    background: #1a1e2b;
+    border: 1px solid #262c3d;
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+  .tab {
+    background: #232a3d;
+    color: #c9d4ea;
+    border: 1px solid #303852;
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  label { display: block; font-size: 13px; font-weight: 600; color: #c9d4ea; margin-bottom: 8px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  input[type="text"] {
+    flex: 1;
+    min-width: 240px;
+    background: #12141d;
+    border: 1px solid #323a52;
+    border-radius: 8px;
+    color: #e8ecf4;
+    padding: 12px 14px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  input[type="text"]:focus { border-color: #0069ff; }
+  input[type="text"]::placeholder { color: #5c6780; }
+  button {
+    background: #0069ff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  button:hover { background: #0056d6; }
+  button:disabled { background: #2a3450; color: #6b7794; cursor: not-allowed; }
+  .err { color: #ff5c5c; font-size: 13px; margin-top: 10px; min-height: 18px; }
+  .banner {
+    display: none;
+    background: #2b2313;
+    border: 1px solid #6b5416;
+    color: #ffd35c;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.55;
+    margin-bottom: 18px;
+  }
+  .results { margin-top: 32px; }
+  .results h2 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .results .sub { color: #97a0b5; font-size: 12.5px; margin-bottom: 14px; }
+  .progress { height: 4px; background: #232838; border-radius: 2px; margin: 14px 0 18px; overflow: hidden; }
+  .progress > div { height: 100%; width: 0%; background: #0069ff; transition: width .4s ease; }
+  .check {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 13px 2px;
+    border-bottom: 1px solid #232839;
+  }
+  .check:last-child { border-bottom: none; }
+  .check .name { font-size: 14px; font-weight: 600; }
+  .check .detail { font-size: 12.5px; color: #97a0b5; line-height: 1.5; margin-top: 4px; word-break: break-word; }
+  .check .right { text-align: right; white-space: nowrap; }
+  .badge {
+    display: inline-block;
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: .6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    text-transform: uppercase;
+  }
+  .b-pending { background: #232839; color: #6b7794; }
+  .b-running { background: #12325e; color: #6db3ff; }
+  .b-pass { background: #0f3a26; color: #2fe08c; }
+  .b-fail { background: #3d1418; color: #ff6b6b; }
+  .b-warn { background: #3a2c0e; color: #ffc94d; }
+  .value { font-size: 12.5px; color: #c9d4ea; margin-top: 5px; font-variant-numeric: tabular-nums; }
+  .spin {
+    display: inline-block; width: 12px; height: 12px;
+    border: 2px solid #6db3ff; border-top-color: transparent; border-radius: 50%;
+    animation: spin .8s linear infinite; vertical-align: -2px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .summary { margin-top: 20px; font-size: 14px; font-weight: 700; }
+  .summary.pass { color: #2fe08c; }
+  .summary.fail { color: #ff6b6b; }
+  .foot { color: #5c6780; font-size: 12px; margin-top: 40px; text-align: center; line-height: 1.6; }
+  .foot code { background: #1e2433; padding: 2px 6px; border-radius: 5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">
+    <svg width="30" height="30" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <circle cx="24" cy="24" r="21" stroke="#0069ff" stroke-width="3.4" stroke-dasharray="88 44" stroke-linecap="round" transform="rotate(-120 24 24)"/>
+      <circle cx="24" cy="24" r="4.2" fill="#0069ff"/>
+      <line x1="24" y1="24" x2="37" y2="12" stroke="#e8ecf4" stroke-width="3.2" stroke-linecap="round"/>
+    </svg>
+    <h1>Ookla Server Tester</h1>
+  </div>
+  <p class="desc">
+    Use this tool to ensure that your Ookla Server is publicly available and properly configured.
+    The Server Tester will verify that the Ookla Server daemon is accepting connections, as well as
+    validate the legacy HTTP upload script, latency file, download image files, and required server
+    settings like KeepAlive.
+  </p>
+
+  <div class="card">
+    <div class="tabs"><span class="tab">OoklaServer / Netgauge TCP</span></div>
+    <form id="form" autocomplete="off">
+      <label for="host">Host</label>
+      <div class="row">
+        <input id="host" type="text" placeholder="test.yourhost.net:8080" spellcheck="false" />
+        <button id="submit" type="submit">Submit</button>
+      </div>
+      <div class="err" id="err"></div>
+    </form>
+  </div>
+
+  <div class="results" id="results" style="display:none">
+    <h2 id="res-title"></h2>
+    <div class="sub" id="res-sub"></div>
+    <div class="progress"><div id="bar"></div></div>
+    <div id="banner" class="banner"></div>
+    <div id="checks"></div>
+    <div class="summary" id="summary"></div>
+  </div>
+
+  <p class="foot">
+    Clone alat resmi Ookla Server Tester — tanpa captcha &amp; banner, berjalan sepenuhnya dari browser Anda
+    dengan alur test identik: netgauge TCP/WebSocket (HI, PING, DOWNLOAD, UPLOAD), HTTP legacy
+    (crossdomain.xml, /hi, upload.php, random*.jpg, latency.txt), HTTPS, dan KeepAlive.<br />
+    Jika peramban memblokir koneksi langsung (halaman dibuka via https), unduh file ini lalu buka langsung
+    (klik ganda) atau sajikan via <code>http://</code> — atau gunakan versi CLI.
+  </p>
+</div>
+
+<script>
+"use strict";
+
+/* ---------- util ---------- */
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const SECURE = (typeof location !== "undefined" && location.protocol === "https:");
+const DEFAULT_PORT = 8080;
+
+function fmtMbps(bps) {
+  if (!isFinite(bps) || bps <= 0) return "0.00";
+  if (bps >= 1e9) return (bps / 1e9).toFixed(2) + " Gbps";
+  if (bps >= 1e6) return (bps / 1e6).toFixed(2) + " Mbps";
+  return (bps / 1e3).toFixed(2) + " Kbps";
+}
+function fmtBytes(n) {
+  if (n >= 1048576) return (n / 1048576).toFixed(2) + " MB";
+  if (n >= 1024) return (n / 1024).toFixed(2) + " KB";
+  return n + " B";
+}
+
+/* Parse input: menerima domain saja, domain:port, IPv4, [IPv6], atau URL lengkap */
+function parseHost(raw) {
+  let s = (raw || "").trim();
+  if (!s) throw new Error("Host wajib diisi");
+  s = s.replace(/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//, "");
+  s = s.split("/")[0].split("?")[0].split("#")[0];
+  if (s.includes("@")) s = s.split("@").pop();
+  let host = s, port = DEFAULT_PORT;
+  let m = s.match(/^\[(.+)\](?::(\d+))?$/);
+  if (m) { host = m[1]; if (m[2]) port = +m[2]; }
+  else {
+    m = s.match(/^([^:]+):(\d+)$/);
+    if (m) { host = m[1]; port = +m[2]; }
+  }
+  if (/[^a-zA-Z0-9.\-]/.test(host) && host.includes(":")) throw new Error("Invalid hostname format");
+  if (!host) throw new Error("Invalid hostname format");
+  if (port < 1 || port > 65535) throw new Error("Invalid port");
+  return { host, port };
+}
+
+/* Coba scheme http/https (atau ws/wss) berurutan sampai ada yang berhasil */
+async function tryFetch(urlFactory, init, timeoutMs) {
+  const schemes = SECURE ? ["https", "http"] : ["http", "https"];
+  let lastErr = null;
+  for (const sch of schemes) {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeoutMs || 12000);
+    const t0 = performance.now();
+    try {
+      const res = await fetch(urlFactory(sch), Object.assign({ signal: ctrl.signal }, init || {}));
+      clearTimeout(t);
+      return { res, scheme: sch, elapsed: (performance.now() - t0) / 1000 };
+    } catch (e) {
+      clearTimeout(t);
+      lastErr = e;
+      if (e && e.name === "AbortError") return { error: "timeout (" + (timeoutMs / 1000) + "s)", lastErr: e };
+    }
+  }
+  return { error: (lastErr && lastErr.message) || "network error", lastErr };
+}
+
+/* ---------- Netgauge over WebSocket (protokol OoklaServer di port 8080) ---------- */
+class NG {
+  constructor(host, port, timeoutMs) {
+    this.host = host; this.port = port; this.timeout = timeoutMs || 15000;
+    this.ws = null; this.lines = []; this.waiters = [];
+    this.bytesIn = 0; this.closed = false; this.linesTotal = 0;
+  }
+  connect() {
+    return new Promise((resolve, reject) => {
+      const schemes = SECURE ? ["wss", "ws"] : ["ws", "wss"];
+      let idx = 0, settled = false;
+      const tryNext = () => {
+        if (settled) return;
+        if (idx >= schemes.length) { settled = true; return reject(new Error("koneksi websocket ke " + this.host + ":" + this.port + " gagal (ws & wss)")); }
+        const sch = schemes[idx++];
+        const ws = new WebSocket(sch + "://" + this.host + ":" + this.port + "/");
+        this.ws = ws; this.scheme = sch;
+        const to = setTimeout(() => { if (!settled) { try { ws.close(); } catch (e) {} tryNext(); } }, this.timeout);
+        ws.onopen = () => { clearTimeout(to); if (!settled) { settled = true; resolve(); } };
+        ws.onerror = () => { clearTimeout(to); if (!settled) tryNext(); };
+        ws.onclose = () => { this.closed = true; this.flush(); };
+        ws.onmessage = e => this.onMsg(e);
+      };
+      tryNext();
+    });
+  }
+  onMsg(e) {
+    if (typeof e.data === "string") {
+      this.bytesIn += e.data.length;
+      const parts = e.data.split("\n");
+      for (const p of parts) if (p.length) { this.linesTotal++; this.pushLine(p); }
+    } else if (e.data && e.data.arrayBuffer) {
+      e.data.arrayBuffer().then(ab => { this.bytesIn += ab.byteLength; });
+    } else if (e.data instanceof ArrayBuffer) {
+      this.bytesIn += e.data.byteLength;
+    }
+  }
+  pushLine(line) {
+    if (this.waiters.length) this.waiters.shift()(line);
+    else this.lines.push(line);
+  }
+  flush() {
+    while (this.waiters.length) this.waiters.shift()(null);
+  }
+  nextLine(ms) {
+    return new Promise((resolve, reject) => {
+      if (this.lines.length) return resolve(this.lines.shift());
+      if (this.closed) return reject(new Error("koneksi tertutup sebelum respons diterima"));
+      const to = setTimeout(() => {
+        const i = this.waiters.indexOf(fn);
+        if (i >= 0) this.waiters.splice(i, 1);
+        reject(new Error("timeout menunggu respons protokol"));
+      }, ms || this.timeout);
+      const fn = line => { clearTimeout(to); if (line === null) reject(new Error("koneksi tertutup")); else resolve(line); };
+      this.waiters.push(fn);
+    });
+  }
+  send(s) { this.ws.send(s); }
+  close() { try { this.send("QUIT\n"); } catch (e) {} try { this.ws.close(); } catch (e) {} }
+  async waitBytes(n, ms) {
+    const deadline = performance.now() + (ms || this.timeout * 3);
+    while (this.bytesIn < n) {
+      if (this.closed) throw new Error("koneksi tertutup saat transfer");
+      if (performance.now() > deadline) throw new Error("timeout transfer data");
+      await sleep(15);
+    }
+  }
+}
+
+async function netgaugeTest(host, port) {
+  const out = {};
+  const ng = new NG(host, port, 12000);
+  await ng.connect();
+  out.scheme = ng.scheme;
+  try {
+    /* 1) Handshake: HI -> HELLO <versi daemon> */
+    ng.send("HI\n");
+    const hello = await ng.nextLine(12000);
+    if (!/^HELLO/i.test(hello)) throw new Error("handshake tidak valid: " + JSON.stringify(hello.slice(0, 60)));
+    out.version = hello.replace(/^HELLO\s*/i, "").trim();
+
+    /* 2) Ping x20 (RTT rata-rata & maksimum), persis protokol netgauge */
+    const rtts = [];
+    for (let i = 0; i < 20; i++) {
+      const t0 = performance.now();
+      ng.send("PING " + Date.now() + "\n");
+      const pong = await ng.nextLine(8000);
+      if (!/^PONG/i.test(pong)) throw new Error("respons PONG tidak valid");
+      rtts.push(performance.now() - t0);
+    }
+    out.pingAvg = rtts.reduce((a, b) => a + b, 0) / rtts.length;
+    out.pingMax = Math.max.apply(null, rtts);
+    out.pingOk = true;
+    out.pingSent = 20;
+
+    /* 3) DOWNLOAD <bytes> -> server mengirim tepat N byte pola "JABCDEFGHI" */
+    const dlN = 5000000;
+    ng.bytesIn = 0;
+    const t0 = performance.now();
+    ng.send("DOWNLOAD " + dlN + "\n");
+    await ng.waitBytes(dlN, 30000);
+    const dlDur = (performance.now() - t0) / 1000;
+    out.downloadBps = (dlN * 8) / dlDur;
+    out.downloadBytes = dlN;
+
+    /* 4) UPLOAD <bytes> 0 + payload (panjang payload = N - panjang command) */
+    const ulN = 2000000;
+    const cmd = "UPLOAD " + ulN + " 0\n";
+    const payload = new Uint8Array(ulN - cmd.length);
+    crypto.getRandomValues(payload.subarray(0, 1024)); // isi awal acak, sisanya 0
+    ng.bytesIn = 0;
+    const t1 = performance.now();
+    ng.send(cmd);
+    ng.send(payload);
+    let okLine = null;
+    for (let i = 0; i < 40 && !okLine; i++) {
+      const l = await Promise.race([ng.nextLine(30000), sleep(30000).then(() => null)]);
+      if (l === null) break;
+      if (/^OK/i.test(l)) okLine = l;
+    }
+    const ulDur = (performance.now() - t1) / 1000;
+    if (!okLine) throw new Error("server tidak merespons OK setelah upload");
+    out.uploadBps = (ulN * 8) / ulDur;
+    out.uploadBytes = ulN;
+
+    out.ok = true;
+    return out;
+  } finally {
+    ng.close();
+  }
+}
+
+/* ---------- HTTP legacy checks ---------- */
+async function checkHi(origin) {
+  const r = await tryFetch(sch => sch + "://" + origin + "/hi", null, 8000);
+  if (r.error) return { fail: "tidak dapat mengambil /hi: " + r.error };
+  const txt = (await r.res.text()).trim();
+  if (r.res.status !== 200) return { fail: "HTTP " + r.res.status + " dari /hi" };
+  return { version: txt.split(/\r?\n/)[0], scheme: r.scheme };
+}
+
+async function checkCrossdomain(origin) {
+  const r = await tryFetch(sch => sch + "://" + origin + "/crossdomain.xml", null, 8000);
+  if (r.error) return { fail: "crossdomain.xml tidak dapat diambil: " + r.error };
+  if (r.res.status !== 200) return { fail: "crossdomain.xml => HTTP " + r.res.status };
+  const txt = await r.res.text();
+  try {
+    const doc = new DOMParser().parseFromString(txt, "application/xml");
+    if (doc.getElementsByTagName("parsererror").length) throw new Error("XML tidak valid");
+    const allow = doc.querySelector("allow-access-from");
+    if (!allow) return { fail: "tidak ada node allow-access-from" };
+    const dom = allow.getAttribute("domain");
+    if (dom !== "*") return { fail: 'domain="' + dom + '" (harus "*")' };
+    return { ok: true, detail: 'allow-access-from domain="*" (' + fmtBytes(txt.length) + ")" };
+  } catch (e) {
+    return { fail: "crossdomain.xml tidak valid: " + e.message };
+  }
+}
+
+async function checkHttps(host, port) {
+  const origin = host + ":" + port;
+  const r = await tryFetch(sch => "https://" + origin + "/hi", null, 8000);
+  if (r.error) return { fail: "HTTPS tidak aktif / tidak dapat diverifikasi: " + r.error };
+  if (r.res.status !== 200) return { fail: "HTTPS merespons HTTP " + r.res.status };
+  const txt = (await r.res.text()).trim();
+  return { ok: true, detail: "TLS aktif & sertifikat valid (wss/https OK)" + (txt ? " — " + txt.split(/\r?\n/)[0].slice(0, 60) : "") };
+}
+
+async function checkUpload(origin, nBytes) {
+  const n = nBytes || 2097152; // 2 MB, cukup untuk mengukur
+  const body = new Uint8Array(n);
+  crypto.getRandomValues(body.subarray(0, 4096));
+  const t0 = performance.now();
+  const r = await tryFetch(
+    sch => sch + "://" + origin + "/upload.php?callback=test",
+    { method: "POST", body: body, headers: { "Content-Type": "text/plain" } },
+    30000
+  );
+  const dur = (performance.now() - t0) / 1000;
+  if (r.error) return { fail: "upload.php tidak dapat dijangkau: " + r.error };
+  if (r.res.status !== 200) return { fail: "upload.php => HTTP " + r.res.status };
+  const txt = (await r.res.text()).trim();
+  const sizeMatch = txt.match(/size=(\d+)/i);
+  const ok = !txt || /size=|test\(/i.test(txt) || /^\d+$/.test(txt);
+  return {
+    ok: true,
+    bps: (n * 8) / dur,
+    detail: ok
+      ? "script upload merespons" + (sizeMatch ? " (size=" + sizeMatch[1] + ")" : "") + " via " + r.scheme
+      : "script upload merespons tetapi output tidak dikenali: " + txt.slice(0, 60)
+  };
+}
+
+const DL_FILES = ["random4000x4000.jpg", "random3500x3500.jpg", "random2000x2000.jpg", "random1000x1000.jpg"];
+
+async function checkDownload(origin) {
+  let last = null;
+  for (const f of DL_FILES) {
+    const r = await tryFetch(sch => sch + "://" + origin + "/" + f, null, 30000);
+    if (r.error) { last = f + ": " + r.error; continue; }
+    if (r.res.status !== 200) { last = f + " => HTTP " + r.res.status; continue; }
+    const buf = await r.res.arrayBuffer();
+    const u8 = new Uint8Array(buf, 0, Math.min(3, buf.byteLength));
+    const isJpeg = u8[0] === 0xff && u8[1] === 0xd8 && u8[2] === 0xff;
+    const bps = (buf.byteLength * 8) / r.elapsed;
+    return {
+      ok: true, file: f,
+      bps, size: buf.byteLength, isJpeg,
+      detail: f + " (" + fmtBytes(buf.byteLength) + ", " + (isJpeg ? "JPEG valid" : "bukan JPEG!") + ") via " + r.scheme
+    };
+  }
+  return { fail: "file gambar download tidak ditemukan — " + (last || "semua gagal") };
+}
+
+async function checkLatency(origin) {
+  const rtts = [];
+  let fail = null;
+  for (let i = 0; i < 8; i++) {
+    const r = await tryFetch(sch => sch + "://" + origin + "/latency.txt?nocache=" + Math.random(), null, 8000);
+    if (r.error) { fail = "latency.txt tidak dapat dijangkau: " + r.error; break; }
+    if (r.res.status !== 200) { fail = "latency.txt => HTTP " + r.res.status; break; }
+    await r.res.text();
+    rtts.push(r.elapsed * 1000);
+  }
+  if (fail) return { fail };
+  const avg = rtts.reduce((a, b) => a + b, 0) / rtts.length;
+  const min = Math.min.apply(null, rtts);
+  const max = Math.max.apply(null, rtts);
+  return { ok: true, avg, min, max, detail: "8 permintaan latency.txt sukses" };
+}
+
+async function checkKeepalive(origin) {
+  /* KeepAlive: beberapa request beruntun dijalankan tanpa jeda;
+     koneksi persisten HTTP/1.1 dipakai ulang oleh browser */
+  let okCount = 0, fail = null;
+  for (let i = 0; i < 5; i++) {
+    const r = await tryFetch(sch => sch + "://" + origin + "/latency.txt?ka=" + Math.random(), null, 8000);
+    if (r.error || r.res.status !== 200) { fail = (r.error || "HTTP " + r.res.status); break; }
+    await r.res.text();
+    okCount++;
+  }
+  if (fail) return { fail: "keep-alive tidak stabil: " + fail };
+  return { ok: true, detail: okCount + " permintaan beruntun sukses pada sesi yang sama" };
+}
+
+/* ---------- UI ---------- */
+const CHECKS = [
+  { id: "netgauge", name: "netgauge/websocket" },
+  { id: "version", name: "version" },
+  { id: "crossdomain", name: "crossdomain" },
+  { id: "https", name: "https" },
+  { id: "upload", name: "upload" },
+  { id: "download", name: "download" },
+  { id: "latency", name: "latency" },
+  { id: "keepalive", name: "keepalive" }
+];
+
+function renderChecks(target) {
+  const box = $("checks");
+  box.innerHTML = "";
+  for (const c of CHECKS) {
+    const row = document.createElement("div");
+    row.className = "check";
+    row.innerHTML =
+      '<div><div class="name">' + c.name + '</div><div class="detail" id="d-' + c.id + '">&nbsp;</div></div>' +
+      '<div class="right"><span class="badge b-pending" id="b-' + c.id + '">Pending</span>' +
+      '<div class="value" id="v-' + c.id + '"></div></div>';
+    box.appendChild(row);
+  }
+}
+function setCheck(id, status, detail, value) {
+  const b = $("b-" + id), d = $("d-" + id), v = $("v-" + id);
+  const map = { running: ["b-running", '<span class="spin"></span> Testing'], pass: ["b-pass", "Pass"], fail: ["b-fail", "Fail"], warn: ["b-warn", "Warn"] };
+  const [cls, label] = map[status] || ["b-pending", "Pending"];
+  b.className = "badge " + cls;
+  b.innerHTML = label;
+  if (detail !== undefined) d.textContent = detail || "\u00a0";
+  if (value !== undefined) v.textContent = value || "";
+}
+
+$("form").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  $("err").textContent = "";
+  let target;
+  try {
+    target = parseHost($("host").value);
+  } catch (e) {
+    $("err").textContent = e.message;
+    return;
+  }
+  const origin = target.host + ":" + target.port;
+  $("submit").disabled = true;
+  $("results").style.display = "block";
+  $("res-title").textContent = "Results";
+  $("res-sub").textContent = "OoklaServer / Netgauge TCP — " + origin;
+  $("banner").style.display = "none";
+  renderChecks(origin);
+  let done = 0;
+  const bump = () => { done++; $("bar").style.width = (done / CHECKS.length * 100) + "%"; };
+
+  const results = {};
+
+  /* 1. netgauge/websocket */
+  setCheck("netgauge", "running", "Menghubungi " + origin + " via WebSocket (protokol netgauge: HI, PING, DOWNLOAD, UPLOAD)…");
+  try {
+    const ng = await netgaugeTest(target.host, target.port);
+    results.netgauge = { status: "pass", detail: "Handshake HI → \"" + ng.version + "\"; 20× PING sukses; DOWNLOAD/UPLOAD selesai via " + ng.scheme, value: "↓ " + fmtMbps(ng.downloadBps) + "  ↑ " + fmtMbps(ng.uploadBps) + "  |  ping " + ng.pingAvg.toFixed(1) + " ms" };
+  } catch (e) {
+    results.netgauge = { status: "fail", detail: e.message + (SECURE ? " (halaman https: ws:// mungkin diblokir sebagai mixed-content — coba buka halaman ini via http:// atau file lokal)" : "") };
+  }
+  setCheck("netgauge", results.netgauge.status, results.netgauge.detail, results.netgauge.value);
+  bump();
+
+  /* 2. version */
+  setCheck("version", "running", "GET /hi …");
+  const hi = await checkHi(origin);
+  if (hi.fail) {
+    const ngVer = results.netgauge.status === "pass" ? results.netgauge.detail.match(/"([^"]+)"/) : null;
+    if (ngVer) { results.version = { status: "warn", detail: "/hi gagal, namun daemon melaporkan versi via netgauge", value: ngVer[1] }; }
+    else results.version = { status: "fail", detail: hi.fail };
+  } else {
+    results.version = { status: "pass", detail: "GET /hi via " + hi.scheme, value: hi.version };
+  }
+  setCheck("version", results.version.status, results.version.detail, results.version.value);
+  bump();
+
+  /* 3. crossdomain */
+  setCheck("crossdomain", "running", "GET /crossdomain.xml …");
+  const cd = await checkCrossdomain(origin);
+  results.crossdomain = cd.fail ? { status: "fail", detail: cd.fail } : { status: "pass", detail: cd.detail, value: "domain=*" };
+  setCheck("crossdomain", results.crossdomain.status, results.crossdomain.detail, results.crossdomain.value);
+  bump();
+
+  /* 4. https */
+  setCheck("https", "running", "TLS handshake + GET https://" + origin + "/hi …");
+  const hs = await checkHttps(target.host, target.port);
+  results.https = hs.fail ? { status: "fail", detail: hs.fail } : { status: "pass", detail: hs.detail };
+  setCheck("https", results.https.status, results.https.detail);
+  bump();
+
+  /* 5. upload */
+  setCheck("upload", "running", "POST /upload.php (2 MB) …");
+  const up = await checkUpload(origin);
+  results.upload = up.fail ? { status: "fail", detail: up.fail } : { status: "pass", detail: up.detail, value: fmtMbps(up.bps) };
+  setCheck("upload", results.upload.status, results.upload.detail, results.upload.value);
+  bump();
+
+  /* 6. download */
+  setCheck("download", "running", "GET /random*.jpg …");
+  const dl = await checkDownload(origin);
+  results.download = dl.fail ? { status: "fail", detail: dl.fail } : { status: dl.isJpeg ? "pass" : "warn", detail: dl.detail, value: fmtMbps(dl.bps) };
+  setCheck("download", results.download.status, results.download.detail, results.download.value);
+  bump();
+
+  /* 7. latency */
+  setCheck("latency", "running", "GET /latency.txt ×8 …");
+  const la = await checkLatency(origin);
+  results.latency = la.fail ? { status: "fail", detail: la.fail } : { status: "pass", detail: la.detail, value: la.avg.toFixed(1) + " ms (min " + la.min.toFixed(1) + " / max " + la.max.toFixed(1) + ")" };
+  setCheck("latency", results.latency.status, results.latency.detail, results.latency.value);
+  bump();
+
+  /* 8. keepalive */
+  setCheck("keepalive", "running", "Menguji koneksi persisten (5 request beruntun) …");
+  const ka = await checkKeepalive(origin);
+  results.keepalive = ka.fail ? { status: "fail", detail: ka.fail } : { status: "pass", detail: ka.detail };
+  setCheck("keepalive", results.keepalive.status, results.keepalive.detail);
+  bump();
+
+  /* summary */
+  const passCount = CHECKS.filter(c => results[c.id].status === "pass").length;
+  const failCount = CHECKS.filter(c => results[c.id].status === "fail").length;
+  const sm = $("summary");
+  sm.className = "summary " + (failCount ? "fail" : "pass");
+  sm.textContent = failCount
+    ? passCount + "/" + CHECKS.length + " checks passed — ada " + failCount + " kegagalan yang perlu diperbaiki"
+    : "All " + CHECKS.length + " checks passed — server Anda dikonfigurasi dengan baik";
+
+  /* banner bila semua network gagal (kemungkinan besar mixed-content / CSP preview) */
+  const netFail = ["version", "crossdomain"].filter(k => results[k].status === "fail").length;
+  if (netFail === 2) {
+    const b = $("banner");
+    b.style.display = "block";
+    b.innerHTML = "Semua permintaan HTTP ke server gagal dari konteks halaman ini. Bila halaman dibuka via <b>https</b> atau di dalam preview ter-sandbox, peramban memblokir koneksi langsung (mixed-content / CSP). " +
+      "Unduh file HTML ini dan buka langsung di browser (file://), atau sajikan lewat <b>http://</b> — atau gunakan versi CLI dari terminal Anda.";
+  }
+
+  $("submit").disabled = false;
+});
+</script>
+</body>
+</html>
