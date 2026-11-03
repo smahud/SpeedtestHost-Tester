@@ -20,14 +20,14 @@ Several agents are working on the same project independently. This repository ke
 | `arena.ai/` | Arena.ai Agent Mode | **Complete submission** | Full project: app, CLI, assets, audit, screenshots, result files |
 | `z.a/` | — | Original placeholder (retained) | Originally requested directory name; kept for traceability |
 | `z.ai/` | z.ai agent | **Complete submission** | Full project: zero-dep CLI, Next.js web app, engine, lab config + probes, docs, audit, fresh results |
-| `mistral.ai/` | mistral.ai agent | Placeholder | Reserved for that agent's complete project |
+| `mistral.ai/` | mistral.ai agent | **Complete submission** | Full project: web tester, CLI v1.1, protocol harness, simulation kit, cross-validation kit, docs |
 
 `z.ai/`, `z.a/`, and `mistral.ai/` keep a short `README.md` / `.gitkeep` so the directories are tracked. Other agents should add their own `README.md`, source, audit notes, and result files inside their own directory without overwriting another agent's work.
 
 > Note: the initial placeholder for the z.ai agent was created as `z.a/` (typo);
 it was renamed to `z.ai/` when that agent's submission landed. `z.a/` is also
 retained as the originally requested placeholder name, so both directory names
-remain traceable. `mistral.ai/` is still reserved and empty.
+remain traceable. `mistral.ai/` is now populated with that agent's complete submission (see the "Submission: `mistral.ai/`" section below).
 
 ---
 
@@ -155,6 +155,48 @@ cd z.ai/web && bun install && bun run dev   # http://localhost:3000
 Functional clone of the public page + documented protocol — not a provable byte-identical copy of Ookla's hidden backend; the real qualification verdict runs from Ookla's regional watchdogs. The UI is a React/Tailwind re-implementation (single domain input, Ookla dark style) rather than a pixel-diff of the original page. Speeds are measured from the machine running the test, exactly like the real tester. Full matrix: `z.ai/AUDIT.md`.
 
 ---
+
+---
+
+## Submission: `mistral.ai/`
+
+### Entry points
+
+    # CLI (Python 3.7+, stdlib only)
+    python3 mistral.ai/cli/ookla_host_tester.py host.yapsidarussalam.or.id:8080
+    python3 mistral.ai/cli/ookla_host_tester.py host.example.com            # port defaults to 8080
+    python3 mistral.ai/cli/ookla_host_tester.py host.example.com:8080 --json
+
+    # Web clone - single self-contained HTML file (no captcha, no banner, domain-only input)
+    # open mistral.ai/web/ookla-host-tester.html in a browser
+
+    # Local simulation with the OFFICIAL OoklaServer binary (ground truth, port 8080 only)
+    bash mistral.ai/simulation/ookla_local_sim.sh
+
+    # 3-way cross-validation: official OoklaServer x official Speedtest CLI 1.2.0 x clone
+    sudo bash mistral.ai/cross-validation/ookla_cross_validate.sh
+
+### Key files
+
+| File | Purpose |
+| --- | --- |
+| mistral.ai/README.md | Submission report (Indonesian): verified vs pending, cross-agent findings applied |
+| mistral.ai/docs/protocol-reference.md | Netgauge TCP / HTTP / WebSocket protocol on 8080, official config keys, official binary URLs |
+| mistral.ai/docs/infra-and-tools.md | Environment constraints, validation status, cross-validation method, cross-agent findings |
+| mistral.ai/web/ookla-host-tester.html | Web clone: 8 checks, single domain input, default port 8080 |
+| mistral.ai/cli/ookla_host_tester.py | CLI v1.1: 10 checks, --json / --insecure, exit 0/1 |
+| mistral.ai/harness/ookla_protocol_test_harness.ts | Byte-accurate protocol simulator + client logic (agent-executed): 6 scenarios, 6/6 green |
+| mistral.ai/simulation/ookla_local_sim.sh | Runs the official OoklaServer binary locally (port 8080 only, self-signed TLS on the same port) |
+| mistral.ai/cross-validation/README.md | 3-way cross-validation method (domain -> localhost via /etc/hosts) + expected evidence |
+| mistral.ai/cross-validation/ookla_cross_validate.sh | Automated kit: official Speedtest CLI 1.2.0 redirected onto the official daemon, then compared with the clone |
+
+### Verified claims from this agent
+
+- Agent-executed protocol simulation: 6/6 scenarios green, 0 failed assertions. Byte-accurate netgauge: DOWNLOAD 5000000 returns exactly 5,000,000 bytes; UPLOAD 2000000 0 sends a 1,999,983-byte payload (2,000,000 minus the 17-byte command line), server replies OK 2000000 <timestamp>.
+- Failure detection verified per scenario with the right granularity: crossdomain without domain="*" fails only crossdomain; latency.txt 404 fails latency + keepalive; a self-signed cert is WARN with --insecure but FAIL in strict mode (same behaviour as the official tester); a refused port 8080 fails every check.
+- The harness caught its own wiring bug during development (keepalive initially checked a fresh server instead of the scenario server), so the assertions are demonstrably effective.
+- CLI v1.1 hardening comes from cross-agent findings in this repo: User-Agent on every HTTP/WS request (production resets UA-less clients - z.ai), IPv6-literal targets via getaddrinfo (the z.ai v1.0.1 ERR_INVALID_URL bug class), legacy files tried at / then /speedtest/ (z.ai lab finding).
+- Honest limitation: this agent's sandbox cannot execute ELF binaries or reach the network, so the official-binary simulation and the official-CLI cross-validation ship as ready-to-run scripts whose outputs are meant to be pasted back for the final merge analysis.
 
 ## Comparison checklist for the main agent
 
