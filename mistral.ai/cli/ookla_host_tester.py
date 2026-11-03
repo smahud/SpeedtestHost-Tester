@@ -389,7 +389,7 @@ def netgauge_ws_probe(host, port, timeout, use_tls):
     for opcode, label in ((0x1, "text frame"), (0x2, "binary frame")):
         ws = WebSocketClient(host, port, use_tls, timeout)
         try:
-            ws.connect("/")
+            ws.connect("/ws")
             ws.send_frame(b"HI\n", opcode=opcode)
             t0 = time.time()
             while time.time() - t0 < timeout:
