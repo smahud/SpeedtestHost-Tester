@@ -154,7 +154,11 @@ plus `crossdomain`, `latency`, `upload`, `max_upload`, `image_sizes` ×10,
      (no force, no rebase of anyone else's work).
    * Verified transfer artefacts exist in `lab/results/delivery/`:
      a `git bundle` of the whole branch and a `git format-patch` of the
-     audit commit against the baseline.
+     audit commits against the baseline.  The bundle and a delivery note
+     were also uploaded to Google Drive (folder *“SpeedtestHost-Tester —
+     arena.ai official validation (audit 2026-11-04)”*); the connector's
+     security filter refused the `.patch` and `FINAL_REPORT.md` uploads,
+     which is recorded rather than circumvented.
    * Then open a PR against `main` and confirm
      `git rev-parse HEAD` equals the remote branch tip.
 2. ~~**Regenerate `hasil-*`**~~ — done: `python3 lab/scripts/regenerate-hasil.py`

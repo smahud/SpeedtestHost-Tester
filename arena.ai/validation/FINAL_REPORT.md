@@ -179,7 +179,12 @@ git push -u origin audit/arena-official-validation
 Two verified transfer artefacts are produced for that case
 (`lab/results/delivery/`, not committed because they are large and
 redundant with the branch): a `git bundle` carrying the full branch history
-and a `git format-patch` of the audit commit against the baseline.
+and a `git format-patch` of the audit commits against the baseline.  The
+bundle was also delivered out-of-band to Google Drive (folder
+*“SpeedtestHost-Tester — arena.ai official validation (audit 2026-11-04)”*);
+the Drive connector's security filter refused the `.patch` and
+`FINAL_REPORT.md` uploads, which is recorded here rather than worked around
+— the bundle contains both files in full.
 
 ### K — Production readiness
 
