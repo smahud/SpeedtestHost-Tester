@@ -8,34 +8,35 @@
 
 ---
 
-## 1. How to get the work onto GitHub
+## 1. The work is on GitHub — PR #1
 
-The sandbox that produced this audit has **no GitHub write credential**:
+| Item | Value |
+| --- | --- |
+| Branch | `audit/arena-official-validation` |
+| Remote tip | `d6c380351a43046578237218b020ff6c3db220a1` (= local `HEAD`) |
+| Pull request | **#1** — https://github.com/smahud/SpeedtestHost-Tester/pull/1 |
+| Base | `main` (untouched, still `eab16976a4dbf48f36b0d81da5413cf2860e3cfa`) |
+| Other agents' branches | untouched (`origin/audit/z-ai-official-validation` still `f0f3f0e`) |
+| Files touched outside `arena.ai/` | **none** |
+| Force-push | never used |
+| Token in `.git/config` / tracked files / working tree | **absent** (verified) |
 
+The push used the repository owner's fine-grained PAT through a transient
+credential helper, so nothing was persisted:
+
+```bash
+GIT_TERMINAL_PROMPT=0 git \
+  -c credential.helper='!f() { echo username=x-access-token; echo "password=$GH_PAT"; }; f' \
+  push -u origin audit/arena-official-validation
 ```
-$ git push -u origin audit/arena-official-validation
-fatal: could not read Username for 'https://github.com': No such device or address
-```
 
-`github.com` is reachable and the repository clones anonymously; only the
-write credential is missing.  From a machine with credentials:
+This bundle remains available as an offline copy of the same history:
 
 ```bash
 git clone arena-official-validation.bundle work
 cd work
 git checkout audit/arena-official-validation
-git push -u origin audit/arena-official-validation
 ```
-
-or, against an existing clone:
-
-```bash
-git push -u origin audit/arena-official-validation
-```
-
-**Never force-push.**  The branch contains two commits on top of the
-baseline and touches `arena.ai/` only; `main` and
-`origin/audit/z-ai-official-validation` are untouched.
 
 ## 2. What is in this folder
 

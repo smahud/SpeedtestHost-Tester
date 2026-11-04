@@ -46,9 +46,8 @@ behaviour.
 **CONDITIONAL PASS** means: the implementation is correct, secure and
 independently reproducible **as a local diagnostic tool**, and the remaining
 conditions are the ones that cannot be closed from inside the sandbox — the
-official backend is closed behind reCAPTCHA, a public deployment of the web
-endpoint needs an access-control layer that a local tool does not need, and
-the GitHub push is blocked by the absence of a write credential.
+official backend is closed behind reCAPTCHA, and a public deployment of the
+web endpoint needs an access-control layer that a local tool does not need.
 
 ---
 
@@ -151,36 +150,36 @@ and no longer point at the removed `ooklaserver/sim/` tree.
 
 ### J — Git delivery
 
-**Partially met — the push is blocked by the environment, not by the work.**
+**Met.**
 
 | Requirement | State |
 | --- | --- |
 | dedicated branch | ✅ `audit/arena-official-validation` |
 | only `arena.ai/` paths staged/committed | ✅ verified: `git show --name-only --format= HEAD` lists no path outside `arena.ai/` |
-| commit created | ✅ `c9fd87e5e65ad949be0fe417542d5a8e46a8e888` |
-| never force-pushed | ✅ |
-| other agents' branches/worktrees untouched | ✅ (`audit/z-ai-official-validation` and `main` are as they were) |
-| **pushed to the remote** | ❌ **blocked** — the sandbox has no GitHub credentials |
-| PR opened | ❌ not possible for the same reason |
+| commit created | ✅ `d6c380351a43046578237218b020ff6c3db220a1` |
+| **pushed to the remote** | ✅ `git ls-remote origin refs/heads/audit/arena-official-validation` → `d6c380351a43046578237218b020ff6c3db220a1` |
+| remote state verified | ✅ the remote tip equals the local `HEAD` byte for byte |
+| PR opened | ✅ **PR #1** — https://github.com/smahud/SpeedtestHost-Tester/pull/1 (`audit/arena-official-validation` → `main`, 3 commits, 197 files, +9 243 / −1 985) |
+| never force-pushed | ✅ the branch was created new; `main` was never touched |
+| other agents' branches/worktrees untouched | ✅ `origin/audit/z-ai-official-validation` is still `f0f3f0e` and `origin/main` is still `eab1697` |
+| no credential persisted | ✅ the token was used through a transient `credential.helper`; it is absent from `.git/config`, from every tracked file and from the whole working tree |
 
-```
-$ git push -u origin audit/arena-official-validation
-fatal: could not read Username for 'https://github.com': No such device or address
-```
-
-`github.com` itself is reachable (HTTP 200) and the repository is clonable
-anonymously; only the write credential is missing.  The branch therefore
-exists **locally and is ready to push**; from a machine with credentials:
+The push was performed with a **fine-grained personal access token** supplied
+by the repository owner for this purpose.  It was passed to git through a
+one-shot `-c credential.helper=...` helper, so nothing was written to
+`.git/config` and nothing was committed:
 
 ```bash
-git push -u origin audit/arena-official-validation
+GIT_TERMINAL_PROMPT=0 git \
+  -c credential.helper='!f() { echo username=x-access-token; echo "password=$GH_PAT"; }; f' \
+  push -u origin audit/arena-official-validation
 ```
 
-Two verified transfer artefacts are produced for that case
+Two verified transfer artefacts are also kept locally
 (`lab/results/delivery/`, not committed because they are large and
 redundant with the branch): a `git bundle` carrying the full branch history
 and a `git format-patch` of the audit commits against the baseline.  The
-bundle was also delivered out-of-band to Google Drive (folder
+bundle was additionally delivered out-of-band to Google Drive (folder
 *“SpeedtestHost-Tester — arena.ai official validation (audit 2026-11-04)”*);
 the Drive connector's security filter refused the `.patch` and
 `FINAL_REPORT.md` uploads, which is recorded here rather than worked around
@@ -233,13 +232,14 @@ the Drive connector's security filter refused the `.patch` and
 | Committed paths | `arena.ai/` only — verified with `git show --name-only --format= HEAD` |
 | Force-push | never used |
 | Other agents' files | not modified, not staged, not reset |
-| Remote push | **blocked** — no GitHub credential in the sandbox (`lab/results/delivery/README.md` has the exact command and two verified transfer artefacts) |
-| PR | not possible for the same reason |
+| Remote push | ✅ `d6c380351a43046578237218b020ff6c3db220a1` on `origin/audit/arena-official-validation` |
+| PR | ✅ **#1** — https://github.com/smahud/SpeedtestHost-Tester/pull/1 |
 
-The tested commit and the committed commit are the same object:
-`c9fd87e5e65ad949be0fe417542d5a8e46a8e888` was the tree that the 77-test
+The tested commit and the delivered commit are the same object:
+`d6c380351a43046578237218b020ff6c3db220a1` was the tree that the 77-test
 suite, the eight-variant matrix, the 19/19 run and the three CLI
-cross-validation scopes were executed against.
+cross-validation scopes were executed against, and it is the exact commit
+the remote serves.
 
 ---
 

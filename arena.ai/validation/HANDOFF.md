@@ -99,9 +99,9 @@ plus `crossdomain`, `latency`, `upload`, `max_upload`, `image_sizes` ×10,
 | regression suite | **77/77 passing** (`sh tests/run_tests.sh`) |
 | proprietary binaries | **untracked**; re-download with `sh lab/scripts/download-official.sh` |
 | `validation/` | **complete** (11 documents) |
-| documentation | `README.md` / `AUDIT.md` **still describe the old state** → see §5 |
-| `hasil-*` | **still from the previous session** → see §5 |
-| git | the work is **staged but not committed** → see §5 |
+| documentation | ✅ `README.md`, `AUDIT.md` and `SIMULASI-OOKLASERVER.md` updated for v1.3.0 and the `lab/` layout |
+| `hasil-*` | ✅ regenerated against the laboratory daemon by `lab/scripts/regenerate-hasil.py` |
+| git | ✅ committed and **pushed**; **PR #1** is open → see §5 |
 
 ---
 
@@ -144,21 +144,19 @@ plus `crossdomain`, `latency`, `upload`, `max_upload`, `image_sizes` ×10,
 
 ## 5. What is still open
 
-1. **Push** the work on `audit/arena-official-validation`.
-   * ✅ the commit exists locally: `c9fd87e5e65ad949be0fe417542d5a8e46a8e888`
-     (only `arena.ai/` paths, verified with `git show --name-only --format= HEAD`).
-   * ❌ **the push failed** — the sandbox has no GitHub credential:
-     `fatal: could not read Username for 'https://github.com'`.
-   * From a machine with credentials:
-     `git push -u origin audit/arena-official-validation`
-     (no force, no rebase of anyone else's work).
-   * Verified transfer artefacts exist in `lab/results/delivery/`:
-     a `git bundle` of the whole branch and a `git format-patch` of the
-     audit commits against the baseline.  The bundle and a delivery note
-     were also uploaded to Google Drive (folder *“SpeedtestHost-Tester —
-     arena.ai official validation (audit 2026-11-04)”*); the connector's
-     security filter refused the `.patch` and `FINAL_REPORT.md` uploads,
-     which is recorded rather than circumvented.
+1. ~~**Push** the work on `audit/arena-official-validation`.~~ — **done.**
+   * ✅ pushed with the owner's fine-grained PAT, passed through a transient
+     `credential.helper` so that nothing was written to `.git/config`:
+     `git -c credential.helper='!f() { echo username=x-access-token; echo "password=$GH_PAT"; }; f' push -u origin audit/arena-official-validation`
+   * ✅ remote tip `d6c380351a43046578237218b020ff6c3db220a1` == local `HEAD`.
+   * ✅ **PR #1**: https://github.com/smahud/SpeedtestHost-Tester/pull/1
+     (`audit/arena-official-validation` → `main`).
+   * ✅ `main` and `origin/audit/z-ai-official-validation` are untouched.
+   * ✅ the token appears in no tracked file and nowhere in the working tree.
+   * Verified transfer artefacts remain in `lab/results/delivery/` (a
+     `git bundle` of the whole branch and a `git format-patch`); the bundle
+     and a delivery note were also uploaded to Google Drive (folder
+     *“SpeedtestHost-Tester — arena.ai official validation (audit 2026-11-04)”*).
    * Then open a PR against `main` and confirm
      `git rev-parse HEAD` equals the remote branch tip.
 2. ~~**Regenerate `hasil-*`**~~ — done: `python3 lab/scripts/regenerate-hasil.py`
