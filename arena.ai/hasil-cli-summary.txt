@@ -1,8 +1,10 @@
 OOKLA SERVER TESTER — CLONE RESULT
-Host    : host.yapsidarussalam.or.id:8080
-Waktu   : 2026-11-03 01:36:08 UTC+07:00 (UTC+0700)
-Ringkas : 4 PASSED / 15 FAILED dari 19 checks
-Input   : host.yapsidarussalam.or.id:8080
-Asli    : https://host.yapsidarussalam.or.id:8080/
-DNS A   : 125.164.215.24
-DNS AAAA: 2001:448a:c0b0:b1ab:211:22ff:fe33:4455
+Host    : 127.0.0.1:8080
+Waktu   : 2026-11-04 13:16:15 UTC+07:00 (UTC+0700)
+Ringkas : 19 PASSED / 0 FAILED dari 19 checks
+Input   : 127.0.0.1:8080
+Asli    : 127.0.0.1:8080
+DNS A   : 127.0.0.1
+DNS AAAA: (none)
+Opsi   : legacy_port=8080, upload_mode=auto, daemon_tls=False, ca_bundle=/home/user/repo/arena.ai/lab/certs/ca.crt
+

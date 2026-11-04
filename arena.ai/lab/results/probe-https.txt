@@ -1,0 +1,127 @@
+PASS   netgauge-tls
+         response: HELLO 2.11 (2.11.5) 2026-06-04.1737.7d0993d
+INFO   GET /hi [tls]
+         http_status: 200
+         content_type: text/plain; charset=UTF-8
+         content_length: 44
+         body: hello 2.11 (2.11.5) 2026-06-04.1737.7d0993d
+
+INFO   GET / [tls]
+         http_status: 200
+         content_type: text/html
+         content_length: 109
+         body: <html><head><title>OoklaServer</title></head><body><h1>OoklaServer</h1><p>It worked!<br /></p></body></html>
+
+INFO   GET /crossdomain.xml [tls]
+         http_status: 200
+         content_type: text/xml
+         content_length: 115
+         body: <?xml version="1.0"?>
+<cross-domain-policy>
+<allow-access-from domain="*" to-ports="8080"/>
+</cross-domain-policy>
+
+INFO   GET /speedtest/latency.txt [tls]
+         http_status: 200
+         content_type: text/plain; charset=UTF-8
+         content_length: 10
+         body: test=test
+
+INFO   GET /speedtest/upload.php [tls]
+         http_status: 404
+         content_type: None
+         content_length: None
+         body: 
+INFO   GET /nonexistent-path-xyz [tls]
+         http_status: 404
+         content_type: None
+         content_length: None
+         body: 
+PASS   websocket-upgrade [wss]
+         upgraded: True
+         sec_websocket_accept_ok: True
+         frame_payload: HELLO 2.11 (2.11.5) 2026-06-04.1737.7d0993d
+         response_head: HTTP/1.1 101 Switching Protocols
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Accept: EeeloMBoJo1Vh0yuK9LhHSzHBUU=
+INFO   POST /speedtest/upload.php body=10 [tls]
+         http_status: 200
+         response: size=10
+         content_length_sent: 10
+INFO   POST /speedtest/upload.php body=515798 [tls]
+         http_status: 200
+         response: size=515798
+         content_length_sent: 515798
+INFO   POST /speedtest/upload.php body=1981498 [tls]
+         http_status: 200
+         response: size=1981498
+         content_length_sent: 1981498
+INFO   POST /speedtest/upload.php body=516300 [tls]
+         http_status: 200
+         response: size=516300
+         content_length_sent: 516300
+PASS   GET /speedtest/random350x350.jpg [tls]
+         expected_bytes: 245388
+         actual_bytes: 245388
+         content_type: image/jpeg
+         jpeg_magic: True
+PASS   GET /speedtest/random500x500.jpg [tls]
+         expected_bytes: 505544
+         actual_bytes: 505544
+         content_type: image/jpeg
+         jpeg_magic: True
+PASS   GET /speedtest/random750x750.jpg [tls]
+         expected_bytes: 1118012
+         actual_bytes: 1118012
+         content_type: image/jpeg
+         jpeg_magic: True
+PASS   GET /speedtest/random1000x1000.jpg [tls]
+         expected_bytes: 1986284
+         actual_bytes: 1986284
+         content_type: image/jpeg
+         jpeg_magic: True
+PASS   GET /speedtest/random1500x1500.jpg [tls]
+         expected_bytes: 4468241
+         actual_bytes: 4468241
+         content_type: image/jpeg
+         jpeg_magic: True
+PASS   GET /speedtest/random2000x2000.jpg [tls]
+         expected_bytes: 7907740
+         actual_bytes: 7907740
+         content_type: image/jpeg
+         jpeg_magic: True
+PASS   GET /speedtest/random2500x2500.jpg [tls]
+         expected_bytes: 12407926
+         actual_bytes: 12407926
+         content_type: image/jpeg
+         jpeg_magic: True
+PASS   GET /speedtest/random3000x3000.jpg [tls]
+         expected_bytes: 17816816
+         actual_bytes: 17816816
+         content_type: image/jpeg
+         jpeg_magic: True
+PASS   GET /speedtest/random3500x3500.jpg [tls]
+         expected_bytes: 24262167
+         actual_bytes: 24262167
+         content_type: image/jpeg
+         jpeg_magic: True
+PASS   GET /speedtest/random4000x4000.jpg [tls]
+         expected_bytes: 31625365
+         actual_bytes: 31625365
+         content_type: image/jpeg
+         jpeg_magic: True
+PASS   keepalive-two-requests-one-socket [tls]
+         first_body: test=test
+         second_body: test=test
+         second_ms: 0.27
+         connection_header_2: Keep-Alive
+TIMEOUT udp-netgauge-hi
+         response: (no UDP reply within 5s)
+INFO   tls-negative-untrusted-self-signed
+         rejected: True
+         error: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1032)
+UNEXPECTED_SUCCESS tls-negative-hostname-mismatch
+         note: server accepted a certificate that should have been rejected
+UNEXPECTED_SUCCESS tls-negative-expired-leaf
+         note: server accepted a certificate that should have been rejected

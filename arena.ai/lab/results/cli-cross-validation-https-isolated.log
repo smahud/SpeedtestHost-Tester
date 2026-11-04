@@ -1,0 +1,25 @@
+[2026-11-04 06:11:10.363] [warning] Failed to resolve host www.speedtest.net: : [-3] Try again
+[2026-11-04 06:11:10.364] [warning] Cannot open connection - no destination address.
+[2026-11-04 06:11:10.364] [error] Trying to get interface information on non-initialized socket.
+[2026-11-04 06:11:10.364] [info] Using CA Certificate Path /home/user/repo/arena.ai/lab/certs/ca-bundle-cli.pem
+[2026-11-04 06:11:10.375] [info] HTTP request (effective url: https://cli.speedtest.net/api/cli/config?deviceId=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855&hid=%2500%2502%2506%251EKF%2514M%2517&serverhost=myspeed.gorge.net&sid=e0f69b18636ec332c718930da54dfde12c79a3a7b2861371b0a580ecf4894eb4&uname=Linux%206.1.189%2B%20%231%20SMP%20PREEMPT_DYNAMIC%20Mon%20Nov%20%202%2021%3A08%3A28%20UTC%202026%20x86_64) completed with response code 200
+[2026-11-04 06:11:10.376] [info] configuration content:
+{"suite": {"global": {"engine": {"isUploadFirst": false, "testDurationSeconds": 15, "threadCount": 4, "packetSizeBytes": 32000000}, "dynamic": {"stableStop": {"isEnabled": true}, "download": {"isScalingEnabled": true, "maxConnections": 32}}}, "testStage": {"latency": {"pingCount": 5}, "upload": {"isServerUploadEnabled": true, "isClientPrimaryMeasureMethod": false}}}, "app": {"ispName": "Google Cloud", "traceLevel": 2, "licenseKey": "142a87536af3b000-C13b31c03d724abda-3f4d5dd06b0d50a7", "license": {"message": "You may only use this Speedtest software and information generated\nfrom it for personal, non-commercial use, through a command line\ninterface on a personal computer. Your use of this software is subject\nto the End User License Agreement, Terms of Use and Privacy Policy at\nthese URLs:\n\n\thttps://www.speedtest.net/about/eula\n\thttps://www.speedtest.net/about/terms\n\thttps://www.speedtest.net/about/privacy", "version": "aaa8331c62dcaeaf7cbefe8de3952b0240ccae4424412c2e498eeb1beb84b20b"}, "saveTestResultUrl": "https://results.speedtest.net/reports", "resultFormat": "json"}, "servers": [{"id": "4063", "host": "myspeed.gorge.net:8080", "name": "Hood River, OR", "country": "United States", "sponsor": "Gorge Networks", "sponsored": false, "host_functional": "1"}]}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:10Z",
+    "message": "Configuration expiry date: 1794355200",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:10Z",
+    "message": "License - No matching license key found (LICENSE_ERROR)",
+    "level": "error"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:10Z",
+    "message": "Configuration - Invalid license key in configuration (InvalidLicenseKey)",
+    "level": "error"
+}

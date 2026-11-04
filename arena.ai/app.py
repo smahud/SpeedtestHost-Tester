@@ -27,6 +27,7 @@ Only Python standard library is required.
 from __future__ import annotations
 
 import base64
+import contextvars
 import hashlib
 import html
 import http.client
@@ -34,12 +35,9 @@ import ipaddress
 import json
 import os
 import re
-import secrets
 import socket
 import ssl
 import struct
-import string
-import tempfile
 import time
 import urllib.parse
 from datetime import datetime, timedelta, timezone
@@ -53,9 +51,8 @@ JAKARTA = timezone(timedelta(hours=7))
 CHROME_TEMPLATE = (ROOT / "assets" / "chrome.html").read_text(encoding="utf-8")
 FORM_TEMPLATE = (ROOT / "assets" / "form.html").read_text(encoding="utf-8")
 
-USER_AGENT = "Mozilla/5.0 (compatible; OoklaServerTesterClone/1.0)"
-
-
+# Byte sizes of the ten random{WxW}.jpg files served by the official
+# OoklaServer daemon and by the legacy HTTP fallback (see ooklaserver/sim).
 IMAGE_SIZES = [
     (350, 245388), (500, 505544), (750, 1118012), (1000, 1986284),
     (1500, 4468241), (2000, 7907740), (2500, 12407926), (3000, 17816816),
@@ -63,6 +60,80 @@ IMAGE_SIZES = [
 ]
 
 USER_AGENT = "Mozilla/5.0 (compatible; OoklaServerTesterClone/1.0)"
+
+# Global budget for one host-tester run.  Every socket timeout inside the run
+# is clamped to the remaining budget so that a single unresponsive target can
+# never make a request hang forever (resource-exhaustion protection).
+DEADLINE: contextvars.ContextVar = contextvars.ContextVar("ookla_deadline", default=None)
+
+# Directories a *web request* may load a CA bundle from.  The CLI is exempt
+# (it runs with the user's own privileges and the path is given explicitly on
+# the command line), but a remote caller must not be able to turn the tester
+# into an arbitrary-file-read oracle.
+ALLOWED_CA_DIRS_ENV = "OOKLA_TESTER_ALLOWED_CA_DIRS"
+
+
+def _effective_timeout(requested: float) -> float:
+    """Clamp a socket timeout to the remaining global budget."""
+    deadline = DEADLINE.get()
+    if deadline is None:
+        return requested
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise TimeoutError("global test deadline exceeded")
+    return max(0.25, min(requested, remaining))
+
+
+def is_ipv6_literal(host: str) -> bool:
+    return ":" in (host or "")
+
+
+def host_header_for(host: str, port: int) -> str:
+    """RFC 7230 Host field value.  IPv6 literals must stay bracketed."""
+    if is_ipv6_literal(host):
+        return f"[{host}]" if port == 80 else f"[{host}]:{port}"
+    return host if port == 80 else f"{host}:{port}"
+
+
+def url_for(scheme: str, host: str, port: int, path: str = "") -> str:
+    """Build an absolute URL with a correctly bracketed IPv6 authority."""
+    return f"{scheme}://{host_header_for(host, port)}{path}"
+
+
+def allowed_ca_roots() -> list[Path]:
+    """Directories whose CA bundles a web request may reference."""
+    roots = [ROOT.resolve()]
+    for part in (os.environ.get(ALLOWED_CA_DIRS_ENV) or "").split(os.pathsep):
+        part = part.strip()
+        if part:
+            try:
+                roots.append(Path(part).expanduser().resolve())
+            except OSError:
+                continue
+    return roots
+
+
+def restrict_ca_path(path: str) -> str:
+    """Return the resolved CA bundle path, or raise if it is out of bounds.
+
+    Used by the web endpoints.  Without this a caller could probe the
+    filesystem for arbitrary files (readable / not readable) and could point
+    the tester at a certificate it controls.
+    """
+    try:
+        resolved = Path(path).expanduser().resolve()
+    except OSError as exc:
+        raise ValueError(f"ca_bundle is not a usable path: {exc}") from exc
+    for root in allowed_ca_roots():
+        try:
+            resolved.relative_to(root)
+        except ValueError:
+            continue
+        return str(resolved)
+    raise ValueError(
+        "ca_bundle must point inside the application directory "
+        f"({ROOT}) or a directory listed in {ALLOWED_CA_DIRS_ENV}"
+    )
 
 
 def esc(value) -> str:
@@ -186,6 +257,14 @@ def parse_host(value: str):
 
 
 def resolve_host(host: str, port: int, allow_private: bool = False):
+    """Resolve `host` and return the candidate addresses.
+
+    Private / loopback / link-local / reserved addresses are REMOVED from the
+    result unless `allow_private` is set.  Filtering here (instead of only
+    checking "is there at least one global address") closes a policy bypass:
+    a name that resolves to both a public and a private address must never
+    silently fall back to the private one.
+    """
     try:
         infos = socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM)
     except socket.gaierror as exc:
@@ -201,11 +280,14 @@ def resolve_host(host: str, port: int, allow_private: bool = False):
             "family": family,
             "sockaddr": sockaddr,
             "ip": ip,
+            "port": sockaddr[1],
             "version": 6 if family == socket.AF_INET6 else 4,
             "global": addr.is_global,
         })
-    if not allow_private and not any(a["global"] for a in out):
-        raise ValueError("Host does not resolve to a public IP address (use --allow-private for lab/local targets)")
+    if not allow_private:
+        out = [a for a in out if a["global"]]
+        if not out:
+            raise ValueError("Host does not resolve to a public IP address (use --allow-private for lab/local targets)")
     # IPv4 first: the original tester reaches public servers over IPv4/IPv6;
     # this runner may not have an IPv6 route, so prefer a working global IPv4.
     out.sort(key=lambda a: (not a["global"], a["version"] == 6))
@@ -216,12 +298,19 @@ def connect_first(addrinfos, timeout=6.0):
     errors = []
     for a in addrinfos:
         try:
+            timeout = _effective_timeout(timeout)
             s = socket.socket(a["family"], socket.SOCK_STREAM)
             s.settimeout(timeout)
             s.connect(a["sockaddr"])
             s.settimeout(timeout)
             return s, a["ip"]
         except OSError as exc:
+            errors.append(f'{a["ip"]}: {exc}')
+            try:
+                s.close()
+            except Exception:
+                pass
+        except TimeoutError as exc:
             errors.append(f'{a["ip"]}: {exc}')
             try:
                 s.close()
@@ -285,14 +374,21 @@ def header_get(headers, name, default=""):
 
 
 def read_body(resp, limit=None):
-    chunks, total = [], 0
+    """Read a response body.
+
+    `limit` caps how many bytes are retained; `total` always reports how many
+    bytes the server actually sent, so a caller can compare the real length
+    with an expected one even when the body was truncated.
+    """
+    chunks, kept, total = [], 0, 0
     while True:
         chunk = resp.read(65536)
         if not chunk:
             break
         total += len(chunk)
-        if limit is None or len(b"".join(chunks)) < limit:
+        if limit is None or kept < limit:
             chunks.append(chunk)
+            kept += len(chunk)
         if limit is not None and total > limit:
             break
     return b"".join(chunks), total
@@ -304,48 +400,53 @@ def raw_http(host, port, path, method="GET", body=None, extra_headers=None,
     if addrinfos is None:
         addrinfos = resolve_host(host, port)
     sock, ip = connect_first(addrinfos, timeout)
-    if use_ssl:
-        if verify:
-            sock = wrap_tls(sock, host, ca_bundle)
-        else:
-            sock = ssl._create_unverified_context().wrap_socket(sock, server_hostname=host)
-    headers = {
-        "Host": host_header or (host if port == 80 else f"{host}:{port}"),
-        "User-Agent": USER_AGENT,
-        "Accept": "*/*",
-        "Connection": "close",
-    }
-    if body is not None:
-        headers["Content-Length"] = str(len(body))
-    if extra_headers:
-        headers.update(extra_headers)
-    req = [f"{method} {path} HTTP/1.1"]
-    req += [f"{k}: {v}" for k, v in headers.items()]
-    sock.sendall(("\r\n".join(req) + "\r\n\r\n").encode())
-    if body is not None:
-        sock.sendall(body)
-    resp = http.client.HTTPResponse(sock, method=method)
-    resp.begin()
-    data, total = read_body(resp, body_limit)
-    result = {
-        "status": resp.status,
-        "reason": resp.reason,
-        "status_line": status_line(resp),
-        "headers": dict(resp.getheaders()),
-        "body": data,
-        "body_length": total,
-        "ip": ip,
-        "version": resp.version,
-    }
+    resp = None
     try:
-        resp.close()
-    except Exception:
-        pass
-    try:
-        sock.close()
-    except Exception:
-        pass
-    return result
+        if use_ssl:
+            if verify:
+                sock = wrap_tls(sock, host, ca_bundle)
+            else:
+                sock = ssl._create_unverified_context().wrap_socket(sock, server_hostname=host)
+        headers = {
+            "Host": host_header or host_header_for(host, port),
+            "User-Agent": USER_AGENT,
+            "Accept": "*/*",
+            "Connection": "close",
+        }
+        if body is not None:
+            headers["Content-Length"] = str(len(body))
+        if extra_headers:
+            headers.update(extra_headers)
+        req = [f"{method} {path} HTTP/1.1"]
+        req += [f"{k}: {v}" for k, v in headers.items()]
+        sock.sendall(("\r\n".join(req) + "\r\n\r\n").encode())
+        if body is not None:
+            sock.sendall(body)
+        resp = http.client.HTTPResponse(sock, method=method)
+        resp.begin()
+        data, total = read_body(resp, body_limit)
+        return {
+            "status": resp.status,
+            "reason": resp.reason,
+            "status_line": status_line(resp),
+            "headers": dict(resp.getheaders()),
+            "body": data,
+            "body_length": total,
+            "ip": ip,
+            "version": resp.version,
+        }
+    finally:
+        # The socket must be released even when the peer answers with
+        # garbage, resets the connection or sends a truncated body.
+        if resp is not None:
+            try:
+                resp.close()
+            except Exception:
+                pass
+        try:
+            sock.close()
+        except Exception:
+            pass
 
 
 def compact_response(res, max_body=400):
@@ -362,52 +463,166 @@ def compact_response(res, max_body=400):
 
 
 def ssl_error_phrase(exc: Exception) -> str:
+    """Human readable summary of a TLS verification failure.
+
+    The OpenSSL verify code is included so that a failure can be triaged
+    without re-running openssl by hand.
+    """
     text = str(exc)
-    if "self-signed" in text.lower():
-        return "SSL certificate problem: self-signed certificate"
-    if "unable to get local issuer" in text.lower():
-        return "SSL certificate problem: unable to get local issuer certificate"
-    if "hostname mismatch" in text.lower() or "doesn't match" in text.lower():
-        return "SSL certificate problem: subject name does not match target host name"
-    return f"SSL certificate problem: {text}"
+    verify_code = getattr(exc, "verify_code", None)
+    verify_message = getattr(exc, "verify_message", None) or ""
+    blob = f"{text} {verify_message}".lower()
+    if "self-signed" in blob:
+        phrase = "self-signed certificate"
+    elif "unable to get local issuer" in blob:
+        phrase = "unable to get local issuer certificate"
+    elif "hostname mismatch" in blob or "doesn't match" in blob or "ip address mismatch" in blob:
+        phrase = "subject name does not match target host name"
+    elif "certificate has expired" in blob:
+        phrase = "certificate has expired"
+    elif "certificate is not yet valid" in blob:
+        phrase = "certificate is not yet valid"
+    else:
+        phrase = text
+    if verify_code is not None:
+        return f"SSL certificate problem: {phrase} (openssl verify code {verify_code})"
+    return f"SSL certificate problem: {phrase}"
+
+
+# ------------------------------------------------------------------ X.509 ---
+# Minimal DER reader used to describe the peer certificate without relying on
+# the private ssl._ssl._test_decode_cert() helper and without writing a
+# temporary file outside the project directory.
+
+_DER_OID_NAMES = {
+    "2.5.4.3": "CN", "2.5.4.6": "C", "2.5.4.7": "L", "2.5.4.8": "ST",
+    "2.5.4.10": "O", "2.5.4.11": "OU", "2.5.4.5": "serialNumber",
+    "1.2.840.113549.1.9.1": "emailAddress", "2.5.4.4": "SN", "2.5.4.42": "GN",
+    "2.5.4.12": "title", "2.5.4.9": "street", "2.5.4.17": "postalCode",
+}
+
+
+def _der_read(buf: bytes, pos: int):
+    """Read one DER TLV; return (tag, content, next_position)."""
+    if pos >= len(buf):
+        raise ValueError("truncated DER")
+    tag = buf[pos]
+    pos += 1
+    if pos >= len(buf):
+        raise ValueError("truncated DER")
+    first = buf[pos]
+    pos += 1
+    if first & 0x80:
+        count = first & 0x7F
+        if count == 0 or pos + count > len(buf):
+            raise ValueError("unsupported DER length")
+        length = int.from_bytes(buf[pos:pos + count], "big")
+        pos += count
+    else:
+        length = first
+    end = pos + length
+    if end > len(buf):
+        raise ValueError("truncated DER")
+    return tag, buf[pos:end], end
+
+
+def _der_oid(raw: bytes) -> str:
+    if not raw:
+        return ""
+    first = raw[0]
+    parts = [str(first // 40), str(first % 40)]
+    value = 0
+    for byte in raw[1:]:
+        value = (value << 7) | (byte & 0x7F)
+        if not byte & 0x80:
+            parts.append(str(value))
+            value = 0
+    return ".".join(parts)
+
+
+def _der_decode_name(raw: bytes) -> str:
+    """Render an X.501 Name (SEQUENCE OF RDN) as `CN=..., O=...`."""
+    out = []
+    pos = 0
+    while pos < len(raw):
+        _tag, rdn, pos = _der_read(raw, pos)
+        rpos = 0
+        while rpos < len(rdn):
+            _t, atv, rpos = _der_read(rdn, rpos)
+            apos = 0
+            _t, oid_raw, apos = _der_read(atv, apos)
+            _t, value_raw, apos = _der_read(atv, apos)
+            oid = _der_oid(oid_raw)
+            name = _DER_OID_NAMES.get(oid, oid)
+            try:
+                text = value_raw.decode("utf-8")
+            except UnicodeDecodeError:
+                text = value_raw.hex()
+            out.append(f"{name}={text}")
+    return ", ".join(out)
+
+
+def _der_decode_time(tag: int, raw: bytes) -> str:
+    text = raw.decode("ascii", "replace")
+    if tag == 0x17:  # UTCTime  YYMMDDHHMMSSZ
+        if len(text) >= 11:
+            yy = int(text[0:2])
+            year = 2000 + yy if yy < 50 else 1900 + yy
+            return f"{year}-{text[2:4]}-{text[4:6]} {text[6:8]}:{text[8:10]}:{text[10:12]} GMT"
+    elif tag == 0x18:  # GeneralizedTime YYYYMMDDHHMMSSZ
+        if len(text) >= 13:
+            return (f"{text[0:4]}-{text[4:6]}-{text[6:8]} "
+                    f"{text[8:10]}:{text[10:12]}:{text[12:14]} GMT")
+    return text
+
+
+def describe_certificate(der: bytes) -> str:
+    """One-line summary of an X.509 certificate: subject, issuer, validity."""
+    _tag, cert, _end = _der_read(der, 0)
+    _t, tbs, _p = _der_read(cert, 0)
+    pos = 0
+    _t, _version, pos = _der_read(tbs, pos)      # [0] EXPLICIT version
+    _t, _serial, pos = _der_read(tbs, pos)
+    _t, _sigalg, pos = _der_read(tbs, pos)
+    _t, issuer, pos = _der_read(tbs, pos)
+    _t, validity, pos = _der_read(tbs, pos)
+    _t, subject, pos = _der_read(tbs, pos)
+    not_before = not_after = "?"
+    vpos = 0
+    try:
+        _t, nb, vpos = _der_read(validity, vpos)
+        not_before = _der_decode_time(_t, nb)
+        _t, na, vpos = _der_read(validity, vpos)
+        not_after = _der_decode_time(_t, na)
+    except ValueError:
+        pass
+    return (f"subject: {_der_decode_name(subject)}; "
+            f"issuer: {_der_decode_name(issuer)}; "
+            f"notBefore: {not_before}; notAfter: {not_after}")
 
 
 def cert_info(host, port, addrinfos):
+    ss = None
     try:
         sock, _ = connect_first(addrinfos, 5.0)
         ctx = ssl._create_unverified_context()
         ss = ctx.wrap_socket(sock, server_hostname=host)
         der = ss.getpeercert(binary_form=True)
-        ss.close()
         if not der:
             return "certificate details unavailable: empty DER"
-        pem = ssl.DER_cert_to_PEM_cert(der)
-        fd, path = tempfile.mkstemp(prefix="ookla-cert-", suffix=".pem")
-        try:
-            os.write(fd, pem.encode())
-            os.close(fd)
-            fd = None
-            cert = ssl._ssl._test_decode_cert(path)
-        finally:
-            if fd is not None:
-                os.close(fd)
-            try:
-                os.unlink(path)
-            except OSError:
-                pass
-        def flatten(item):
-            if isinstance(item, tuple):
-                return ", ".join("=".join(pair) for rdn in item for pair in rdn)
-            return str(item)
-        subject = flatten(cert.get("subject", ""))
-        issuer = flatten(cert.get("issuer", ""))
-        return (f"subject: {subject}; issuer: {issuer}; "
-                f"notBefore: {cert.get('notBefore','?')}; notAfter: {cert.get('notAfter','?')}")
+        return describe_certificate(der)
     except Exception as exc:
         return f"certificate details unavailable: {exc}"
+    finally:
+        if ss is not None:
+            try:
+                ss.close()
+            except Exception:
+                pass
 
 
 def netgauge_check(host, port, addrinfos, use_ssl=False, ca_bundle=None):
+    sock = None
     try:
         sock, ip = connect_first(addrinfos, 6.0)
         if use_ssl:
@@ -418,7 +633,6 @@ def netgauge_check(host, port, addrinfos, use_ssl=False, ca_bundle=None):
             sock.sendall(b"QUIT\n")
         except Exception:
             pass
-        sock.close()
         parsed = parse_hello(line)
         if parsed:
             transport = "TLS" if use_ssl else "plain TCP"
@@ -426,6 +640,12 @@ def netgauge_check(host, port, addrinfos, use_ssl=False, ca_bundle=None):
         return row("netgauge", f"details : Wrong response\nresponse : {line or '(empty)'}\naddress : {ip}", "FAILED")
     except Exception as exc:
         return row("netgauge", f"details : Connection failed\nerror : {exc}", "FAILED")
+    finally:
+        if sock is not None:
+            try:
+                sock.close()
+            except Exception:
+                pass
 
 
 def ws_send_frame(sock, payload: bytes, opcode=0x1):
@@ -458,7 +678,22 @@ def ws_recv_frame(sock):
     return fin, opcode, payload
 
 
+def parse_http_head(text: str):
+    """Split a raw HTTP response head into (status_line, {header: value})."""
+    head = text.split("\r\n\r\n", 1)[0]
+    lines = head.split("\r\n")
+    status_line = lines[0] if lines else ""
+    headers = {}
+    for line in lines[1:]:
+        if not line or ":" not in line:
+            continue
+        name, _, value = line.partition(":")
+        headers[name.strip().lower()] = value.strip()
+    return status_line, headers
+
+
 def websocket_check(host, port, addrinfos, use_ssl=False, ca_bundle=None):
+    sock = None
     try:
         sock, ip = connect_first(addrinfos, 6.0)
         if use_ssl:
@@ -468,7 +703,7 @@ def websocket_check(host, port, addrinfos, use_ssl=False, ca_bundle=None):
         expected = base64.b64encode(hashlib.sha1((key + guid).encode()).digest()).decode()
         req = (
             f"GET /ws HTTP/1.1\r\n"
-            f"Host: {host}:{port}\r\n"
+            f"Host: {host_header_for(host, port)}\r\n"
             f"User-Agent: {USER_AGENT}\r\n"
             f"Accept: */*\r\n"
             f"Connection: Upgrade\r\n"
@@ -480,16 +715,19 @@ def websocket_check(host, port, addrinfos, use_ssl=False, ca_bundle=None):
         sock.sendall(req.encode())
         head = recv_until(sock, b"\r\n\r\n")
         text = head.decode("latin1", "replace")
-        if "101 Switching Protocols" not in text:
-            sock.close()
+        status_line, headers = parse_http_head(text)
+        if "101" not in status_line or "switching protocols" not in status_line.lower():
             return row("websocket", f"details : Upgrade rejected\nresponse : {text.strip()[:300]}", "FAILED")
-        if expected not in text:
-            sock.close()
+        if headers.get("upgrade", "").lower() != "websocket":
+            return row("websocket", f"details : Upgrade rejected\nresponse : {text.strip()[:300]}", "FAILED")
+        if "upgrade" not in headers.get("connection", "").lower():
+            return row("websocket", "details : Connection header does not request an upgrade", "FAILED")
+        if headers.get("sec-websocket-accept", "") != expected:
             return row("websocket", "details : Invalid Sec-WebSocket-Accept", "FAILED")
         ws_send_frame(sock, b"HI\n", 0x1)
-        deadline = time.time() + 6
+        deadline = time.monotonic() + 6
         hello = None
-        while time.time() < deadline and hello is None:
+        while time.monotonic() < deadline and hello is None:
             fin, opcode, payload = ws_recv_frame(sock)
             if opcode == 0x1:
                 hello = payload.decode("utf-8", "replace").strip()
@@ -499,7 +737,6 @@ def websocket_check(host, port, addrinfos, use_ssl=False, ca_bundle=None):
             ws_send_frame(sock, struct.pack(">H", 1000), 0x8)
         except Exception:
             pass
-        sock.close()
         parsed = parse_hello(hello or "")
         if parsed:
             transport = "wss / TLS" if use_ssl else "ws / plain TCP"
@@ -507,6 +744,12 @@ def websocket_check(host, port, addrinfos, use_ssl=False, ca_bundle=None):
         return row("websocket", f"details : Wrong WebSocket HELLO response\nframe : {hello or '(empty)'}", "FAILED")
     except Exception as exc:
         return row("websocket", f"details : WebSocket test failed\nerror : {exc}", "FAILED")
+    finally:
+        if sock is not None:
+            try:
+                sock.close()
+            except Exception:
+                pass
 
 
 def crossdomain_parse(body: bytes):
@@ -536,7 +779,7 @@ def crossdomain_check(host, port, addrinfos, required, label="crossdomain", url=
                       check_port=True, use_ssl=False, ca_bundle=None):
     try:
         res = raw_http(host, port, "/crossdomain.xml", addrinfos=addrinfos, timeout=8,
-                       host_header=(host if port == 80 else f"{host}:{port}"),
+                       host_header=host_header_for(host, port),
                        use_ssl=use_ssl, ca_bundle=ca_bundle)
         domains, ports, text = crossdomain_parse(res["body"])
         ok = res["status"] == 200 and bool(domains)
@@ -565,7 +808,7 @@ def crossdomain_check(host, port, addrinfos, required, label="crossdomain", url=
 def https_check(host, port, addrinfos, ca_bundle=None):
     try:
         res = raw_http(host, port, "/hi", use_ssl=True, verify=True, addrinfos=addrinfos,
-                       timeout=8, host_header=f"{host}:{port}", ca_bundle=ca_bundle)
+                       timeout=8, host_header=host_header_for(host, port), ca_bundle=ca_bundle)
         body = res["body"].decode("utf-8", "replace").strip()
         parsed = parse_hello(body)
         if res["status"] == 200 and parsed:
@@ -577,7 +820,7 @@ def https_check(host, port, addrinfos, ca_bundle=None):
         info = cert_info(host, port, addrinfos)
         try:
             insecure = raw_http(host, port, "/hi", use_ssl=True, verify=False, addrinfos=addrinfos,
-                                timeout=6, host_header=f"{host}:{port}")
+                                timeout=6, host_header=host_header_for(host, port))
             insecure_body = insecure["body"].decode("utf-8", "replace").strip()
         except Exception as e2:
             insecure_body = f"(insecure probe failed: {e2})"
@@ -621,11 +864,11 @@ def upload_check(host, legacy_addrs, expected_size, key, label,
         accepted = {native_size}
     else:
         accepted = {expected_size, native_size}
-    host_header = None if legacy_port == 80 else f"{host}:{legacy_port}"
+    legacy_host_header = host_header_for(host, legacy_port)
     try:
         res = raw_http(host, legacy_port, "/speedtest/upload.php", method="POST", body=body,
                        extra_headers={"Content-Type": "application/x-www-form-urlencoded"},
-                       addrinfos=legacy_addrs, timeout=15, host_header=host_header)
+                       addrinfos=legacy_addrs, timeout=15, host_header=legacy_host_header)
         text = res["body"].decode("utf-8", "replace").strip()
         m = re.fullmatch(r"size=(\d+)", text)
         got = int(m.group(1)) if m else None
@@ -651,12 +894,12 @@ def upload_check(host, legacy_addrs, expected_size, key, label,
 
 def image_checks(host, legacy_addrs, legacy_port=80):
     rows = []
-    host_header = None if legacy_port == 80 else f"{host}:{legacy_port}"
+    legacy_host_header = host_header_for(host, legacy_port)
     for i, (dim, expected) in enumerate(IMAGE_SIZES, 1):
         path = f"/speedtest/random{dim}x{dim}.jpg"
         try:
             res = raw_http(host, legacy_port, path, addrinfos=legacy_addrs, timeout=20,
-                           body_limit=expected + 1, host_header=host_header)
+                           body_limit=expected + 1, host_header=legacy_host_header)
             actual = res["body_length"]
             ctype = header_get(res["headers"], "Content-Type")
             jpeg = res["body"][:2] == b"\xff\xd8"
@@ -669,12 +912,13 @@ def image_checks(host, legacy_addrs, legacy_port=80):
 
 
 def keepalive_check(host, legacy_addrs, legacy_port=80):
+    sock = None
     try:
         sock, ip = connect_first(legacy_addrs, 6.0)
-        host_header = host if legacy_port == 80 else f"{host}:{legacy_port}"
+        legacy_host_header = host_header_for(host, legacy_port)
         req = (
             f"GET /speedtest/latency.txt HTTP/1.1\r\n"
-            f"Host: {host_header}\r\nUser-Agent: {USER_AGENT}\r\nAccept: */*\r\n"
+            f"Host: {legacy_host_header}\r\nUser-Agent: {USER_AGENT}\r\nAccept: */*\r\n"
             f"Connection: keep-alive\r\n\r\n"
         )
         sock.sendall(req.encode())
@@ -689,11 +933,10 @@ def keepalive_check(host, legacy_addrs, legacy_port=80):
         b2, _ = read_body(r2, 2048)
         elapsed = (time.perf_counter() - t0) * 1000
         h2 = dict(r2.getheaders())
-        reused = not sock._closed
+        reused = sock.fileno() != -1
         conn1 = header_get(h1, "Connection", "").lower()
         conn2 = header_get(h2, "Connection", "").lower()
         ok = reused and "close" not in conn1 and "close" not in conn2 and elapsed < 2000
-        sock.close()
         details = (
             f"details : {'Subsequent connections established quickly' if ok else 'Connection reuse failed or too slow'}\n"
             f"first : {status_line(r1)}\nsecond : {status_line(r2)}\n"
@@ -703,6 +946,12 @@ def keepalive_check(host, legacy_addrs, legacy_port=80):
         return row("keepalive", details, "PASSED" if ok else "FAILED")
     except Exception as exc:
         return row("keepalive", f"details : Subsequent connections established quickly\nerror : {exc}", "FAILED")
+    finally:
+        if sock is not None:
+            try:
+                sock.close()
+            except Exception:
+                pass
 
 
 def row(key, details, status, subrows=None):
@@ -716,72 +965,132 @@ def run_all_tests(host_input: str, allow_private: bool = False,
                   ca_bundle: str | None = None,
                   legacy_port: int = 80,
                   upload_mode: str = "auto",
-                  daemon_tls: bool = False):
+                  daemon_tls: bool | None = None,
+                  timeout: float = 180.0,
+                  default_port: int = 8080):
     """Run the 19 host-tester checks.
 
     Advanced options came from cross-validation against the official OoklaServer
     2.11.5.2 daemon and the official Speedtest CLI 1.2.0.84: real servers differ
     in legacy port, upload algorithm, TLS transport, and CA trust.
+
+    `host_input` must be the ORIGINAL user input (not a pre-normalised
+    string): the scheme decides the default transport for the daemon checks.
+    `daemon_tls=None` means "auto": a target given as https:// is probed over
+    TLS for the NetGauge / WebSocket / crossdomain checks, everything else is
+    probed in plain TCP.  `timeout` is the global budget for the whole run.
     """
     if not (1 <= legacy_port <= 65535):
         raise ValueError("legacy_port must be between 1 and 65535")
     if upload_mode not in ("auto", "legacy", "native"):
         raise ValueError("upload_mode must be auto, legacy, or native")
+    if timeout is not None and timeout <= 0:
+        raise ValueError("timeout must be greater than zero")
+    if not (1 <= default_port <= 65535):
+        raise ValueError("default_port must be between 1 and 65535")
     if ca_bundle:
         ca_bundle = validate_ca_bundle(ca_bundle)
 
-    target, normalization_note = normalize_target(host_input)
+    target, normalization_note = normalize_target(host_input, default_port)
     host, port = parse_host(target)
+    scheme = detect_scheme(host_input)
+    if daemon_tls is None:
+        daemon_tls = (scheme == "https")
+        daemon_tls_source = "auto (https:// input)" if daemon_tls else "auto"
+    else:
+        daemon_tls = bool(daemon_tls)
+        daemon_tls_source = "explicit"
+
     addrs = resolve_host(host, port, allow_private=allow_private)
     ipv4 = [a["ip"] for a in addrs if a["version"] == 4]
     ipv6 = [a["ip"] for a in addrs if a["version"] == 6]
 
-    daemon_rows = [
-        netgauge_check(host, port, addrs, use_ssl=daemon_tls, ca_bundle=ca_bundle),
-        websocket_check(host, port, addrs, use_ssl=daemon_tls, ca_bundle=ca_bundle),
-        crossdomain_check(host, port, addrs,
-                          required=["*.ookla.com", "*.speedtest.net", "*.speedtestcustom.com"],
-                          check_port=True, use_ssl=daemon_tls, ca_bundle=ca_bundle),
-        https_check(host, port, addrs, ca_bundle=ca_bundle),
-    ]
+    # Global budget for this run: every socket timeout is clamped to the
+    # remaining time, and checks that would start after the budget is gone are
+    # reported as failures instead of hanging the request.
+    deadline = time.monotonic() + float(timeout)
+    token = DEADLINE.set(deadline)
 
-    port_suffix = "" if legacy_port == 80 else f":{legacy_port}"
-    legacy_base = f"http://{host}{port_suffix}"
-    legacy_url = f"{legacy_base}/speedtest/upload.php"
+    def guard(label):
+        if time.monotonic() > deadline:
+            return row(label, "details : Not attempted\nerror : global test deadline exceeded", "FAILED")
+        return None
+
     try:
-        legacy_addrs = resolve_host(host, legacy_port, allow_private=allow_private)
-    except Exception:
-        legacy_addrs = addrs
-    legacy_rows = [
-        crossdomain_check(host, legacy_port, legacy_addrs,
-                          required=["*.speedtest.net", "*.ookla.com"],
-                          url=f"{legacy_base}/crossdomain.xml", check_port=False),
-    ]
-    try:
-        res = raw_http(host, legacy_port, "/speedtest/latency.txt", addrinfos=legacy_addrs,
-                       timeout=8)
-        text = res["body"].decode("utf-8", "replace").strip()
-        ok = res["status"] == 200 and text == "test=test"
-        legacy_rows.append(row("latency", f"details : {text or '(empty)'}\nlatency_url : {legacy_base}/speedtest/latency.txt\nhttp_status : {res['status']}\nresponse : {compact_response(res, 180)}", "PASSED" if ok else "FAILED"))
-    except Exception as exc:
-        legacy_rows.append(row("latency", f"details : Could not fetch latency.txt\nerror : {exc}\nlatency_url : {legacy_base}/speedtest/latency.txt", "FAILED"))
+        daemon_rows = []
+        for label, probe in (
+            ("netgauge", lambda: netgauge_check(host, port, addrs, use_ssl=daemon_tls, ca_bundle=ca_bundle)),
+            ("websocket", lambda: websocket_check(host, port, addrs, use_ssl=daemon_tls, ca_bundle=ca_bundle)),
+            ("crossdomain", lambda: crossdomain_check(
+                host, port, addrs,
+                required=["*.ookla.com", "*.speedtest.net", "*.speedtestcustom.com"],
+                check_port=True, use_ssl=daemon_tls, ca_bundle=ca_bundle)),
+            ("https", lambda: https_check(host, port, addrs, ca_bundle=ca_bundle)),
+        ):
+            skipped = guard(label)
+            daemon_rows.append(skipped if skipped is not None else probe())
 
-    legacy_rows.append(upload_check(host, legacy_addrs, 516300, "upload", "upload",
-                                    legacy_port=legacy_port, upload_mode=upload_mode))
-    max_row = upload_check(host, legacy_addrs, 1981500, "max_upload", "max_upload",
-                           legacy_port=legacy_port, upload_mode=upload_mode)
-    max_row["details"] += "\nsuccess : " + max_row["status"]
-    legacy_rows.append(max_row)
+        legacy_base = url_for("http", host, legacy_port)
+        legacy_url = f"{legacy_base}/speedtest/upload.php"
+        try:
+            legacy_addrs = resolve_host(host, legacy_port, allow_private=allow_private)
+        except Exception:
+            # The legacy port uses the same host, so reuse the daemon's
+            # addresses but re-stamp the port -- silently connecting to the
+            # daemon port would report a wrong result.
+            legacy_addrs = [dict(a, sockaddr=(a["sockaddr"][0], legacy_port), port=legacy_port)
+                            for a in addrs]
+        legacy_rows = []
+        skipped = guard("crossdomain")
+        legacy_rows.append(skipped if skipped is not None else crossdomain_check(
+            host, legacy_port, legacy_addrs,
+            required=["*.speedtest.net", "*.ookla.com"],
+            url=f"{legacy_base}/crossdomain.xml", check_port=False))
 
-    image_rows = image_checks(host, legacy_addrs, legacy_port=legacy_port)
-    image_ok = all(r["status"] == "PASSED" for r in image_rows)
-    legacy_rows.append(row(
-        "image_sizes",
-        f"details : {len(IMAGE_SIZES)} download image files checked against the official http_legacy_fallback.zip byte sizes\nlegacy_port : {legacy_port}",
-        "PASSED" if image_ok else "FAILED",
-        subrows=image_rows,
-    ))
-    legacy_rows.append(keepalive_check(host, legacy_addrs, legacy_port=legacy_port))
+        skipped = guard("latency")
+        if skipped is not None:
+            legacy_rows.append(skipped)
+        else:
+            try:
+                res = raw_http(host, legacy_port, "/speedtest/latency.txt", addrinfos=legacy_addrs,
+                               timeout=8)
+                text = res["body"].decode("utf-8", "replace").strip()
+                ok = res["status"] == 200 and text == "test=test"
+                legacy_rows.append(row("latency", f"details : {text or '(empty)'}\nlatency_url : {legacy_base}/speedtest/latency.txt\nhttp_status : {res['status']}\nresponse : {compact_response(res, 180)}", "PASSED" if ok else "FAILED"))
+            except Exception as exc:
+                legacy_rows.append(row("latency", f"details : Could not fetch latency.txt\nerror : {exc}\nlatency_url : {legacy_base}/speedtest/latency.txt", "FAILED"))
+
+        skipped = guard("upload")
+        legacy_rows.append(skipped if skipped is not None else upload_check(
+            host, legacy_addrs, 516300, "upload", "upload",
+            legacy_port=legacy_port, upload_mode=upload_mode))
+        skipped = guard("max_upload")
+        if skipped is not None:
+            legacy_rows.append(skipped)
+        else:
+            max_row = upload_check(host, legacy_addrs, 1981500, "max_upload", "max_upload",
+                                   legacy_port=legacy_port, upload_mode=upload_mode)
+            max_row["details"] += "\nsuccess : " + max_row["status"]
+            legacy_rows.append(max_row)
+
+        skipped = guard("image_sizes")
+        if skipped is not None:
+            legacy_rows.append(skipped)
+        else:
+            image_rows = image_checks(host, legacy_addrs, legacy_port=legacy_port)
+            image_ok = all(r["status"] == "PASSED" for r in image_rows)
+            legacy_rows.append(row(
+                "image_sizes",
+                f"details : {len(IMAGE_SIZES)} download image files checked against the official http_legacy_fallback.zip byte sizes\nlegacy_port : {legacy_port}",
+                "PASSED" if image_ok else "FAILED",
+                subrows=image_rows,
+            ))
+
+        skipped = guard("keepalive")
+        legacy_rows.append(skipped if skipped is not None else
+                           keepalive_check(host, legacy_addrs, legacy_port=legacy_port))
+    finally:
+        DEADLINE.reset(token)
 
     all_rows = daemon_rows + legacy_rows
     flat_rows = []
@@ -794,13 +1103,15 @@ def run_all_tests(host_input: str, allow_private: bool = False,
         "legacy_port": legacy_port,
         "upload_mode": upload_mode,
         "daemon_tls": bool(daemon_tls),
+        "daemon_tls_source": daemon_tls_source,
         "allow_private": bool(allow_private),
+        "timeout": float(timeout),
     }
     return {
         "input": host_input,
         "normalized_input": target,
         "normalization_note": normalization_note,
-        "input_scheme": detect_scheme(host_input),
+        "input_scheme": scheme,
         "host": host,
         "port": port,
         "timestamp": now_jakarta(),
@@ -949,6 +1260,14 @@ def options_from_qs(qs):
     """Parse advanced options from query/POST without changing the 1:1 form."""
     def flag(name):
         return qs.get(name, [""])[0] in ("1", "true", "yes")
+    def tri_flag(name):
+        """True / False / None (auto) depending on the parameter."""
+        raw = qs.get(name, [""])[0].strip().lower()
+        if raw in ("1", "true", "yes"):
+            return True
+        if raw in ("0", "false", "no"):
+            return False
+        return None
     def text(name):
         return qs.get(name, [""])[0].strip() or None
     raw_port = qs.get("legacy_port", [""])[0]
@@ -962,14 +1281,15 @@ def options_from_qs(qs):
         "ca_bundle": text("ca_bundle"),
         "legacy_port": legacy_port,
         "upload_mode": text("upload_mode") or "auto",
-        "daemon_tls": flag("daemon_tls"),
+        "daemon_tls": tri_flag("daemon_tls"),
     }
 
 
 def test_options(opts):
+    """Translate web request options into run_all_tests() keyword arguments."""
     return {
         "allow_private": opts["allow_private"],
-        "ca_bundle": opts["ca_bundle"],
+        "ca_bundle": restrict_ca_path(opts["ca_bundle"]) if opts.get("ca_bundle") else None,
         "legacy_port": opts["legacy_port"],
         "upload_mode": opts["upload_mode"],
         "daemon_tls": opts["daemon_tls"],
@@ -978,6 +1298,10 @@ def test_options(opts):
 
 class Handler(BaseHTTPRequestHandler):
     server_version = "OoklaServerTesterClone/1.0"
+    protocol_version = "HTTP/1.0"
+    # Maximum accepted request body.  A host-tester form post is tiny; a
+    # larger body is rejected instead of being silently truncated.
+    MAX_BODY = 16384
 
     def _send(self, body: str, status=200, content_type="text/html; charset=utf-8", extra=None):
         raw = body.encode("utf-8")
@@ -985,6 +1309,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(raw)))
         self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
         if extra:
             for k, v in extra.items():
                 self.send_header(k, v)
@@ -1016,6 +1341,8 @@ class Handler(BaseHTTPRequestHandler):
                     return self._send(render_results(data, clean=clean))
                 except ValueError as exc:
                     return self._send(render_index(host_value, str(exc), clean=clean))
+                except Exception as exc:
+                    return self._send(render_index(host_value, f"Test error: {exc}", clean=clean), 500)
             return self._send(render_index(host_value, clean=clean))
         if parsed.path == "/api/test":
             opts = options_from_qs(qs)
@@ -1027,14 +1354,21 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(json.dumps(data, indent=2), 200, "application/json")
             except ValueError as exc:
                 return self._send(json.dumps({"error": str(exc)}), 400, "application/json")
+            except Exception as exc:
+                return self._send(json.dumps({"error": f"test failed: {exc}"}), 500, "application/json")
         return self._send(render_index("", "Page not found"), 404)
 
     def do_POST(self):
         parsed = urllib.parse.urlparse(self.path)
         if parsed.path != "/host-tester":
             return self._send(render_index("", "Page not found"), 404)
-        length = int(self.headers.get("Content-Length", "0") or 0)
-        raw = self.rfile.read(min(length, 16384)).decode("utf-8", "replace")
+        try:
+            length = int(self.headers.get("Content-Length", "0") or 0)
+        except ValueError:
+            length = 0
+        if length > self.MAX_BODY:
+            return self._send(render_index("", "Request body too large", clean=False), 413)
+        raw = self.rfile.read(min(length, self.MAX_BODY)).decode("utf-8", "replace")
         qs = urllib.parse.parse_qs(raw, keep_blank_values=True)
         opts = options_from_qs(qs)
         host_value = qs.get("ookla-server", qs.get("host", [""]))[0]
