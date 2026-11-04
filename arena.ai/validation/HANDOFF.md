@@ -144,12 +144,19 @@ plus `crossdomain`, `latency`, `upload`, `max_upload`, `image_sizes` ×10,
 
 ## 5. What is still open
 
-1. **Commit and push** the work on `audit/arena-official-validation`.
-   * Stage **only** `arena.ai/` paths.
-   * Verify with `git diff --cached --name-only` that nothing outside
-     `arena.ai/` is staged.
-   * Push with **no force**; open a PR if the remote allows it.
-   * Confirm `git rev-parse HEAD` equals the pushed commit.
+1. **Push** the work on `audit/arena-official-validation`.
+   * ✅ the commit exists locally: `c9fd87e5e65ad949be0fe417542d5a8e46a8e888`
+     (only `arena.ai/` paths, verified with `git show --name-only --format= HEAD`).
+   * ❌ **the push failed** — the sandbox has no GitHub credential:
+     `fatal: could not read Username for 'https://github.com'`.
+   * From a machine with credentials:
+     `git push -u origin audit/arena-official-validation`
+     (no force, no rebase of anyone else's work).
+   * Verified transfer artefacts exist in `lab/results/delivery/`:
+     a `git bundle` of the whole branch and a `git format-patch` of the
+     audit commit against the baseline.
+   * Then open a PR against `main` and confirm
+     `git rev-parse HEAD` equals the remote branch tip.
 2. ~~**Regenerate `hasil-*`**~~ — done: `python3 lab/scripts/regenerate-hasil.py`
    rewrote them against the laboratory daemon (19/19).
 3. ~~**Update `README.md` and `AUDIT.md`**~~ — done: both now describe

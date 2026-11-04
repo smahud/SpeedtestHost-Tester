@@ -46,8 +46,9 @@ behaviour.
 **CONDITIONAL PASS** means: the implementation is correct, secure and
 independently reproducible **as a local diagnostic tool**, and the remaining
 conditions are the ones that cannot be closed from inside the sandbox — the
-official backend is closed behind reCAPTCHA, and a public deployment of the
-web endpoint needs an access-control layer that a local tool does not need.
+official backend is closed behind reCAPTCHA, a public deployment of the web
+endpoint needs an access-control layer that a local tool does not need, and
+the GitHub push is blocked by the absence of a write credential.
 
 ---
 
@@ -150,9 +151,35 @@ and no longer point at the removed `ooklaserver/sim/` tree.
 
 ### J — Git delivery
 
-**Met.** The work is delivered on the dedicated branch
-`audit/arena-official-validation`; only `arena.ai/` paths are staged; the
-commit is pushed and the remote state verified.  Details are in §4.
+**Partially met — the push is blocked by the environment, not by the work.**
+
+| Requirement | State |
+| --- | --- |
+| dedicated branch | ✅ `audit/arena-official-validation` |
+| only `arena.ai/` paths staged/committed | ✅ verified: `git show --name-only --format= HEAD` lists no path outside `arena.ai/` |
+| commit created | ✅ `c9fd87e5e65ad949be0fe417542d5a8e46a8e888` |
+| never force-pushed | ✅ |
+| other agents' branches/worktrees untouched | ✅ (`audit/z-ai-official-validation` and `main` are as they were) |
+| **pushed to the remote** | ❌ **blocked** — the sandbox has no GitHub credentials |
+| PR opened | ❌ not possible for the same reason |
+
+```
+$ git push -u origin audit/arena-official-validation
+fatal: could not read Username for 'https://github.com': No such device or address
+```
+
+`github.com` itself is reachable (HTTP 200) and the repository is clonable
+anonymously; only the write credential is missing.  The branch therefore
+exists **locally and is ready to push**; from a machine with credentials:
+
+```bash
+git push -u origin audit/arena-official-validation
+```
+
+Two verified transfer artefacts are produced for that case
+(`lab/results/delivery/`, not committed because they are large and
+redundant with the branch): a `git bundle` carrying the full branch history
+and a `git format-patch` of the audit commit against the baseline.
 
 ### K — Production readiness
 
@@ -197,10 +224,17 @@ commit is pushed and the remote state verified.  Details are in §4.
 | --- | --- |
 | Branch | `audit/arena-official-validation` |
 | Baseline | `eab16976a4dbf48f36b0d81da5413cf2860e3cfa` |
-| Staged paths | `arena.ai/` only — verified with `git diff --cached --name-only` |
+| Audit commit | `c9fd87e5e65ad949be0fe417542d5a8e46a8e888` |
+| Committed paths | `arena.ai/` only — verified with `git show --name-only --format= HEAD` |
 | Force-push | never used |
 | Other agents' files | not modified, not staged, not reset |
-| PR | opened against `main` if the remote allows it; the branch itself carries the work either way |
+| Remote push | **blocked** — no GitHub credential in the sandbox (`lab/results/delivery/README.md` has the exact command and two verified transfer artefacts) |
+| PR | not possible for the same reason |
+
+The tested commit and the committed commit are the same object:
+`c9fd87e5e65ad949be0fe417542d5a8e46a8e888` was the tree that the 77-test
+suite, the eight-variant matrix, the 19/19 run and the three CLI
+cross-validation scopes were executed against.
 
 ---
 

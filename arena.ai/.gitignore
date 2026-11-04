@@ -36,6 +36,10 @@ lab/certs/*.pem
 !lab/certs/control.crt
 !lab/certs/ca-bundle-cli.pem
 
+# ---- delivery transfer artefacts (large, redundant with the branch) ---------
+lab/results/delivery/*.bundle
+lab/results/delivery/*.patch
+
 # ---- Python bytecode ---------------------------------------------------------
 __pycache__/
 *.py[cod]
