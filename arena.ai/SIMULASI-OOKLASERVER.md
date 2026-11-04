@@ -1,38 +1,49 @@
-# Ringkasan simulasi & cross-validation OoklaServer official
+# Laboratorium OoklaServer official — ringkasan & cross-validation
 
-Dokumen lengkap: [`ooklaserver/sim/SIMULASI.md`](ooklaserver/sim/SIMULASI.md)  
-Cross-analysis CLI resmi: [`ooklaserver/sim/CROSS_VALIDATION.md`](ooklaserver/sim/CROSS_VALIDATION.md)  
-Variabel mesin: [`ooklaserver/sim/manifest.json`](ooklaserver/sim/manifest.json)  
-Hasil 19/19: [`ooklaserver/sim/results/v1.2/https-ca-bundle.html`](ooklaserver/sim/results/v1.2/https-ca-bundle.html)
+> **Status 2026-11-04 (v1.3.0).** Struktur laboratorium dipindah dari
+> `ooklaserver/sim/` ke [`lab/`](lab/), biner proprietary tidak lagi
+> di-commit, dan seluruh cross-validation diulang dari nol.
+> Dokumentasi otoritatif ada di **[`validation/`](validation/)**.
+
+| Dokumen | Isi |
+| --- | --- |
+| [`validation/PROTOCOL_MATRIX.md`](validation/PROTOCOL_MATRIX.md) | perilaku daemon resmi yang diamati (HTTP, HTTPS, NetGauge, WebSocket, upload, gambar) |
+| [`validation/CROSS_VALIDATION.md`](validation/CROSS_VALIDATION.md) | CLI resmi ↔ daemon resmi ↔ clone, per layer |
+| [`validation/TEST_MATRIX.md`](validation/TEST_MATRIX.md) | setiap tes + hasil nyata |
+| [`validation/REPRODUCE.md`](validation/REPRODUCE.md) | cara mengulang semuanya |
+| [`lab/binaries/MANIFEST.md`](lab/binaries/MANIFEST.md) | provenance + SHA-256 biner OoklaServer |
+| [`lab/cli/MANIFEST.md`](lab/cli/MANIFEST.md) | provenance + SHA-256 Speedtest CLI |
+| Arsip sesi sebelumnya | [`lab/results/previous-session/`](lab/results/previous-session/) |
 
 ## Ringkas
 
-- Binary official x86_64 + aarch64 static-musl diunduh dari dua URL yang diberikan user; SHA-256 dan versi `2.11.5.2` / build `2026-06-04.1737.7d0993d` dicatat.
-- Binary x86_64 dijalankan dengan `-d` dari `ooklaserver/sim/http` atau `.../https`; config benar terbaca dari working directory.
+- Binary official x86_64 + aarch64 static-musl diunduh dari URL resmi; SHA-256, ukuran, `Last-Modified` dan ETag dicatat, lalu **diperiksa ulang** pada 2026-11-04 (nilai tidak berubah).
+- Binary **tidak di-commit**: `sh lab/scripts/download-official.sh` mengunduh dan menolak berjalan bila SHA-256 tidak cocok.
+- Daemon dijalankan dengan `-d` dari `lab/runtime/http/` atau `lab/runtime/https/`; config dibaca dari working directory.
 - Daemon hanya di `127.0.0.1:8080` TCP+UDP. Port 5060/80/443 tidak dipakai daemon.
-- Target diarahkan ke `localhost:8080`; `allow_private` dipakai karena loopback.
-- Sertifikat CA + server dibuat sendiri; CA dipercaya via system trust dan `SSL_CERT_FILE`; verifikasi TLS **tidak** dimatikan.
-- Terverifikasi: port 8080 melayani HTTP, raw NetGauge, WebSocket, HTTPS, dan WSS **sekaligus** saat custom cert aktif.
-- Control server terpisah di port 80 menyajikan `http_legacy_fallback.zip` untuk 10 legacy checks.
-- **Cross-validation:** official Speedtest CLI `1.2.0.84` → `./speedtest -L` memberi `myspeed.gorge.net:8080` → `/etc/hosts` memetakan domain itu ke `127.0.0.1` → CLI speedtest penuh ke daemon lokal, 4 variasi **exit 0**, `server.ip=127.0.0.1`. `cli.speedtest.net` / `results.speedtest.net` sengaja tidak dialihkan.
-- Hasil clone: mode HTTP **18/19**, mode HTTPS **19/19 PASSED** (exit 0), lewat CLI dan `/api/test` — sebelum dan sesudah v1.2.0.
+- CA + sertifikat lab dibuat oleh `lab/scripts/make-certs.sh`, termasuk **tiga sertifikat negatif** (wrong-host, expired, untrusted).
+- Terverifikasi: port 8080 melayani HTTP, raw NetGauge, WebSocket, HTTPS, dan WSS **sekaligus** saat custom cert aktif; TLSv1.3 / `TLS_AES_256_GCM_SHA384`, `Verify return code: 0`.
+- Daemon **tidak menjawab** datagram NetGauge di UDP → tidak ada cek UDP (akan menghasilkan false negative).
+- Control server mandiri di port 80 (`lab/scripts/legacy_control.py`) menyajikan 10 ukuran gambar + formula `size = 500 + len(key)+len(value)+3` + `test=test` + crossdomain — **tanpa** mirror pihak ketiga 95 MB.
+- **Cross-validation:** official Speedtest CLI `1.2.0.84` → server list resmi memberi `myspeed.gorge.net:8080` (id 4063) → diarahkan ke `127.0.0.1` → CLI speedtest penuh ke daemon lokal, **exit 0**, `server.ip=127.0.0.1`, `persisted: false`.
+- **Tidak ada hasil yang dipublikasikan:** `results.speedtest.net` diarahkan ke stub lokal yang mencatat upload lalu menjawab **HTTP 503**.
+- Hasil clone terhadap daemon resmi: **19 PASSED / 0 FAILED** (exit 0) pada mode TLS dengan CA lab dipercaya.
 
-## Status code v1.2.0 (semua sudah diimplementasikan)
+## Status code v1.3.0
 
-| Temuan dari cross-analysis | Implementasi |
+| Temuan | Implementasi |
 | --- | --- |
-| CLI resmi punya `--ca-certificate` yang menggantikan trust store | `--ca-bundle FILE` / `ca_bundle=` dengan validasi PEM, verifikasi tidak pernah dimatikan |
+| CLI resmi punya `--ca-certificate` yang **mengganti** trust store | `--ca-bundle FILE` / `ca_bundle=` dengan validasi PEM; verifikasi tidak pernah dimatikan |
 | Daemon 8080 juga menyajikan `/speedtest/*` | `--legacy-port N` / `legacy_port=` (default 80) |
-| Daemon `size=Content-Length`, legacy PHP `+502` | `--upload-mode auto\|legacy\|native` + `detected_mode` |
-| WSS bekerja di port sama | `--daemon-tls` / `daemon_tls=1` (`wss`) |
-| Scheme `https://` hilang saat normalisasi | `input_scheme` metadata + `options{}` di JSON hasil |
-
-Form 1:1 tidak berubah — hash halaman sebelum/sesudah patch identik `25e17aa35ba498ea79e30f1be61e2c7994a5de7af6645c816f58770909a5436d`. Regresi versi, invalid input, API, `-o`, target publik asli, dan HTML statis semuanya lolos.
+| Daemon `size=Content-Length`, legacy PHP `500+len(key)+len(value)+3` | `--upload-mode auto\|legacy\|native` + `detected_mode` |
+| WSS bekerja di port yang sama | `--daemon-tls` / `--no-daemon-tls` / `daemon_tls=1|0`; `https://` otomatis memakai TLS |
+| CLI resmi punya batas waktu global | `--timeout SECONDS` (default 180) + deadline per request (`contextvars`) |
+| Server flirt bisa dialihkan ke alamat privat | non-global address dibuang saat resolusi; `--allow-private` jadi opt-in eksplisit |
 
 ## Yang masih terbuka / operasional
 
 1. Implementasi internal `POST https://www.speedtest.net/host-tester` tetap tertutup reCAPTCHA; watchdog regional Ookla tidak bisa direproduksi.
-2. Redirect `/etc/hosts` berada di luar workspace snapshot; jalankan `ooklaserver/sim/scripts/add-hosts-redirect.sh` lagi setelah restart sandbox.
-3. `--ca-certificate` / `--ca-bundle` menggantikan trust store: untuk CLI resmi pakai `ooklaserver/sim/certs/ca-bundle-cli.pem` (CA publik + CA lab).
-4. `OoklaServer -d` kadang mengabaikan SIGTERM; `stop-all.sh` fallback `kill -KILL`.
-5. Push GitHub berikutnya butuh PAT baru; token disposable sebelumnya sudah dihapus.
+2. Redirect `/etc/hosts` berada di luar workspace snapshot; jalankan `sh lab/scripts/cross-validate-cli.sh https real` lagi setelah restart sandbox (script sudah memasang dan menghapus entry otomatis lewat `trap`).
+3. `--ca-certificate` / `--ca-bundle` menggantikan trust store: untuk CLI resmi pakai `lab/certs/ca-bundle-cli.pem` (CA lab; memuat sertifikat daemon **dan** sertifikat control-plane).
+4. `OoklaServer -d` **mengabaikan SIGTERM**; `sh lab/scripts/stop-daemon.sh` sudah punya fallback `kill -KILL`. `start-daemon.sh` sekarang menolak start bila port 8080 sudah dipakai (daemon memakai `SO_REUSEPORT`, sehingga dua instance berbagi port secara acak).
+5. Scope `isolated` (namespace jaringan penuh) berakhir dengan exit **2** `LICENSE_ERROR` — license key pada dokumen konfigurasi terikat pada konteks device/ISP. Ini **limitasi terdokumentasi**, bukan bug.

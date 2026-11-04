@@ -1,0 +1,54 @@
+{
+    "type": "result",
+    "timestamp": "2026-11-04T06:12:17Z",
+    "ping": {
+        "jitter": 0.009,
+        "latency": 0.079,
+        "low": 0.072,
+        "high": 0.105
+    },
+    "download": {
+        "bandwidth": 11952421571,
+        "bytes": 88325468629,
+        "elapsed": 7515,
+        "latency": {
+            "iqm": 0.222,
+            "low": 0.116,
+            "high": 9.892,
+            "jitter": 0.151
+        }
+    },
+    "upload": {
+        "bandwidth": 7701331047,
+        "bytes": 79874149639,
+        "elapsed": 11711,
+        "latency": {
+            "iqm": 0.217,
+            "low": 0.108,
+            "high": 5.485,
+            "jitter": 0.231
+        }
+    },
+    "packetLoss": 0,
+    "isp": "Google Cloud",
+    "interface": {
+        "internalIp": "127.0.0.1",
+        "name": "lo",
+        "macAddr": "00:00:00:00:00:00",
+        "isVpn": false,
+        "externalIp": "127.0.0.1"
+    },
+    "server": {
+        "id": 4063,
+        "host": "myspeed.gorge.net",
+        "port": 8080,
+        "name": "Gorge Networks",
+        "location": "Hood River, OR",
+        "country": "United States",
+        "ip": "127.0.0.1"
+    },
+    "result": {
+        "id": "32481fc8-0204-43ea-bae0-21504e69f3f9",
+        "persisted": false
+    }
+}

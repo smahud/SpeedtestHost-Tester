@@ -1,0 +1,259 @@
+[2026-11-04 06:11:58.231] [info] Resolved address 1: 104.17.147.22
+[2026-11-04 06:11:58.231] [info] Resolved address 2: 104.17.148.22
+[2026-11-04 06:11:58.231] [info] Using CA Certificate Path /home/user/repo/arena.ai/lab/certs/ca-bundle-cli.pem
+[2026-11-04 06:11:58.347] [info] HTTP request (effective url: https://cli.speedtest.net/api/cli/config?deviceId=fcb30316a00e005da221535e8d09ecc30dfb0834fdb44c05f09378f3a65fd2e0&hid=%2500%2502%2506%251EKF%2514M%2517&serverhost=myspeed.gorge.net&sid=e0f69b18636ec332c718930da54dfde12c79a3a7b2861371b0a580ecf4894eb4&uname=Linux%206.1.189%2B%20%231%20SMP%20PREEMPT_DYNAMIC%20Mon%20Nov%20%202%2021%3A08%3A28%20UTC%202026%20x86_64) completed with response code 200
+[2026-11-04 06:11:58.347] [info] configuration content:
+{"suite":{"global":{"engine":{"isUploadFirst":false,"testDurationSeconds":15,"threadCount":4,"packetSizeBytes":32000000},"dynamic":{"stableStop":{"isEnabled":true},"download":{"isScalingEnabled":true,"maxConnections":32}},"loadedLatency":{"enableUdp":true,"enableTcp":true}},"testStage":{"latency":{"pingCount":5},"upload":{"isServerUploadEnabled":true,"isClientPrimaryMeasureMethod":false}}},"app":{"ispName":"Google Cloud","traceLevel":2,"licenseKey":"142a87536af3b000-C2a5115b6824ee319-9688fd8a97d8d0fd","license":{"message":"You may only use this Speedtest software and information generated\nfrom it for personal, non-commercial use, through a command line\ninterface on a personal computer. Your use of this software is subject\nto the End User License Agreement, Terms of Use and Privacy Policy at\nthese URLs:\n\n\thttps://www.speedtest.net/about/eula\n\thttps://www.speedtest.net/about/terms\n\thttps://www.speedtest.net/about/privacy","version":"aaa8331c62dcaeaf7cbefe8de3952b0240ccae4424412c2e498eeb1beb84b20b"},"saveTestResultUrl":"https://results.speedtest.net/reports","resultFormat":"json"},"servers":[{"id":"4063","host":"myspeed.gorge.net:8080","name":"Hood River, OR","country":"United States","sponsor":"Gorge Networks","sponsored":false,"host_functional":"1"}]}
+
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Configuration expiry date: 1794355200",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Server count: 1",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "app.version: 1.2.0.84 (ea6b6773cf)",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "server selected: 4063",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Server id: 4063",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Name: Hood River, OR",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Country: United States",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Sponsor: Gorge Networks",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Running TCP test suite",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Running Speedtest against host:port myspeed.gorge.net:8080",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Starting stage 1 of type 2",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Resolved address 1: 127.0.0.1",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Opening socket to '127.0.0.1'",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Ping 1: 0.10 ms (0.10ms min, 0.00ms jitter)",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Ping 2: 0.09 ms (0.09ms min, 0.01ms jitter)",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Ping 3: 0.07 ms (0.07ms min, 0.02ms jitter)",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Ping 4: 0.07 ms (0.07ms min, 0.01ms jitter)",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Ping 5: 0.07 ms (0.07ms min, 0.01ms jitter)",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Final Ping: 0.07 ms",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Stage 1 completed",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:11:58Z",
+    "message": "Starting stage 2 of type 3",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:05Z",
+    "message": "Stage 2 completed",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:05Z",
+    "message": "Smoothing graph for test with 0.501 progress, with duration of 0 ms in 0 updates",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:05Z",
+    "message": "Starting stage 3 of type 4",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:05Z",
+    "message": "Packet loss sent=149, received=149, dupes=0, maxId=148",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:08Z",
+    "message": "Loaded latency: cannot read response.: [11] Resource temporarily unavailable",
+    "level": "warning"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:17Z",
+    "message": "Stage 3 completed",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:17Z",
+    "message": "Smoothing graph for test with 0.782 progress, with duration of 0 ms in 0 updates",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:17Z",
+    "message": "final result - serverid: 4063 ping: 0 download: 95619372 upload: 61610648",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:17Z",
+    "message": "latency 0ms jitter: 0.01ms packet loss 0.00%",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:17Z",
+    "message": "total download bytes: 88325468629",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:17Z",
+    "message": "total download stage duration: 7515.731000 ms",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:17Z",
+    "message": "total upload bytes: 79874149639",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:17Z",
+    "message": "total upload stage duration: 11711.000000 ms",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:17Z",
+    "message": "Resolved address 1: 104.17.147.22",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:17Z",
+    "message": "Resolved address 2: 104.17.148.22",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:17Z",
+    "message": "Resolved address 1: 104.17.148.22",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:17Z",
+    "message": "Resolved address 2: 104.17.147.22",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:17Z",
+    "message": "No libz support available, not compressing data.",
+    "level": "warning"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:17Z",
+    "message": "Using CA Certificate Path /home/user/repo/arena.ai/lab/certs/ca-bundle-cli.pem",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:17Z",
+    "message": "HTTP request (effective url: https://results.speedtest.net/reports) completed with response code 503",
+    "level": "info"
+}
+{
+    "type": "log",
+    "timestamp": "2026-11-04T06:12:17Z",
+    "message": "ResultSaver API did not return the expected 200 OK response: 503",
+    "level": "warning"
+}

@@ -5,6 +5,36 @@
 **Host uji:** `host.yapsidarussalam.or.id:8080`  
 **Status aplikasi:** berjalan di `0.0.0.0:3000` (Arena live preview), `app.py` + `cli.py` v1.2.0
 
+> ### ⚠ Addendum 2026-11-04 — audit independen (v1.3.0)
+>
+> Dokumen di bawah adalah audit **delivery pertama** (2026-11-03) dan tetap
+> berlaku sebagai bukti visual/DOM.  Setelah itu dilakukan **re-audit
+> independen** yang keduanya (a) menjalankan daemon OoklaServer **resmi**
+> `2.11.5.2` di laboratorium pada `127.0.0.1:8080`, (b) melakukan
+> cross-validation dengan **Speedtest CLI resmi** `1.2.0.84`, (c) menemukan
+> dan memperbaiki **22 temuan**, dan (d) menambah **77 tes regresi**.
+>
+> Dokumentasi lengkap ada di **[`validation/`](validation/)**:
+>
+> | Dokumen | Isi |
+> | --- | --- |
+> | [`validation/CONTEXT_BASELINE.md`](validation/CONTEXT_BASELINE.md) | konteks, baseline, celah awal |
+> | [`validation/ENVIRONMENT.md`](validation/ENVIRONMENT.md) | lingkungan terukur, hash biner resmi |
+> | [`validation/PROTOCOL_MATRIX.md`](validation/PROTOCOL_MATRIX.md) | perilaku server resmi yang diamati |
+> | [`validation/TEST_MATRIX.md`](validation/TEST_MATRIX.md) | setiap tes + hasil nyata |
+> | [`validation/CROSS_VALIDATION.md`](validation/CROSS_VALIDATION.md) | CLI resmi ↔ daemon resmi ↔ clone |
+> | [`validation/SECURITY_AUDIT.md`](validation/SECURITY_AUDIT.md) | threat model, temuan, risiko sisa |
+> | [`validation/FINDINGS.md`](validation/FINDINGS.md) | 20 temuan + siklus_defect lengkap |
+> | [`validation/DECISIONS.md`](validation/DECISIONS.md) | keputusan arsitektur yang harus dipertahankan |
+> | [`validation/REPRODUCE.md`](validation/REPRODUCE.md) | cara mengulang semua eksperimen |
+> | [`validation/HANDOFF.md`](validation/HANDOFF.md) | serah-terima untuk agent berikutnya |
+> | [`validation/FINAL_REPORT.md`](validation/FINAL_REPORT.md) | penilaian akhir A–K + verdict |
+>
+> Struktur direktori berubah: `ooklaserver/sim/` → [`lab/`](lab/),
+> `ooklaserver/BINARY_MANIFEST.md` → [`lab/binaries/MANIFEST.md`](lab/binaries/MANIFEST.md),
+> `speedtest-cli/CLI_MANIFEST.md` → [`lab/cli/MANIFEST.md`](lab/cli/MANIFEST.md),
+> dan biner proprietary **tidak lagi di-commit** (unduh + verifikasi SHA-256).
+
 ---
 
 ## 1. Ringkasan eksekutif
@@ -159,6 +189,6 @@ Target project **terpenuhi pada cakupan yang diminta**: halaman test 1:1-style t
 
 Yang **tidak boleh diklaim**: kesetaraan penuh dengan backend/halaman hasil resmi Ookla. Bagian itu tertutup di balik reCAPTCHA dan watchdog regional. Status paling tepat: **"functional local 1:1-style replacement with documented, unavoidable limits"** — bukan "1:1 penuh tanpa caveat".
 
-**Addendum 2026-11-03:** dugaan tentang respons daemon sudah digantikan oleh simulasi binary OoklaServer official di `localhost:8080`. Hasilnya 18/19 (HTTP) dan 19/19 (HTTPS + CA lab dipercaya), dengan daftar utang teknis yang jelas. Baca `SIMULASI-OOKLASERVER.md` dan `ooklaserver/sim/SIMULASI.md`. Ini memperkuat bukti protokol tetapi tetap tidak membuka implementasi `/host-tester` resmi.
+**Addendum 2026-11-03:** dugaan tentang respons daemon sudah digantikan oleh simulasi binary OoklaServer official di `localhost:8080`. Hasilnya 18/19 (HTTP) dan 19/19 (HTTPS + CA lab dipercaya), dengan daftar utang teknis yang jelas. Baca `SIMULASI-OOKLASERVER.md` dan `lab/results/previous-session/SIMULASI-2026-11-03.md`. Ini memperkuat bukti protokol tetapi tetap tidak membuka implementasi `/host-tester` resmi.
 
-**Addendum lanjutan — cross-validation CLI resmi:** official Speedtest CLI `1.2.0.84` diarahkan lewat `/etc/hosts` (`myspeed.gorge.net` → `127.0.0.1`) dan menyelesaikan speedtest penuh ke daemon lokal (`exit 0`, `server.ip=127.0.0.1`, 4 variasi). Temuan `--ca-certificate`, `serverhost=`, handshake `HELLO`, dan TCP-suite biasa dipakai untuk menaikkan code ke **v1.2.0**: `--ca-bundle`, `--legacy-port`, `--upload-mode`, `--daemon-tls`, `input_scheme`, `options{}`. Semua varian HTTPS **19/19 PASSED**, kontrol negatif sengaja gagal sesuai harapan, form 1:1 tetap identik, regresi versi/API/target asli lolos. Baca `ooklaserver/sim/CROSS_VALIDATION.md`. Kesimpulan section 7 tidak berubah: tetap 1:1-style replacement dengan batas backend resmi yang tertutup.
+**Addendum lanjutan — cross-validation CLI resmi:** official Speedtest CLI `1.2.0.84` diarahkan lewat `/etc/hosts` (`myspeed.gorge.net` → `127.0.0.1`) dan menyelesaikan speedtest penuh ke daemon lokal (`exit 0`, `server.ip=127.0.0.1`, 4 variasi). Temuan `--ca-certificate`, `serverhost=`, handshake `HELLO`, dan TCP-suite biasa dipakai untuk menaikkan code ke **v1.2.0**: `--ca-bundle`, `--legacy-port`, `--upload-mode`, `--daemon-tls`, `input_scheme`, `options{}`. Semua varian HTTPS **19/19 PASSED**, kontrol negatif sengaja gagal sesuai harapan, form 1:1 tetap identik, regresi versi/API/target asli lolos. Baca `lab/results/previous-session/CROSS_VALIDATION-2026-11-03.md`. Kesimpulan section 7 tidak berubah: tetap 1:1-style replacement dengan batas backend resmi yang tertutup.

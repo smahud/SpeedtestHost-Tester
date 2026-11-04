@@ -1,139 +1,148 @@
 {
-  "input": "https://host.yapsidarussalam.or.id:8080/",
-  "host": "host.yapsidarussalam.or.id",
+  "input": "127.0.0.1:8080",
+  "normalized_input": "127.0.0.1:8080",
+  "normalization_note": null,
+  "input_scheme": null,
+  "host": "127.0.0.1",
   "port": 8080,
-  "timestamp": "2026-11-03 01:36:08 UTC+07:00 (UTC+0700)",
+  "timestamp": "2026-11-04 13:16:15 UTC+07:00 (UTC+0700)",
   "resolved": {
     "ipv4": [
-      "125.164.215.24"
+      "127.0.0.1"
     ],
-    "ipv6": [
-      "2001:448a:c0b0:b1ab:211:22ff:fe33:4455"
-    ]
+    "ipv6": []
   },
-  "legacy_url": "http://host.yapsidarussalam.or.id/speedtest/upload.php",
+  "legacy_url": "http://127.0.0.1:8080/speedtest/upload.php",
+  "options": {
+    "ca_bundle": "/home/user/repo/arena.ai/lab/certs/ca.crt",
+    "legacy_port": 8080,
+    "upload_mode": "auto",
+    "daemon_tls": false,
+    "daemon_tls_source": "auto",
+    "allow_private": true,
+    "timeout": 180.0
+  },
   "sections": [
     {
       "title": "OOKLASERVER / NETGAUGE TCP",
       "rows": [
         {
           "key": "netgauge",
-          "details": "details : Version: 2.11.5 Build Date: 2026-06-04.1737.7d0993d\nresponse : HELLO 2.11 (2.11.5) 2026-06-04.1737.7d0993d\naddress : 125.164.215.24",
+          "details": "details : Version: 2.11.5 Build Date: 2026-06-04.1737.7d0993d\nresponse : HELLO 2.11 (2.11.5) 2026-06-04.1737.7d0993d\ntransport : plain TCP\naddress : 127.0.0.1",
           "status": "PASSED"
         },
         {
           "key": "websocket",
-          "details": "details : Version: 2.11.5 Build Date: 2026-06-04.1737.7d0993d\nhandshake : HTTP/1.1 101 Switching Protocols\nframe : HELLO 2.11 (2.11.5) 2026-06-04.1737.7d0993d\naddress : 125.164.215.24",
+          "details": "details : Version: 2.11.5 Build Date: 2026-06-04.1737.7d0993d\nhandshake : HTTP/1.1 101 Switching Protocols\ntransport : ws / plain TCP\nframe : HELLO 2.11 (2.11.5) 2026-06-04.1737.7d0993d\naddress : 127.0.0.1",
           "status": "PASSED"
         },
         {
           "key": "crossdomain",
-          "details": "details : count : 1\ndomains : *\nto-ports : 5060,8080\nhttp_status : 200",
+          "details": "details : count : 1\ndomains : *\nto-ports : 8080\nhttp_status : 200",
           "status": "PASSED"
         },
         {
           "key": "https",
-          "details": "details : Response: \nError: SSL certificate problem: self-signed certificate\ntip: Connection over HTTPS failed.\ncertificate : subject: countryName=US, organizationName=OoklaServer, commonName=localhost; issuer: countryName=US, organizationName=OoklaServer, commonName=localhost; notBefore: Nov  2 18:28:03 2026 GMT; notAfter: Nov  1 18:28:03 2028 GMT\ninsecure_response : hello 2.11 (2.11.5) 2026-06-04.1737.7d0993d\nnote: Ookla validates the public CA chain; a self-signed certificate is rejected.",
-          "status": "FAILED"
+          "details": "details : Response: hello 2.11 (2.11.5) 2026-06-04.1737.7d0993d\nstatus_line : HTTP/1.1 200 OK\ncertificate : verified (CA bundle: /home/user/repo/arena.ai/lab/certs/ca.crt)",
+          "status": "PASSED"
         }
       ]
     },
     {
       "title": "HTTP LEGACY FALLBACK",
-      "url": "http://host.yapsidarussalam.or.id/speedtest/upload.php",
+      "url": "http://127.0.0.1:8080/speedtest/upload.php",
       "rows": [
         {
           "key": "crossdomain",
-          "details": "details : count : 0\ndomains : (none)\ncrossdomain_url : http://host.yapsidarussalam.or.id/crossdomain.xml\nhttp_status : 404\nmissing : *.speedtest.net, *.ookla.com\nresponse : HTTP/1.1 404 Not Found Date: Mon, 02 Nov 2026 18:36:03 GMT Content-Length: 99 Content-Type: text/html Connection: close Cache-Control: no-store <!doctype html>\n<html lang=en>\n<title>Error 404 : Not Found</title>\n<h1>Error 404 : Not Found</h1>",
-          "status": "FAILED"
+          "details": "details : count : 1\ndomains : *\nto-ports : 8080\ncrossdomain_url : http://127.0.0.1:8080/crossdomain.xml\nhttp_status : 200",
+          "status": "PASSED"
         },
         {
           "key": "latency",
-          "details": "details : <!doctype html>\n<html lang=en>\n<title>Error 404 : Not Found</title>\n<h1>Error 404 : Not Found</h1>\nlatency_url : http://host.yapsidarussalam.or.id/speedtest/latency.txt\nhttp_status : 404\nresponse : HTTP/1.1 404 Not Found Date: Mon, 02 Nov 2026 18:36:03 GMT Content-Length: 99 Content-Type: text/html Connection: close Cache-Control: no-store <!doctype html>\n<html lang=en>\n<title>Error 404 : Not Found</title>\n<h1>Error 404 : Not Found</h1>",
-          "status": "FAILED"
+          "details": "details : test=test\nlatency_url : http://127.0.0.1:8080/speedtest/latency.txt\nhttp_status : 200\nresponse : HTTP/1.1 200 OK Date: Wed, 04 Nov 2026 06:16:14 GMT Content-Length: 10 Content-Type: text/plain; charset=UTF-8 Connection: Close Cache-Control: no-store test=test",
+          "status": "PASSED"
         },
         {
           "key": "upload",
-          "details": "details : HTTP/1.1 501 Not Implemented Date: Mon, 02 Nov 2026 18:36:04 GMT Content-Length: 111 Content-Type: text/html Connection: close Cache-Control: no-store <!doctype html>\n<html lang=en>\n<title>Error 501 : Not Implemented</title>\n<h1>Error 501 : Not Implemented</h1>\nexpected : size=516300\nactual : <!doctype html>\n<html lang=en>\n<title>Error 501 : Not Implemented</title>\n<h1>Error 501 : Not Implemented</h1>",
-          "status": "FAILED"
+          "details": "details : HTTP/1.1 200 OK Date: Wed, 04 Nov 2026 06:16:14 GMT Content-Length: 12 Content-Type: text/plain; charset=UTF-8 Connection: Close Cache-Control: no-store size=515798\nexpected : size=516300 (legacy PHP)\nnative_expected : size=515798 (raw Content-Length)\nactual : size=515798\ndetected_mode : native-daemon\nupload_mode : auto\nlegacy_port : 8080\nbody_length : 515798",
+          "status": "PASSED"
         },
         {
           "key": "max_upload",
-          "details": "details : Connection closed while sending the 1981500-byte POST\nerror : [Errno 32] Broken pipe\nexpected : size=1981500\nactual : (no response)\nsuccess : FAILED",
-          "status": "FAILED"
+          "details": "details : HTTP/1.1 200 OK Date: Wed, 04 Nov 2026 06:16:14 GMT Content-Length: 13 Content-Type: text/plain; charset=UTF-8 Connection: Close Cache-Control: no-store size=1980998\nexpected : size=1981500 (legacy PHP)\nnative_expected : size=1980998 (raw Content-Length)\nactual : size=1980998\ndetected_mode : native-daemon\nupload_mode : auto\nlegacy_port : 8080\nbody_length : 1980998\nsuccess : PASSED",
+          "status": "PASSED"
         },
         {
           "key": "image_sizes",
-          "details": "details : 10 download image files checked against the official http_legacy_fallback.zip byte sizes",
-          "status": "FAILED",
+          "details": "details : 10 download image files checked against the official http_legacy_fallback.zip byte sizes\nlegacy_port : 8080",
+          "status": "PASSED",
           "subrows": [
             {
               "key": "1",
-              "details": "details : File size mismatch\nsize : 99\nexpected : 245388\nfile : random350x350.jpg\nhttp_status : 404",
-              "status": "FAILED"
+              "details": "details : File size matches\nsize : 245388\nexpected : 245388\nfile : random350x350.jpg\nhttp_status : 200",
+              "status": "PASSED"
             },
             {
               "key": "2",
-              "details": "details : File size mismatch\nsize : 99\nexpected : 505544\nfile : random500x500.jpg\nhttp_status : 404",
-              "status": "FAILED"
+              "details": "details : File size matches\nsize : 505544\nexpected : 505544\nfile : random500x500.jpg\nhttp_status : 200",
+              "status": "PASSED"
             },
             {
               "key": "3",
-              "details": "details : File size mismatch\nsize : 99\nexpected : 1118012\nfile : random750x750.jpg\nhttp_status : 404",
-              "status": "FAILED"
+              "details": "details : File size matches\nsize : 1118012\nexpected : 1118012\nfile : random750x750.jpg\nhttp_status : 200",
+              "status": "PASSED"
             },
             {
               "key": "4",
-              "details": "details : File size mismatch\nsize : 99\nexpected : 1986284\nfile : random1000x1000.jpg\nhttp_status : 404",
-              "status": "FAILED"
+              "details": "details : File size matches\nsize : 1986284\nexpected : 1986284\nfile : random1000x1000.jpg\nhttp_status : 200",
+              "status": "PASSED"
             },
             {
               "key": "5",
-              "details": "details : File size mismatch\nsize : 99\nexpected : 4468241\nfile : random1500x1500.jpg\nhttp_status : 404",
-              "status": "FAILED"
+              "details": "details : File size matches\nsize : 4468241\nexpected : 4468241\nfile : random1500x1500.jpg\nhttp_status : 200",
+              "status": "PASSED"
             },
             {
               "key": "6",
-              "details": "details : File size mismatch\nsize : 99\nexpected : 7907740\nfile : random2000x2000.jpg\nhttp_status : 404",
-              "status": "FAILED"
+              "details": "details : File size matches\nsize : 7907740\nexpected : 7907740\nfile : random2000x2000.jpg\nhttp_status : 200",
+              "status": "PASSED"
             },
             {
               "key": "7",
-              "details": "details : File size mismatch\nsize : 99\nexpected : 12407926\nfile : random2500x2500.jpg\nhttp_status : 404",
-              "status": "FAILED"
+              "details": "details : File size matches\nsize : 12407926\nexpected : 12407926\nfile : random2500x2500.jpg\nhttp_status : 200",
+              "status": "PASSED"
             },
             {
               "key": "8",
-              "details": "details : File size mismatch\nsize : 99\nexpected : 17816816\nfile : random3000x3000.jpg\nhttp_status : 404",
-              "status": "FAILED"
+              "details": "details : File size matches\nsize : 17816816\nexpected : 17816816\nfile : random3000x3000.jpg\nhttp_status : 200",
+              "status": "PASSED"
             },
             {
               "key": "9",
-              "details": "details : File size mismatch\nsize : 99\nexpected : 24262167\nfile : random3500x3500.jpg\nhttp_status : 404",
-              "status": "FAILED"
+              "details": "details : File size matches\nsize : 24262167\nexpected : 24262167\nfile : random3500x3500.jpg\nhttp_status : 200",
+              "status": "PASSED"
             },
             {
               "key": "10",
-              "details": "details : File size mismatch\nsize : 99\nexpected : 31625365\nfile : random4000x4000.jpg\nhttp_status : 404",
-              "status": "FAILED"
+              "details": "details : File size matches\nsize : 31625365\nexpected : 31625365\nfile : random4000x4000.jpg\nhttp_status : 200",
+              "status": "PASSED"
             }
           ]
         },
         {
           "key": "keepalive",
-          "details": "details : Subsequent connections established quickly\nfirst : HTTP/1.1 404 Not Found\nsecond : HTTP/1.1 404 Not Found\nconnection_header : keep-alive / keep-alive\nreused_socket : yes\nsecond_request_ms : 181.0\naddress : 125.164.215.24",
+          "details": "details : Subsequent connections established quickly\nfirst : HTTP/1.1 200 OK\nsecond : HTTP/1.1 200 OK\nconnection_header : keep-alive / keep-alive\nreused_socket : yes\nsecond_request_ms : 0.3\naddress : 127.0.0.1",
           "status": "PASSED"
         }
       ]
     }
   ],
   "summary": {
-    "passed": 4,
-    "failed": 15,
+    "passed": 19,
+    "failed": 0,
     "total": 19
   },
-  "allow_private": false,
+  "allow_private": true,
   "runner_note": "Checks are executed from this sandbox, not from Ookla's regional watchdog servers.",
-  "normalized_input": "host.yapsidarussalam.or.id:8080",
-  "normalization_note": null
+  "cross_validation_note": "Endpoint semantics verified against official OoklaServer 2.11.5.2 and official Speedtest CLI 1.2.0.84 on localhost:8080."
 }

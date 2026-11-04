@@ -23,7 +23,7 @@ from pathlib import Path
 
 from app import detect_scheme, format_text, normalize_target, run_all_tests
 
-VERSION = "1.2.0"
+VERSION = "1.3.0"
 
 
 class Colors:
@@ -68,7 +68,10 @@ Advanced options (verified against official OoklaServer + official Speedtest CLI
   --upload-mode MODE     legacy | native | auto (default: auto).
                          legacy = PHP 500+len(key)+len(value)+3
                          native = daemon raw Content-Length
-  --daemon-tls           use TLS for NetGauge/WebSocket/crossdomain daemon checks.
+  --daemon-tls           force TLS for NetGauge/WebSocket/crossdomain checks.
+  --no-daemon-tls        force plain TCP for those checks.
+                         (default: auto -- an https:// target is probed over TLS)
+  --timeout SECONDS      global budget for the whole run (default: 180).
 
 Exit codes:
   0  all checks passed
@@ -90,8 +93,12 @@ Exit codes:
                    help="port for the HTTP legacy fallback (default: 80)")
     p.add_argument("--upload-mode", choices=("auto", "legacy", "native"), default="auto",
                    help="upload size algorithm: auto, legacy PHP, or native daemon (default: auto)")
-    p.add_argument("--daemon-tls", action="store_true",
-                   help="use TLS for NetGauge/WebSocket/crossdomain daemon checks")
+    p.add_argument("--daemon-tls", dest="daemon_tls", action="store_true", default=None,
+                   help="force TLS for NetGauge/WebSocket/crossdomain daemon checks")
+    p.add_argument("--no-daemon-tls", dest="daemon_tls", action="store_false",
+                   help="force plain TCP for NetGauge/WebSocket/crossdomain daemon checks")
+    p.add_argument("--timeout", type=float, default=180.0, metavar="SECONDS",
+                   help="global budget for the whole run (default: 180)")
     p.add_argument("--no-color", action="store_true", help="disable ANSI colors")
     p.add_argument("-q", "--quiet", action="store_true", help="do not print progress to stderr")
     p.add_argument("--version", action="version", version=f"host-tester {VERSION}")
@@ -105,6 +112,9 @@ def main(argv=None):
         return 2
     if not (1 <= args.legacy_port <= 65535):
         print("error: --legacy-port must be between 1 and 65535", file=sys.stderr)
+        return 2
+    if args.timeout <= 0:
+        print("error: --timeout must be greater than zero", file=sys.stderr)
         return 2
 
     try:
@@ -120,13 +130,17 @@ def main(argv=None):
         print(f"Testing {target} …", file=sys.stderr, flush=True)
 
     try:
+        # The ORIGINAL input is passed on purpose: its scheme decides whether
+        # the daemon checks run over TLS or plain TCP.
         data = run_all_tests(
-            target,
+            args.target,
             allow_private=args.allow_private,
             ca_bundle=args.ca_bundle,
             legacy_port=args.legacy_port,
             upload_mode=args.upload_mode,
             daemon_tls=args.daemon_tls,
+            timeout=args.timeout,
+            default_port=args.port,
         )
         data["input"] = args.target
         # run_all_tests receives the normalized target (so -p/--port is kept);
